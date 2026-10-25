@@ -1,7 +1,7 @@
 /* Платформа «Цифровая география». Service Worker: core shell + opt-in works. */
-const VERSION='geo-core-2026-10-v3';
+const VERSION='geo-core-2026-10-v4';
 const CORE=`${VERSION}-shell`;
-const WORKS='geo-offline-works-v3';
+const WORKS='geo-offline-works-v4';
 const BASE=new URL(self.registration.scope);
 const coreFiles=['./','index.html','offline.html','manifest.webmanifest','assets/styles.css','assets/app.js','assets/pwa.js','assets/favicon.svg','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/icon-maskable-512.png'];
 const inScope=(url)=>url.origin===self.location.origin && url.pathname.startsWith(BASE.pathname);
@@ -18,7 +18,7 @@ self.addEventListener('activate',event=>{
     // Preserve pupils' opt-in offline download while upgrading its HTML.
     // Fetch a fresh mobile layout when online; fall back to the old cached
     // HTML rather than making the work disappear if the network drops.
-    const priorWorks=['geo-offline-works-v2','geo-offline-works-v1'];
+    const priorWorks=['geo-offline-works-v3','geo-offline-works-v2','geo-offline-works-v1'];
     let previous=null;
     for(const name of priorWorks){
       if(!names.includes(name))continue;
