@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Reserve the original Cloudflare Pages deployment as the primary site.
+# A second independent Netlify origin can serve as a mirror for regions
+# where pages.dev or Cloudflare IP ranges are unreachable.
