@@ -1407,7 +1407,7 @@ function fit(ctx,value,width,size=21,bold=false){
  return str+'…';
 }
 function round(ctx,x,y,w,h,r,fill,stroke=null){
- ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=fill;ctx.fill();
+ ctx.beginPath();if(typeof ctx.roundRect==='function')ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h);ctx.fillStyle=fill;ctx.fill();
  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke()}
 }
 function pageHead(ctx,r,t,index){
@@ -1474,7 +1474,8 @@ function firstPage(r,t){
   txt(ctx,row.month,col[0],yy+39,21,pal.navy,true);
   ['rain','temp','wind'].forEach((k,j)=>{
    const value=row.values[k];const wrong=row.errors[k];
-   txt(ctx,fit(ctx,value,j===2?260:230,22,wrong),col[j+1],yy+39,22,wrong?pal.red:pal.navy,wrong);
+   txt(ctx,fit(ctx,value,j===2?260:230,21,wrong),col[j+1],yy+(wrong?29:39),21,wrong?pal.red:pal.navy,wrong);
+   if(wrong){const error=r.chartErrors.find(e=>e.month===i&&e.kind===k);if(error)txt(ctx,fit(ctx,'→ '+error.correct,j===2?260:230,16,true),col[j+1],yy+53,16,pal.red,true);}
   });
   txt(ctx,bad?t.wrong:t.correct,col[4],yy+39,20,bad?pal.red:pal.green,bad);
   ctx.fillStyle=pal.line;ctx.fillRect(PAD,yy+61,W-2*PAD,1);
