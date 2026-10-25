@@ -1270,12 +1270,13 @@ window.Meteolab.getReportData=()=>{
  });
  const readings=MONTH[lang].map((month,i)=>({month,idx:i,
   values:{rain:fmt('rain',state.values[i].rain),temp:fmt('temp',state.values[i].temp),wind:fmt('wind',state.values[i].wind)},
+  raw:{rain:state.values[i].rain,temp:state.values[i].temp,wind:state.values[i].wind},
   errors:{rain:chart.some(e=>e.month===i&&e.kind==='rain'),temp:chart.some(e=>e.month===i&&e.kind==='temp'),wind:chart.some(e=>e.month===i&&e.kind==='wind')}
  }));
  const mistakes=chart.length+state.answerErrors.length;
  return {lang,cityName:CITY[city].name[lang],coords:CITY[city].coords,checked:state.checked&&state.answersChecked,
   date:new Date().toLocaleDateString(lang==='be'?'be-BY':lang==='ru'?'ru-RU':'en-GB'),
-  readings,chartErrors:chart,tasks,chartCount:36,taskCount:FIELDS.length,mistakes,
+  readings,bounds:{pMax,tMin,tMax},chartErrors:chart,tasks,chartCount:36,taskCount:FIELDS.length,mistakes,
   accuracy:Math.round(100*(36+FIELDS.length-mistakes)/(36+FIELDS.length))};
 };
 })();
