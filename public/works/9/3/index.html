@@ -1474,8 +1474,7 @@ function firstPage(r,t){
   txt(ctx,row.month,col[0],yy+39,21,pal.navy,true);
   ['rain','temp','wind'].forEach((k,j)=>{
    const value=row.values[k];const wrong=row.errors[k];
-   txt(ctx,fit(ctx,value,j===2?260:230,21,wrong),col[j+1],yy+(wrong?29:39),21,wrong?pal.red:pal.navy,wrong);
-   if(wrong){const error=r.chartErrors.find(e=>e.month===i&&e.kind===k);if(error)txt(ctx,fit(ctx,'→ '+error.correct,j===2?260:230,16,true),col[j+1],yy+53,16,pal.red,true);}
+   txt(ctx,fit(ctx,value,j===2?260:230,21,wrong),col[j+1],yy+39,21,wrong?pal.red:pal.navy,wrong);
   });
   txt(ctx,bad?t.wrong:t.correct,col[4],yy+39,20,bad?pal.red:pal.green,bad);
   ctx.fillStyle=pal.line;ctx.fillRect(PAD,yy+61,W-2*PAD,1);
@@ -1494,8 +1493,7 @@ function secondPage(r,t){
   txt(ctx,row.number||'-',PAD+39,y+41,22,bad?pal.red:pal.teal,true,'center');
   txt(ctx,fit(ctx,row.label+' · '+row.question,785,21,true),PAD+77,y+35,21,pal.navy,true);
   txt(ctx,fit(ctx,row.actual,550,23,bad),PAD+77,y+70,23,bad?pal.red:pal.navy,bad);
-  if(bad)txt(ctx,fit(ctx,t.right+': '+row.correct,535,19,true),W-PAD-16,y+70,19,pal.red,true,'right');
-  else txt(ctx,t.correct,W-PAD-22,y+66,21,pal.green,true,'right');
+  if(!bad)txt(ctx,t.correct,W-PAD-22,y+66,21,pal.green,true,'right');
  });
  const y=1710;round(ctx,PAD,y,W-2*PAD,181,18,pal.soft);
  txt(ctx,t.total,PAD+29,y+51,31,pal.navy,true);
