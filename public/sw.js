@@ -1,7 +1,7 @@
 /* Платформа «Цифровая география». Service Worker: core shell + opt-in works. */
-const VERSION='geo-core-2026-10-v2';
+const VERSION='geo-core-2026-10-v3';
 const CORE=`${VERSION}-shell`;
-const WORKS='geo-offline-works-v2';
+const WORKS='geo-offline-works-v3';
 const BASE=new URL(self.registration.scope);
 const coreFiles=['./','index.html','offline.html','manifest.webmanifest','assets/styles.css','assets/app.js','assets/pwa.js','assets/favicon.svg','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/icon-maskable-512.png'];
 const inScope=(url)=>url.origin===self.location.origin && url.pathname.startsWith(BASE.pathname);
@@ -15,18 +15,26 @@ self.addEventListener('activate',event=>{
   event.waitUntil((async()=>{
     const names=await caches.keys();
     await Promise.all(names.filter(n=>n.startsWith('geo-core-')&&n!==CORE).map(n=>caches.delete(n)));
-    // Replace previously downloaded exercises with the fresh clean-start edition.
-    // Never keep an old exercise that could restore a previous pupil's answers.
-    if(names.includes('geo-offline-works-v1')){
-      const old=await caches.open('geo-offline-works-v1');
-      if(await old.match(workURL)){
-        try{
-          const fresh=await fetch(workURL,{cache:'reload'});
-          if(fresh.ok)await (await caches.open(WORKS)).put(workURL,fresh.clone());
-        }catch(e){ /* User can re-download when online. */ }
-      }
-      await caches.delete('geo-offline-works-v1');
+    // Preserve pupils' opt-in offline download while upgrading its HTML.
+    // Fetch a fresh mobile layout when online; fall back to the old cached
+    // HTML rather than making the work disappear if the network drops.
+    const priorWorks=['geo-offline-works-v2','geo-offline-works-v1'];
+    let previous=null;
+    for(const name of priorWorks){
+      if(!names.includes(name))continue;
+      const old=await caches.open(name);
+      previous=await old.match(workURL);
+      if(previous)break;
     }
+    if(previous){
+      let replacement=previous;
+      try{
+        const fresh=await fetch(workURL,{cache:'reload'});
+        if(fresh.ok)replacement=fresh;
+      }catch(e){ /* Keep the downloaded work for offline access. */ }
+      await (await caches.open(WORKS)).put(workURL,replacement.clone());
+    }
+    await Promise.all(priorWorks.filter(name=>names.includes(name)).map(name=>caches.delete(name)));
     await self.clients.claim();
   })());
 });
