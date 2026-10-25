@@ -183,6 +183,75 @@
 html[data-mode="dark"] .location-pill .location-country{color:#cfc3eb}
 @media(max-width:780px){.theme-dashboard .site-pill.location-pill{max-width:100%;padding:8px 12px 8px 8px;gap:9px}.location-pill .location-flag{width:43px;min-width:43px;height:29px}.location-pill .location-city{font-size:.87rem}.location-pill .location-country{font-size:.74rem}}
 
+
+/* ---------------------------------------------------------------
+  Compact Meteolab mobile workbench: identical exercises and assessments,
+  with one visible set of readings and controls next to the climograph.
+---------------------------------------------------------------- */
+@media(max-width:780px){
+  .layout{gap:9px}
+  .controls{padding:11px 12px}
+  .controls .panel-label[data-i18n="chooseMonth"]{margin-bottom:5px}
+  .controls .month-controls{margin:3px 0}
+  .controls .month-note{min-height:0;margin-bottom:0}
+  .workspace{padding:12px 12px 14px}
+  .workspace-head{gap:7px}
+  .workspace-head h2{margin:0;font-size:1.12rem}
+  .workspace-head .city-line{margin-top:3px}
+  .workspace .legend{margin:8px 0 6px;gap:9px;font-size:.72rem}
+  .workspace .legend .key{width:10px;height:10px}
+  .workspace .graph-instruction{display:none!important}
+  .workspace .instrument-short-help{font-size:.73rem;margin:1px 0 7px;line-height:1.35}
+  .workspace .panel-label[data-i18n="instrumentHeading"]{margin:7px 0 4px!important}
+  .workspace .instrument-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  .workspace .instrument{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;min-height:0;padding:8px 3px 7px;border-radius:12px;text-align:center}
+  .workspace .instrument .art{width:48px;height:48px;flex-shrink:0}
+  .workspace .inst-info{width:100%;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .workspace .inst-label{font-size:.7rem;line-height:1.1;font-weight:850}
+  .workspace .inst-caption,.workspace .placed-state{display:none!important}
+  .workspace .reading-chip{font-size:.79rem;min-height:33px;line-height:1;padding:6px 4px;width:auto;max-width:100%;font-weight:850}
+  .workspace .reading-chip small{display:none!important}
+  .workspace .instrument.active{box-shadow:0 0 0 2px var(--tool,#5a77bd) inset;background:var(--tool-bg,#f7f9fd)}
+  .mobile-builder{padding:10px;margin:7px 0 9px;border-radius:12px}
+  .mobile-tool-tabs,.mobile-builder-head,.mobile-reading-card,.mobile-status-line{display:none!important}
+  .mobile-current{display:none!important}
+  .mobile-control-area{gap:5px}
+  .mobile-control-area .mobile-range-wrap{gap:3px}
+  .mobile-range-wrap .panel-label{font-size:.7rem;font-weight:800}
+  .mobile-range{height:27px}
+  .mobile-range-scale{font-size:.7rem}
+  .mobile-stepper{grid-template-columns:44px 1fr 44px;gap:7px}
+  .mobile-stepper .round-btn{width:44px;height:43px;border-radius:10px}
+  .mobile-stepper .adjust-number{font-weight:900;font-size:1.04rem}
+  .mobile-actions{grid-template-columns:1.25fr 1fr;gap:7px;margin-top:9px}
+  .mobile-actions .primary-btn,.mobile-actions .subtle-btn{font-size:.81rem;min-height:44px;line-height:1.17;padding:8px 6px}
+  .control-strip{display:none!important}
+  .graph-scroll{margin-top:2px}
+  .scroll-hint{margin:5px 0 5px;font-size:.74rem}
+  .mobile-guide{border:1px solid var(--line,#d8e2ea);border-radius:12px;background:var(--paper,#fff);padding:0 12px;margin:0 0 10px}
+  .mobile-guide>summary{list-style:none;cursor:pointer;padding:10px 0;font-size:.82rem;font-weight:850;display:flex;justify-content:space-between;align-items:center}
+  .mobile-guide>summary::-webkit-details-marker{display:none}
+  .mobile-guide>summary::after{content:'⌄';font-size:1.15rem;line-height:1}
+  .mobile-guide[open]>summary::after{content:'⌃'}
+  .mobile-guide .instructions{display:none!important}
+  .mobile-guide-copy{font-size:.81rem;line-height:1.48;padding:0 0 10px}
+  .mobile-guide-copy p{margin:5px 0 9px}
+  .mobile-guide .tool-help{margin:0}
+  .mobile-guide .tool-help b{display:none}
+  .mobile-guide .tool-help p{font-size:.8rem;line-height:1.45;margin:3px 0 7px}
+  .mobile-guide .tool-help .circle{display:none}
+  .workspace .buttons-row{margin:10px 0;justify-content:center;flex-wrap:wrap}
+  .workspace .buttons-row button{font-size:.73rem;padding:8px 9px}
+}
+@media(max-width:420px){
+  .mobile-actions{grid-template-columns:1.2fr 1fr}
+  .masthead .logo{min-width:0;gap:8px}
+  .masthead .logo>div:last-child{min-width:0}
+  .masthead .logo h1{font-size:1.24rem;overflow-wrap:anywhere}
+  .masthead .logo-icon{width:42px;height:42px;flex-shrink:0}
+  .workspace .instrument .art{height:43px;width:43px}
+}
+
 </style><style id="design-theme">/* 04 · Цифровая география */
 html[data-mode="light"]{--theme-bg:#f1effc;--theme-ink:#000000;--theme-muted:#000000;--theme-paper:#ffffff;--theme-line:#e0dcf0;--theme-aqua:#654cce;--theme-soft:#f0edff;--theme-shadow:0 12px 36px #39266b15;--theme-highlight:#ef6c85;--theme-graph:#fff;--theme-grid:#dfdced;--theme-axis:#000000;--theme-rain:#8f9ee7;--theme-barstroke:#6156b2;--theme-charttext:#514c95;--theme-ctl:#f4f2fc;--theme-card:#f9f8fe;--theme-heading:#7457db;color-scheme:light;}
 html[data-mode="dark"]{--theme-bg:#120e25;--theme-ink:#f2ecff;--theme-muted:#b1a9d2;--theme-paper:#251b42;--theme-line:#483a6b;--theme-aqua:#ba9dff;--theme-soft:#332750;--theme-shadow:0 12px 45px #030008b3;--theme-highlight:#ff839f;--theme-graph:#1b1732;--theme-grid:#4b456a;--theme-axis:#dfd6f7;--theme-rain:#6e80cf;--theme-barstroke:#b2b5ff;--theme-charttext:#e9e4ff;--theme-ctl:#2d244b;--theme-card:#30254f;--theme-heading:#cbafff;color-scheme:dark;}
@@ -830,15 +899,15 @@ be:{
   "mobileSliderRain": "Паўзунок ападкаў",
   "mobileSliderTemp": "Паўзунок тэмпературы",
   "mobileWindSelect": "Напрамак ветру",
-  "mobilePlace": "Паставіць на кліматаграму",
+  "mobilePlace": "Дадаць на графік",
   "mobileNextMonth": "Наступны месяц",
   "mobileStatus": "{month}: размешчана {filled} з 3 паказанняў.",
   "mobileMonthDone": "Месяц {month} цалкам запоўнены.",
-  "mobileReadyForPlace": "Націсні «Паставіць на кліматаграму».",
+  "mobileReadyForPlace": "Націсні «Дадаць на графік».",
 "variable": "Пераменны"
 },
-ru:{overline:'Виртуальная метеоплощадка · География',title:'Собери климатограмму',subtitle:'Задание 1: построй климатограмму. Задания 2–10: проанализируй её. Вся работа проверяется в конце.',progressTitle:'Прогресс заполнения',chooseCity:'Город для исследования',chooseLanguage:'Язык / Language',normalsNote:'Климатические нормы за 1991–2020 гг. · Многолетние среднемесячные значения',chooseMonth:'Месяц исследования',instrumentHeading:'Приборы и показания',instrumentShortHelp:'Выбери прибор и помести значение его показателя на климатограмму',rainGauge:'Осадкомер',rainCaption:'Месячная сумма осадков',thermometer:'Термометр',tempCaption:'Средняя температура за месяц',vane:'Флюгер',windCaption:'Откуда преимущественно дует ветер',placed:'✓ На графике',placedWind:'✓ В колонке осадков',howTo:'Как работать',instruction1:'Выбери месяц и перетащи показание прибора в подсвеченную колонку. Осадки — столбец по правой шкале, температура — точка по левой шкале. Стрелку флюгера помести на столбец осадков.',instruction2:'Можно нажать на показатель, затем на график. Точность подстраивается кнопками − / +. При попадании рядом с верной отметкой включается привязка к шкале.',clearMonth:'↺ Очистить месяц',clearAll:'Сбросить год',practical:'Интерактивная практическая работа',graphTitle:'Задание 1. Построй климатограмму',legendRain:'Осадки, мм — столбцы',legendTemp:'Температура, °C — линия',legendWind:'Направление ветра — стрелка',scrollHint:'↔ На узком экране график прокручивается. Касание заменяет перенос.',check:'К заданиям 2–10 ↓',successTitle:'✓ Задание 1 выполнено!',successText:'Теперь переходи к заданиям 2–10 ниже.',sourceLabel:'Источники данных:',tempSourceLabel:'Температура и осадки',windSourceLabel:'Направления ветра',footnote:'Направление указывается ОТКУДА дует ветер.',windSourceNote:'Внимание: для некоторых городов ветер задан по сезонно преобладающему сектору, а не по 12 независимым таблицам повторяемости; «Пер.» — переменное направление в межмуссонный период.',checkIncomplete:'Сначала заполни 36 показаний.',checkEmpty:'Климатограмма ещё не заполнена',checkReady:'Климатограмма заполнена — задания 2–10 доступны',checkSolved:'Вся работа проверена ✓',monthsFilled:'Полностью заполнено месяцев: {n} из 12',arrowStep:'Поворот на 45°',step:'Шаг: {n}',startWith:'Сначала перенеси показание',adjustRain:'Высота столбца осадков:',adjustTemp:'Положение точки температуры:',adjustWind:'Направление стрелки флюгера:',hintRain:'💧 Осадки: установи высоту столбца по правой шкале (мм).',hintTemp:'🌡️ Температура: установи точку по левой шкале (°C).',hintWind:'🧭 Флюгер: помести стрелку в уже построенный столбец осадков.',tempAxis:'ТЕМПЕРАТУРА, °C',rainAxis:'ОСАДКИ, мм',yearAxis:'МЕСЯЦЫ ГОДА',sitePill:'📍 Одна площадка · {name}',weatherStation:'Пункт: {name}',doneHint:'Правильность всех десяти заданий проверяется в конце работы.',noFull:'Нужно закончить 12 месяцев',errors:'Найдено ошибок: {n}. Красные пульсирующие элементы нужно исправить.',errorsMonths:'Месяцы с ошибками: {names}.',fixed:'Ошибки устранены! Нажми «Проверить» ещё раз.',great:'Отлично! Все 36 показаний верны.',outGraph:'Помести показатель внутри поля климатограммы.',wrongMonth:'Выбран месяц {month}. Перенеси значение в подсвеченный столбец.',firstRain:'Сначала построй столбец осадков.',insideBar:'Размести стрелку внутри столбца осадков.',range:'Выбери положение в пределах графика.',placedWindMessage:'Стрелка размещена на столбце осадков.',confirmMonth:'Удалить три показания за {month}?',confirmYear:'Очистить все 36 показаний для этого города?',observation:'Показание: {x}',langInfo:'Язык интерфейса: Русский',sourceMethod:'Методика: {s}',frequency:'ветер по максимальной частоте из 8 румбов',model:'средний преобладающий поток по ERA5-Land',seasonal:'приближённый месячный сектор по сезонной характеристике; не отдельная норма',mobileModeTitle:'Мобильный режим построения',mobileModeLead:'На смартфоне можно выбирать показание и ставить его на климатограмму крупными элементами управления, без точного касания графика.',mobileReadingLabel:'Текущее показание прибора',mobileReadingHint:'Сначала выбери осадки, температуру или ветер, затем установи значение и нажми кнопку ниже.',mobileDraftValue:'Устанавливаемое значение',mobileSliderRain:'Ползунок осадков',mobileSliderTemp:'Ползунок температуры',mobileWindSelect:'Направление ветра',mobilePlace:'Поставить на климатограмму',mobileNextMonth:'Следующий месяц',mobileStatus:'{month}: размещено {filled} из 3 показаний.',mobileMonthDone:'Месяц {month} полностью заполнен.',mobileReadyForPlace:'Нажми «Поставить на климатограмму».',variable:'Переменный'},
-en:{overline:'Virtual weather station · Geography',title:'Build a Climograph',subtitle:'Task 1: build a climograph. Tasks 2–10: analyze it. Check the entire work at the end.',progressTitle:'Completion progress',chooseCity:'City to explore',chooseLanguage:'Language / Язык',normalsNote:'1991–2020 climate normals · Long-term monthly averages',chooseMonth:'Observation month',instrumentHeading:'Instruments and readings',instrumentShortHelp:'Choose an instrument and place its reading on the climograph',rainGauge:'Rain gauge',rainCaption:'Monthly precipitation total',thermometer:'Thermometer',tempCaption:'Mean monthly air temperature',vane:'Weather vane',windCaption:'Prevailing wind comes FROM',placed:'✓ On the graph',placedWind:'✓ Inside precipitation bar',howTo:'How it works',instruction1:'Choose a month, then drag an instrument reading to the highlighted column. Plot rainfall as a bar using the right axis and temperature as a point using the left axis. Place the wind arrow on the rainfall bar.',instruction2:'Alternatively tap a reading and then the graph. Fine-tune using − / +. Values snap to the reading when you are close enough.',clearMonth:'↺ Clear month',clearAll:'Reset year',practical:'Interactive geography lab',graphTitle:'Task 1. Build a climograph',legendRain:'Rainfall, mm — bars',legendTemp:'Temperature, °C — line',legendWind:'Wind direction — arrows',scrollHint:'↔ The chart scrolls horizontally on small screens. Tap instead of dragging.',check:'Go to tasks 2–10 ↓',successTitle:'✓ Task 1 completed!',successText:'Now complete tasks 2–10 below.',sourceLabel:'Data sources:',tempSourceLabel:'Temperature & rainfall',windSourceLabel:'Wind direction',footnote:'Wind direction indicates where the wind blows FROM.',windSourceNote:'Note: for some cities, winds are represented by the seasonally prevailing sector, not independent month-by-month frequency tables; “Var.” means variable direction during an inter-monsoon period.',checkIncomplete:'Place all 36 measurements first.',checkEmpty:'Climograph is not complete',checkReady:'Climograph filled — tasks 2–10 available',checkSolved:'Entire work checked ✓',monthsFilled:'Months complete: {n} of 12',arrowStep:'Rotate by 45°',step:'Step: {n}',startWith:'Place the reading first',adjustRain:'Rainfall bar height:',adjustTemp:'Temperature point position:',adjustWind:'Weather-vane arrow direction:',hintRain:'💧 Rain gauge: set bar height using the right axis (mm).',hintTemp:'🌡️ Thermometer: plot the point using the left axis (°C).',hintWind:'🧭 Weather vane: put the arrow on an existing rainfall bar.',tempAxis:'TEMPERATURE, °C',rainAxis:'PRECIPITATION, mm',yearAxis:'MONTHS OF THE YEAR',sitePill:'📍 Single site · {name}',weatherStation:'Station: {name}',doneHint:'Correctness of all ten tasks is checked only at the end.',noFull:'Complete all 12 months',errors:'Incorrect readings: {n}. Fix the red pulsing elements.',errorsMonths:'Months with errors: {names}.',fixed:'No errors remain! Press “Check” again.',great:'Excellent! All 36 readings are correct.',outGraph:'Drop the reading inside the chart area.',wrongMonth:'Selected month: {month}. Use the highlighted column.',firstRain:'Plot the rainfall bar first.',insideBar:'Put the arrow inside the rainfall bar.',range:'Choose a position inside the chart.',placedWindMessage:'Wind arrow placed in rainfall bar.',confirmMonth:'Clear all three readings for {month}?',confirmYear:'Clear all 36 readings for this city?',observation:'Reading: {x}',langInfo:'Interface language: English',sourceMethod:'Method: {s}',frequency:'most frequent of eight compass directions',model:'mean prevailing flow from ERA5-Land',seasonal:'approximate monthly sector from seasonal description; not a separately measured normal',mobileModeTitle:'Mobile build mode',mobileModeLead:'On a phone you can choose a reading and place it on the climograph using large controls instead of precise taps on the chart.',mobileReadingLabel:'Current instrument reading',mobileReadingHint:'Choose precipitation, temperature or wind, set the value, then press the button below.',mobileDraftValue:'Value to place',mobileSliderRain:'Rainfall slider',mobileSliderTemp:'Temperature slider',mobileWindSelect:'Wind direction',mobilePlace:'Place on the climograph',mobileNextMonth:'Next month',mobileStatus:'{month}: {filled} of 3 readings placed.',mobileMonthDone:'Month {month} is complete.',mobileReadyForPlace:'Press “Place on the climograph”.',variable:'Variable'}
+ru:{overline:'Виртуальная метеоплощадка · География',title:'Собери климатограмму',subtitle:'Задание 1: построй климатограмму. Задания 2–10: проанализируй её. Вся работа проверяется в конце.',progressTitle:'Прогресс заполнения',chooseCity:'Город для исследования',chooseLanguage:'Язык / Language',normalsNote:'Климатические нормы за 1991–2020 гг. · Многолетние среднемесячные значения',chooseMonth:'Месяц исследования',instrumentHeading:'Приборы и показания',instrumentShortHelp:'Выбери прибор и помести значение его показателя на климатограмму',rainGauge:'Осадкомер',rainCaption:'Месячная сумма осадков',thermometer:'Термометр',tempCaption:'Средняя температура за месяц',vane:'Флюгер',windCaption:'Откуда преимущественно дует ветер',placed:'✓ На графике',placedWind:'✓ В колонке осадков',howTo:'Как работать',instruction1:'Выбери месяц и перетащи показание прибора в подсвеченную колонку. Осадки — столбец по правой шкале, температура — точка по левой шкале. Стрелку флюгера помести на столбец осадков.',instruction2:'Можно нажать на показатель, затем на график. Точность подстраивается кнопками − / +. При попадании рядом с верной отметкой включается привязка к шкале.',clearMonth:'↺ Очистить месяц',clearAll:'Сбросить год',practical:'Интерактивная практическая работа',graphTitle:'Задание 1. Построй климатограмму',legendRain:'Осадки, мм — столбцы',legendTemp:'Температура, °C — линия',legendWind:'Направление ветра — стрелка',scrollHint:'↔ На узком экране график прокручивается. Касание заменяет перенос.',check:'К заданиям 2–10 ↓',successTitle:'✓ Задание 1 выполнено!',successText:'Теперь переходи к заданиям 2–10 ниже.',sourceLabel:'Источники данных:',tempSourceLabel:'Температура и осадки',windSourceLabel:'Направления ветра',footnote:'Направление указывается ОТКУДА дует ветер.',windSourceNote:'Внимание: для некоторых городов ветер задан по сезонно преобладающему сектору, а не по 12 независимым таблицам повторяемости; «Пер.» — переменное направление в межмуссонный период.',checkIncomplete:'Сначала заполни 36 показаний.',checkEmpty:'Климатограмма ещё не заполнена',checkReady:'Климатограмма заполнена — задания 2–10 доступны',checkSolved:'Вся работа проверена ✓',monthsFilled:'Полностью заполнено месяцев: {n} из 12',arrowStep:'Поворот на 45°',step:'Шаг: {n}',startWith:'Сначала перенеси показание',adjustRain:'Высота столбца осадков:',adjustTemp:'Положение точки температуры:',adjustWind:'Направление стрелки флюгера:',hintRain:'💧 Осадки: установи высоту столбца по правой шкале (мм).',hintTemp:'🌡️ Температура: установи точку по левой шкале (°C).',hintWind:'🧭 Флюгер: помести стрелку в уже построенный столбец осадков.',tempAxis:'ТЕМПЕРАТУРА, °C',rainAxis:'ОСАДКИ, мм',yearAxis:'МЕСЯЦЫ ГОДА',sitePill:'📍 Одна площадка · {name}',weatherStation:'Пункт: {name}',doneHint:'Правильность всех десяти заданий проверяется в конце работы.',noFull:'Нужно закончить 12 месяцев',errors:'Найдено ошибок: {n}. Красные пульсирующие элементы нужно исправить.',errorsMonths:'Месяцы с ошибками: {names}.',fixed:'Ошибки устранены! Нажми «Проверить» ещё раз.',great:'Отлично! Все 36 показаний верны.',outGraph:'Помести показатель внутри поля климатограммы.',wrongMonth:'Выбран месяц {month}. Перенеси значение в подсвеченный столбец.',firstRain:'Сначала построй столбец осадков.',insideBar:'Размести стрелку внутри столбца осадков.',range:'Выбери положение в пределах графика.',placedWindMessage:'Стрелка размещена на столбце осадков.',confirmMonth:'Удалить три показания за {month}?',confirmYear:'Очистить все 36 показаний для этого города?',observation:'Показание: {x}',langInfo:'Язык интерфейса: Русский',sourceMethod:'Методика: {s}',frequency:'ветер по максимальной частоте из 8 румбов',model:'средний преобладающий поток по ERA5-Land',seasonal:'приближённый месячный сектор по сезонной характеристике; не отдельная норма',mobileModeTitle:'Мобильный режим построения',mobileModeLead:'На смартфоне можно выбирать показание и ставить его на климатограмму крупными элементами управления, без точного касания графика.',mobileReadingLabel:'Текущее показание прибора',mobileReadingHint:'Сначала выбери осадки, температуру или ветер, затем установи значение и нажми кнопку ниже.',mobileDraftValue:'Устанавливаемое значение',mobileSliderRain:'Ползунок осадков',mobileSliderTemp:'Ползунок температуры',mobileWindSelect:'Направление ветра',mobilePlace:'Добавить на график',mobileNextMonth:'Следующий месяц',mobileStatus:'{month}: размещено {filled} из 3 показаний.',mobileMonthDone:'Месяц {month} полностью заполнен.',mobileReadyForPlace:'Нажми «Добавить на график».',variable:'Переменный'},
+en:{overline:'Virtual weather station · Geography',title:'Build a Climograph',subtitle:'Task 1: build a climograph. Tasks 2–10: analyze it. Check the entire work at the end.',progressTitle:'Completion progress',chooseCity:'City to explore',chooseLanguage:'Language / Язык',normalsNote:'1991–2020 climate normals · Long-term monthly averages',chooseMonth:'Observation month',instrumentHeading:'Instruments and readings',instrumentShortHelp:'Choose an instrument and place its reading on the climograph',rainGauge:'Rain gauge',rainCaption:'Monthly precipitation total',thermometer:'Thermometer',tempCaption:'Mean monthly air temperature',vane:'Weather vane',windCaption:'Prevailing wind comes FROM',placed:'✓ On the graph',placedWind:'✓ Inside precipitation bar',howTo:'How it works',instruction1:'Choose a month, then drag an instrument reading to the highlighted column. Plot rainfall as a bar using the right axis and temperature as a point using the left axis. Place the wind arrow on the rainfall bar.',instruction2:'Alternatively tap a reading and then the graph. Fine-tune using − / +. Values snap to the reading when you are close enough.',clearMonth:'↺ Clear month',clearAll:'Reset year',practical:'Interactive geography lab',graphTitle:'Task 1. Build a climograph',legendRain:'Rainfall, mm — bars',legendTemp:'Temperature, °C — line',legendWind:'Wind direction — arrows',scrollHint:'↔ The chart scrolls horizontally on small screens. Tap instead of dragging.',check:'Go to tasks 2–10 ↓',successTitle:'✓ Task 1 completed!',successText:'Now complete tasks 2–10 below.',sourceLabel:'Data sources:',tempSourceLabel:'Temperature & rainfall',windSourceLabel:'Wind direction',footnote:'Wind direction indicates where the wind blows FROM.',windSourceNote:'Note: for some cities, winds are represented by the seasonally prevailing sector, not independent month-by-month frequency tables; “Var.” means variable direction during an inter-monsoon period.',checkIncomplete:'Place all 36 measurements first.',checkEmpty:'Climograph is not complete',checkReady:'Climograph filled — tasks 2–10 available',checkSolved:'Entire work checked ✓',monthsFilled:'Months complete: {n} of 12',arrowStep:'Rotate by 45°',step:'Step: {n}',startWith:'Place the reading first',adjustRain:'Rainfall bar height:',adjustTemp:'Temperature point position:',adjustWind:'Weather-vane arrow direction:',hintRain:'💧 Rain gauge: set bar height using the right axis (mm).',hintTemp:'🌡️ Thermometer: plot the point using the left axis (°C).',hintWind:'🧭 Weather vane: put the arrow on an existing rainfall bar.',tempAxis:'TEMPERATURE, °C',rainAxis:'PRECIPITATION, mm',yearAxis:'MONTHS OF THE YEAR',sitePill:'📍 Single site · {name}',weatherStation:'Station: {name}',doneHint:'Correctness of all ten tasks is checked only at the end.',noFull:'Complete all 12 months',errors:'Incorrect readings: {n}. Fix the red pulsing elements.',errorsMonths:'Months with errors: {names}.',fixed:'No errors remain! Press “Check” again.',great:'Excellent! All 36 readings are correct.',outGraph:'Drop the reading inside the chart area.',wrongMonth:'Selected month: {month}. Use the highlighted column.',firstRain:'Plot the rainfall bar first.',insideBar:'Put the arrow inside the rainfall bar.',range:'Choose a position inside the chart.',placedWindMessage:'Wind arrow placed in rainfall bar.',confirmMonth:'Clear all three readings for {month}?',confirmYear:'Clear all 36 readings for this city?',observation:'Reading: {x}',langInfo:'Interface language: English',sourceMethod:'Method: {s}',frequency:'most frequent of eight compass directions',model:'mean prevailing flow from ERA5-Land',seasonal:'approximate monthly sector from seasonal description; not a separately measured normal',mobileModeTitle:'Mobile build mode',mobileModeLead:'On a phone you can choose a reading and place it on the climograph using large controls instead of precise taps on the chart.',mobileReadingLabel:'Current instrument reading',mobileReadingHint:'Choose precipitation, temperature or wind, set the value, then press the button below.',mobileDraftValue:'Value to place',mobileSliderRain:'Rainfall slider',mobileSliderTemp:'Temperature slider',mobileWindSelect:'Wind direction',mobilePlace:'Add to graph',mobileNextMonth:'Next month',mobileStatus:'{month}: {filled} of 3 readings placed.',mobileMonthDone:'Month {month} is complete.',mobileReadyForPlace:'Press “Add to graph”.',variable:'Variable'}
 };
 let lang='ru',city='minsk';const empty=()=>Array.from({length:12},()=>({rain:null,temp:null,wind:null}));
 const state={month:0,active:'rain',values:empty(),checked:false,errors:[],solved:false,hover:null,mobileDraft:null,answers:{},answersChecked:false,answerErrors:[],answersSolved:false};
@@ -1195,4 +1264,61 @@ setMode(mode);
 window.MeteolabDesign={name:'04 · Цифровая география',getMode:()=>mode,setMode};
 })();
 </script>
+
+<script>
+/* Move original controls with their listeners; never duplicate values or alter assessment. */
+(()=>{
+  const run=()=>{
+    const controls=document.querySelector('section.controls');
+    const workspace=document.querySelector('section.workspace');
+    if(!controls||!workspace)return;
+    const heading=controls.querySelector('[data-i18n="instrumentHeading"]');
+    const shortHelp=controls.querySelector('.instrument-short-help');
+    const instruments=controls.querySelector('.instrument-list');
+    const instructions=controls.querySelector('.instructions');
+    const resetButtons=controls.querySelector('.buttons-row');
+    const introTitle=instructions?.querySelector('[data-i18n="howTo"]');
+    const introParent=introTitle?.parentNode;
+    const mobileBuilder=document.getElementById('mobileBuilder');
+    const overview=document.getElementById('overview');
+    const elems=[heading,shortHelp,instruments,instructions,resetButtons];
+    if(elems.some(el=>!el)||!introTitle||!mobileBuilder||!overview)return;
+    const markers=elems.map(el=>{const marker=document.createComment('original mobile station anchor');el.parentNode.insertBefore(marker,el);return marker});
+    const guide=document.createElement('details');guide.className='mobile-guide';
+    const summary=document.createElement('summary');
+    guide.appendChild(summary);
+    const copy=document.createElement('div');copy.className='mobile-guide-copy';
+    guide.appendChild(copy);
+    const instructionsMobile={
+      ru:['Выбери месяц и прибор. По показанию на карточке выставь значение ползунком или кнопками − и +. Для флюгера выбери направление из списка. Нажми «Добавить на график».','Размести три показания и переходи к следующему месяцу. Правильность ответов проверяется только в конце всей работы.'],
+      be:['Выберы месяц і прыбор. Паводле паказання на картцы ўсталюй значэнне паўзунком або кнопкамі − і +. Для флюгера выберы напрамак са спіса. Націсні «Дадаць на графік».','Размясці тры паказанні і пераходзь да наступнага месяца. Правільнасць адказаў правяраецца толькі ў канцы ўсёй работы.'],
+      en:['Choose a month and an instrument. Match the reading shown on its card using the slider or − / +. For the weather vane, select a direction. Tap “Add to graph”.','Place all three readings, then move on to the next month. Answers are checked only at the end of the entire exercise.']
+    };
+    const refreshHelp=()=>{const lang=document.querySelector('[data-language].selected')?.dataset.language||'ru';copy.replaceChildren(...(instructionsMobile[lang]||instructionsMobile.ru).map(t=>{const p=document.createElement('p');p.textContent=t;return p}));};
+    document.querySelectorAll('[data-language]').forEach(btn=>btn.addEventListener('click',refreshHelp));
+    refreshHelp();
+    let small=false;
+    const move=()=>{
+      const mobile=window.matchMedia('(max-width:780px)').matches;
+      if(mobile===small)return;
+      small=mobile;
+      if(mobile){
+        controls.insertBefore(guide,controls.firstChild);
+        summary.appendChild(introTitle);
+        guide.appendChild(instructions);
+        mobileBuilder.before(heading,shortHelp,instruments);
+        overview.after(resetButtons);
+      }else{
+        elems.forEach((el,i)=>markers[i].after(el));
+        introParent.insertBefore(introTitle,introParent.firstChild);
+        guide.remove();
+      }
+    };
+    if(window.matchMedia('(max-width:780px)').matches)move();
+    window.matchMedia('(max-width:780px)').addEventListener('change',move);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
+})();
+</script>
+
 </body></html>
