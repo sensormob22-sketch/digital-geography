@@ -1,0 +1,28 @@
+name: Проверка Astro и PWA
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Установка зависимостей
+        run: npm install --no-audit --no-fund
+      - name: Тест Service Worker
+        run: npm run test:sw
+      - name: Сборка статического сайта
+        run: npm run build
+      - name: Публикация результата проверки
+        uses: actions/upload-artifact@v4
+        with:
+          name: digital-geography-dist
+          path: dist/

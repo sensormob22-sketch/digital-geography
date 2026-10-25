@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "name": "Цифровая география",
+  "grades": [
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "practices": [
+    {
+      "id": "grade9-work3",
+      "grade": 9,
+      "number": 3,
+      "status": "ready",
+      "href": "works/9/3/index.html",
+      "title": {
+        "ru": "Практическая работа №3",
+        "be": "Практычная работа №3",
+        "en": "Practical work No. 3"
+      },
+      "description": {
+        "ru": "Построение и анализ климатограммы",
+        "be": "Пабудова і аналіз кліматаграмы",
+        "en": "Build and analyze a climograph"
+      },
+      "offlineAssets": [
+        "works/9/3/index.html"
+      ]
+    }
+  ]
+}

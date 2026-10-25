@@ -1,0 +1,9 @@
+---
+interface Props { title: string; description: string; href: string; available?: boolean }
+const { title, description, href, available = true } = Astro.props;
+---
+<a class:list={['tile', {'active-tile': available}]} href={href} target="_blank" rel="noopener noreferrer">
+  <div class="tile-top"><span class="tile-icon" aria-hidden="true">✦</span><span class="tile-status">{available ? 'Доступна' : 'В разработке'}</span></div>
+  <h3>{title}</h3><p>{description}</p>
+  <div class="tile-bottom">Открыть работу ↗</div>
+</a>

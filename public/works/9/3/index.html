@@ -1,0 +1,1193 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#e7f2f2"><title>Метеолаб — 10 городов / MeteoLab — Ten Cities</title>
+<style>
+:root{--bg:#f5f8f5;--ink:#173b48;--muted:#667e88;--line:#dce8e8;--paper:#fff;--aqua:#1a879c;--aqua-soft:#e0f4f3;--rain:#4b97c9;--rain-dark:#2774a5;--sun:#ec7d52;--sun-soft:#fff0e7;--wind:#6274a2;--wind-soft:#eaeefb;--shadow:0 15px 45px #193d4e12;--radius:22px;--focus:#d99b26}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:radial-gradient(ellipse 900px 520px at 100% 0%,#ddf0f0 0,transparent 67%),radial-gradient(ellipse 650px 430px at 0% 100%,#fff0e3 0,transparent 68%),var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.45}button,select,input{font:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible,.graph:focus-visible{outline:3px solid var(--focus);outline-offset:3px}button:disabled{opacity:.42;cursor:not-allowed}a{color:var(--aqua)}.shell{max-width:1510px;margin:auto;padding:22px clamp(12px,2.6vw,36px) 38px}.masthead{display:flex;align-items:center;gap:16px;justify-content:space-between;margin-bottom:17px;flex-wrap:wrap}.logo{display:flex;align-items:center;gap:12px}.logo-icon{display:grid;place-items:center;border-radius:17px;background:#d6efee;width:52px;height:52px;font-size:29px;box-shadow:inset 0 0 0 1px #bedfdc}.overline{font-size:.71rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#517a81}.masthead h1{font-weight:850;font-size:clamp(1.45rem,2.2vw,2.16rem);letter-spacing:-.04em;line-height:1.17;margin:4px 0}.subtitle{color:var(--muted);margin:6px 0 0;max-width:820px;font-size:.96rem}.progress-wrap{min-width:240px;max-width:320px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);padding:13px 16px;border-radius:17px}.progress-head{display:flex;justify-content:space-between;font-size:.83rem;font-weight:700}.progress-track{height:10px;border-radius:100px;background:#e5eded;margin-top:9px;overflow:hidden}.progress-fill{background:linear-gradient(90deg,#68b8be,#16849b);height:100%;width:0;transition:width .35s}.progress-foot{font-size:.75rem;color:var(--muted);margin-top:7px}.layout{display:grid;grid-template-columns:minmax(290px,360px) minmax(0,1fr);gap:18px;align-items:start}.panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}.controls{padding:18px;position:sticky;top:12px}.panel-label{color:#607981;font-size:.72rem;font-weight:850;text-transform:uppercase;letter-spacing:.1em}.month-controls{display:grid;grid-template-columns:44px 1fr 44px;gap:9px;margin:10px 0 4px}.month-controls button{border:1px solid #cee1e2;border-radius:13px;background:#f2f8f7;font-size:1.5rem;color:#356d79;min-height:46px}.month-controls button:hover{background:#e2f1f0}.month-controls select{min-width:0;width:100%;border:1px solid #c9e0de;background:#fff;border-radius:13px;outline:none;color:#173b48;font-weight:750;padding:9px 14px}.month-note{display:flex;justify-content:space-between;align-items:center;color:#617985;font-size:.78rem;margin:7px 0 16px}.month-dots{display:flex;gap:5px}.dot{height:9px;width:9px;border-radius:50%;background:#e0e8e9}.dot.done{background:#2eab93}.instrument-list{display:flex;flex-direction:column;gap:10px}.instrument{min-height:139px;border:1px solid #e3eaea;background:#fbfdfd;border-radius:17px;padding:11px;display:grid;grid-template-columns:115px 1fr;gap:8px;position:relative;transition:border-color .2s,background .2s,transform .2s}.instrument.active{background:#f4fcfb;border-color:#57b2b6;box-shadow:inset 0 0 0 1px #57b2b6}.instrument[data-kind="rain"]{--tool:var(--rain);--tool-bg:#e8f4fd}.instrument[data-kind="temp"]{--tool:var(--sun);--tool-bg:var(--sun-soft)}.instrument[data-kind="wind"]{--tool:var(--wind);--tool-bg:var(--wind-soft)}.instrument .art{width:115px;height:115px;display:block;align-self:center}.inst-info{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px;min-width:0}.inst-label{font-size:.82rem;font-weight:820}.inst-caption{font-size:.71rem;color:var(--muted);line-height:1.25}.reading-chip{color:var(--tool);border:1px solid color-mix(in srgb,var(--tool) 40%,white);background:var(--tool-bg);padding:7px 11px;min-width:89px;border-radius:12px;display:inline-flex;align-items:center;gap:8px;font-size:1.06rem;font-weight:850;box-shadow:0 3px 0 #00000009;user-select:none;touch-action:none;cursor:grab;transition:transform .18s,box-shadow .18s}.reading-chip:hover{transform:translateY(-2px);box-shadow:0 7px 13px #1d45531b}.reading-chip:active{cursor:grabbing}.reading-chip small{font-size:.7rem;opacity:.7}.placed-state{display:flex;align-items:center;gap:5px;font-size:.7rem;font-weight:700;color:#289b80;visibility:hidden}.instrument.done .placed-state{visibility:visible}.instrument.done .reading-chip{border-style:solid}.instructions{margin-top:16px;background:#f0f8f6;border:1px solid #d7e9e5;border-radius:15px;padding:12px 13px;color:#476772;font-size:.82rem}.instructions b{color:#205865}.instructions p{margin:4px 0}.tool-help{display:flex;align-items:flex-start;gap:7px}.tool-help .circle{flex:none;width:18px;height:18px;background:#d1e8e3;border-radius:50%;text-align:center;font-weight:800;font-size:12px}.buttons-row{display:flex;gap:8px;margin-top:12px}.subtle-btn{border:1px solid #dbe6e7;background:white;border-radius:11px;padding:9px 11px;color:#4a6b75;font-size:.8rem;font-weight:750}.subtle-btn:hover{background:#f5f9f9}.workspace{padding:19px 22px 21px;min-width:0}.workspace-head{display:flex;justify-content:space-between;align-items:start;gap:12px;flex-wrap:wrap}.workspace-head h2{font-size:1.26rem;margin:4px 0 0;letter-spacing:-.03em}.site-pill{display:flex;align-items:center;gap:7px;padding:7px 11px;border-radius:100px;border:1px solid #cfe4e1;background:#eff9f6;color:#426f74;font-size:.75rem;font-weight:750}.legend{display:flex;flex-wrap:wrap;gap:13px;align-items:center;margin:14px 0 11px;color:#5b707b;font-size:.8rem}.legend span{display:inline-flex;align-items:center;gap:6px}.key{display:inline-block;width:13px;height:13px;border-radius:4px}.key.rain{background:var(--rain)}.key.temp{background:var(--sun);border-radius:50%}.key.wind{background:var(--wind);transform:rotate(45deg);width:11px;height:11px;border-radius:2px}.graph-instruction{color:#4f6f79;background:#f1f8f7;padding:8px 12px;border-radius:11px;font-size:.81rem;display:flex;align-items:center;gap:7px;margin-bottom:10px}.scroll-hint{display:none;font-size:.74rem;color:var(--muted);margin:0 0 6px}.graph-scroll{width:100%;overflow-x:auto;overscroll-behavior-inline:contain;border:1px solid #e6efef;border-radius:14px;background:linear-gradient(180deg,#fff,#fbfdfd)}.graph{display:block;min-width:675px;width:100%;height:auto;touch-action:pan-x;user-select:none;cursor:crosshair}.graph .axis-label{font-size:16px;font-weight:750;fill:#55747e}.graph .tick{font-size:13px;fill:#627782}.graph .month-lbl{font-size:15px;font-weight:700;fill:#55747e}.graph .month-lbl.selected{fill:#117d8f;font-weight:900}.graph .grid{stroke:#dce5e8;stroke-width:1.1;stroke-dasharray:3 6}.graph .grid.zero{stroke:#b3c4c9;stroke-width:1.6;stroke-dasharray:none}.graph .rain-bar{fill:#72b9e6;stroke:#347ca8;stroke-width:1.5;transition:opacity .16s}.graph .rain-bar.selected{fill:#3e9ed2}.graph .temp-path{fill:none;stroke:#ed7e52;stroke-width:3.7;stroke-linecap:round;stroke-linejoin:round}.graph .temp-point{fill:#fff8f0;stroke:#e16f49;stroke-width:4}.graph .wind-arrow{stroke:#394b8e;stroke-width:3.3;stroke-linecap:round;stroke-linejoin:round;fill:none}.graph .wind-label{font-size:13px;fill:#263d6b;font-weight:850;text-anchor:middle}.graph .stripe{fill:#67c0ba;opacity:.11}.graph .hoverline{stroke:#14999f;stroke-width:2;stroke-dasharray:6 5;opacity:.8;pointer-events:none}.graph .hoverdot{fill:#fff;stroke:#15989d;stroke-width:2.6;pointer-events:none}.graph .place-target{stroke:#1a9e9e;stroke-width:2;fill:none;stroke-dasharray:5 5;opacity:.45;pointer-events:none}
+/* Context-aware inverse styles: the live placement guide stays readable over rain bars. */
+.graph .hoverline.over-rain{stroke:#fff;stroke-width:3.4;opacity:1;filter:drop-shadow(0 1px 2px #143f64)}
+.graph .hoverdot.over-rain{fill:#123e59;stroke:#fff;stroke-width:3.2;filter:drop-shadow(0 1px 2px #143f64)}
+.graph .hover-reading{fill:#0d8189;font-size:14px;font-weight:850;paint-order:stroke fill;stroke:#fff;stroke-width:3px;stroke-linejoin:round;pointer-events:none}
+.graph .hover-reading.over-rain{fill:#fff;stroke:none;paint-order:normal}
+.graph .hover-reading-backdrop{fill:#143d57;stroke:#fff;stroke-width:1.7;filter:drop-shadow(0 2px 3px #14395166);pointer-events:none}
+/* Fixed temperature labels: white numerals with orange outline, visible over blue precipitation bars. */
+.graph .placed-temp-reading{fill:#fff;stroke:#e16f49;stroke-width:3.8px;stroke-linejoin:round;paint-order:stroke fill;font-size:13px;font-weight:850;filter:drop-shadow(0 1px 1px #6f453780);pointer-events:none}
+
+/* Consistent typography inside the climograph (axes, ticks, months, all readings and guides). */
+.graph text,
+.graph .axis-label,
+.graph .tick,
+.graph .month-lbl,
+.graph .month-lbl.selected,
+.graph .wind-label,
+.graph .hover-reading,
+.graph .placed-temp-reading {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+/* Color alone differentiates the measured series. Every reading has the same weight and size. */
+.graph .rain-reading {
+  fill: #256f99;
+  paint-order: stroke fill;
+  stroke: #ffffff;
+  stroke-width: 2px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.graph .placed-temp-reading {
+  fill: #ffffff;
+  stroke: #d96943;
+  stroke-width: 2.9px;
+  stroke-linejoin: round;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 1px 1px #7e4a3d55);
+}
+.graph .wind-label {
+  fill: #263d6b;
+  paint-order: stroke fill;
+  stroke: #f4faff;
+  stroke-width: 2px;
+  stroke-linejoin: round;
+}
+.graph .month-lbl.selected {font-weight:700;}
+.graph .hover-reading {font-weight:700;}
+.graph .hover-reading.over-rain {stroke:none;}
+.graph .chart-footer {fill:#718790;}
+
+
+.graph .pulse-error{animation:errorPulse 1.05s ease-in-out infinite;transform-box:fill-box;transform-origin:center}.graph .pulse-error.temp-point{stroke:#d93f55;fill:#ffe9ed}.graph .pulse-error.rain-bar{stroke:#d93f55;fill:#f1aab3}.graph .pulse-error.wind-arrow{stroke:#d93f55}.graph .err-halo{fill:none;stroke:#e64d63;stroke-width:2.8;animation:errorPulse 1.05s ease-in-out infinite;pointer-events:none}@keyframes errorPulse{0%,100%{opacity:1;filter:drop-shadow(0 0 0 #d93f5500);transform:scale(1)}50%{opacity:.53;filter:drop-shadow(0 0 7px #d93f55aa);transform:scale(1.16)}}.control-strip{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:15px}.value-adjust{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.adjust-title{font-size:.78rem;color:#5e7880;margin-right:4px}.adjust-number{font-weight:850;font-size:1.02rem;font-variant-numeric:tabular-nums;min-width:80px;text-align:center}.round-btn{border:1px solid #cae0df;background:#f3faf9;color:#287b83;min-width:42px;min-height:42px;font-size:1.25rem;border-radius:12px;font-weight:800}.round-btn:hover{background:#e0f0ee}.adjust-desc{font-size:.77rem;color:#687f85}.check-bar{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid var(--line);padding-top:16px;margin-top:17px}.check-state{flex:1;min-width:190px}.check-state strong{display:block;font-size:.94rem}.check-state p{margin:3px 0;color:#667c85;font-size:.78rem}.primary-btn{border:none;background:#138b99;color:#fff;font-weight:850;border-radius:13px;padding:13px 22px;box-shadow:0 6px 16px #168b9530;font-size:.93rem}.primary-btn:not(:disabled):hover{background:#0f7380;transform:translateY(-1px)}.primary-btn[hidden]{display:none}.feedback{border-radius:14px;padding:13px 14px;background:#fff7f2;border:1px solid #f4cbbb;color:#875a48;font-size:.86rem;margin-top:12px}.feedback.good{background:#edf9f1;border-color:#b9e4c8;color:#256a4b}.feedback[hidden]{display:none}.months-overview{margin-top:13px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:5px}.mini-month{border-radius:9px;background:#eef4f4;color:#66828b;text-align:center;padding:8px 3px;font-size:.7rem;font-weight:750;cursor:pointer;border:1px solid transparent;min-width:0}.mini-month.current{border-color:#58b1b4;background:#def3f2;color:#116e7c}.mini-month.complete{background:#ddf5eb;color:#2b8b70}.mini-month.has-error{background:#ffebeb;color:#bf5263;border-color:#edbfc7}.footnote{font-size:.76rem;color:#70858b;margin:14px 0 0;max-width:980px}.drag-ghost{position:fixed;top:0;left:0;z-index:999;pointer-events:none;transform:translate(-50%,-50%);padding:9px 14px;border-radius:12px;background:#fff;border:2px solid #53a9ac;box-shadow:0 12px 36px #0a415540;color:#176d7b;font-weight:850;font-size:1.08rem;white-space:nowrap}.toast{position:fixed;bottom:23px;left:50%;transform:translate(-50%,30px);max-width:min(450px,90vw);background:#234653;color:#fff;padding:11px 17px;border-radius:13px;font-size:.84rem;box-shadow:0 16px 35px #13374850;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:2000;text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}.year-complete{background:linear-gradient(120deg,#e5faf0,#ebf7ff);border:1px solid #b8e6d6;border-radius:15px;padding:16px;margin-top:12px;color:#205d5b}.year-complete h3{margin:0 0 4px}.year-complete p{margin:4px 0;font-size:.86rem}.year-complete[hidden]{display:none}.site-tag{display:inline-block;background:#e2f4f3;color:#1b7182;font-weight:750;padding:3px 8px;border-radius:7px;font-size:.68rem}
+@media(min-width:1400px){.layout{grid-template-columns:375px minmax(0,1fr)}.instrument{grid-template-columns:124px 1fr}.instrument .art{width:124px;height:124px}.workspace{padding:22px 27px}}
+@media(max-width:1030px){.layout{grid-template-columns:minmax(260px,316px) minmax(0,1fr);gap:12px}.controls{padding:13px}.workspace{padding:15px}.instrument{grid-template-columns:94px 1fr;min-height:119px;padding:9px}.instrument .art{width:94px;height:94px}.reading-chip{font-size:.95rem;padding:7px}}
+@media(max-width:780px){.shell{padding:12px 10px 26px}.masthead{align-items:start}.progress-wrap{width:100%;max-width:none}.layout{grid-template-columns:1fr}.controls{position:static}.controls .instrument-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.instrument{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0;gap:3px;padding:10px 5px}.instrument .art{height:92px;width:92px}.inst-info{align-items:center;gap:5px}.inst-label{font-size:.76rem}.inst-caption{font-size:.68rem;min-height:27px}.reading-chip{font-size:.86rem;min-width:0;justify-content:center;max-width:100%;padding:8px 6px}.placed-state{font-size:.63rem}.instructions{margin-top:11px}.workspace{padding:14px}.scroll-hint{display:block}.months-overview{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@media(max-width:420px){.instrument .art{height:77px;width:77px}.inst-label{font-size:.71rem}.inst-caption{font-size:.61rem}.reading-chip{font-size:.77rem}.reading-chip small{display:none}.workspace-head h2{font-size:1.13rem}.adjust-title{width:100%}.graph{min-width:640px}.buttons-row{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation-duration:2.8s!important}}
+
+/* bilingual five-city improvements */
+.settings{display:flex;align-items:end;gap:9px;flex-wrap:wrap;margin:0 0 15px;padding:13px 17px}.field{display:flex;flex-direction:column;gap:5px;min-width:170px}.field.city{flex:1;max-width:360px}.field label{font-size:.73rem;font-weight:800;color:#5c7880}.field select{appearance:auto;background:#fff;border:1px solid #c5dddb;color:var(--ink);padding:10px 11px;border-radius:11px;font-weight:700;min-height:42px}.lang-switch{border:1px solid #d0e4e4;border-radius:12px;padding:4px;display:flex;gap:3px;background:#f6faf9}.lang-switch button{border:0;background:transparent;color:#587a7e;border-radius:9px;min-height:35px;min-width:44px;font-weight:800}.lang-switch button.selected{background:#188da1;color:#fff;box-shadow:0 2px 7px #12748930}.period-note{margin-left:auto;max-width:450px;align-self:center;font-size:.77rem;color:#617985}.source-line{margin-top:10px;font-size:.77rem;line-height:1.55;color:#627a85}.source-line a{font-weight:700}.source-label{font-weight:800;color:#4a6f77}.site-pill{max-width:420px;border-radius:12px;text-wrap:balance}.wind-note{background:#f8f6ec;border:1px solid #eee1bc;padding:9px 12px;border-radius:12px;font-size:.78rem;margin-top:11px;color:#6d6349}.progress-info{font-variant-numeric:tabular-nums}.wind-var{font-weight:800}.city-line{color:#67868b;font-size:.78rem;margin-top:2px}.graph .temp-path{stroke-width:3.2}.graph .wind-arrow{stroke-width:3}.graph .pulse-error.wind-label{fill:#b52f52}.source-line a:focus-visible{outline:2px solid #168c9e}.footer-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}.pill-warning{display:inline-flex;padding:3px 7px;border-radius:20px;background:#fff1d9;color:#886120;font-size:.72rem;font-weight:750}
+@media(max-width:780px){.settings{padding:11px;align-items:end}.field.city{max-width:none;min-width:190px}.period-note{margin-left:0;width:100%;max-width:none}.site-pill{font-size:.66rem}}
+
+/* Unified assessment: one check at the end of all ten tasks */
+.graph-corrections{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:8px;margin-top:11px}
+.graph-corrections[hidden]{display:none!important}
+.graph-fix{border:1px solid #edbdc8;background:#fff6f7;color:#9d3047;border-radius:11px;padding:9px 11px;min-height:52px;text-align:left;font-size:.80rem;font-weight:700;cursor:pointer;line-height:1.4}
+.graph-fix strong{display:block;font-size:.76rem;color:#b52e49}
+.graph-fix:hover,.graph-fix:focus-visible{background:#ffe5e9;border-color:#d76477}
+.graph-fix .wrong-value{text-decoration:line-through;opacity:.75;font-weight:600}
+.graph-fix .true-value{color:#bb1f3d;font-weight:900}
+/* Tasks 2–10 and final assessment */
+.wind-question-note{font-size:.82rem;line-height:1.42;color:var(--muted);margin:0 0 12px}
+
+[hidden]{display:none!important}
+.exercise{margin-top:19px;padding:23px clamp(15px,2vw,28px) 26px;scroll-margin-top:16px}
+.exercise-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.exercise-header h2{font-size:clamp(1.15rem,2vw,1.55rem);margin:4px 0;letter-spacing:-.025em}
+.exercise-lead{font-size:.88rem;color:var(--muted);margin:5px 0 0;max-width:820px}
+.section-status{font-size:.79rem;font-weight:800;color:#387e83;border-radius:100px;padding:8px 12px;border:1px solid #cfe9e6;background:#ebf9f5;white-space:nowrap}
+.exercise-lock{display:flex;align-items:center;gap:12px;padding:22px;margin-top:18px;background:#f4f8f7;border:1px dashed #cbdedc;border-radius:15px;color:#607780}
+.exercise-lock .lock-icon{font-size:1.7rem;flex:none}
+.q-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-top:20px}
+.q-card{border-radius:17px;border:1px solid #dde9e9;background:linear-gradient(125deg,#fff 72%,#f8fcfc);padding:17px;box-shadow:0 5px 15px #2049520a;min-width:0}
+.q-top{display:flex;align-items:flex-start;gap:11px;margin-bottom:13px}
+.q-number{display:grid;place-items:center;flex:none;width:33px;height:33px;border-radius:12px;color:#1b7c87;background:#e3f5f2;font-weight:850;font-size:.95rem}
+.q-title{font-weight:800;font-size:.97rem;margin:2px 0 0;line-height:1.4;max-width:100%}
+.q-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.q-card.wide-answer .q-fields{grid-template-columns:1fr}
+.answer-field{position:relative;min-width:0;border:1px solid transparent;border-radius:13px;padding:3px;transition:box-shadow .15s,border-color .15s}
+.answer-field label{font-size:.79rem;color:#607680;font-weight:760;display:block;margin-bottom:7px}
+.answer-field select,.answer-field input{display:block;width:100%;min-height:45px;border-radius:11px;border:1px solid #c8dedf;background:#fff;color:#173b48;padding:9px 12px;min-width:0;appearance:auto}
+.answer-field input{font-variant-numeric:tabular-nums}
+.answer-field select:focus-visible,.answer-field input:focus-visible{outline:3px solid #a8d9dc;outline-offset:1px}
+.answer-field.is-wrong{border-color:#ef6d7b;background:#fff2f3;animation:answerPulse 1.3s ease-in-out infinite}
+.answer-field.is-wrong select,.answer-field.is-wrong input{border-color:#db566e;color:#9d233b}
+.answer-field.is-correct select,.answer-field.is-correct input{border-color:#6cbea5;background:#f6fcf9}
+.correct-answer{font-size:.78rem;font-weight:800;color:#c8324d;padding:7px 1px 0;line-height:1.35}
+@keyframes answerPulse{0%,100%{box-shadow:0 0 0 0 #f25c7836}50%{box-shadow:0 0 0 5px #f25c7840}}
+.exercise-actions{display:flex;gap:15px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:18px;padding:17px 0 0;border-top:1px solid var(--line)}
+.answers-hint{max-width:720px;font-size:.81rem;color:#648088}
+.answer-feedback{margin-top:16px;padding:14px 16px;background:#fff0f1;border:1px solid #f2a4b2;border-radius:14px;color:#9c3347;font-weight:830;font-size:.95rem}
+.answer-feedback.good{background:#eaf9ef;border-color:#bde6ca;color:#297a56}
+.complete-dialog{position:fixed;inset:0;z-index:3000;background:#143748a8;display:grid;place-items:center;padding:20px;backdrop-filter:blur(6px)}
+.complete-card{max-width:540px;width:100%;padding:clamp(22px,4vw,38px);background:#fff;border-radius:25px;text-align:center;box-shadow:0 40px 120px #0c314e77;border:1px solid #d4e8df}
+.complete-burst{font-size:3rem;display:block;margin-bottom:9px}
+.complete-card h2{font-size:clamp(1.4rem,3vw,2rem);line-height:1.3;letter-spacing:-.03em;color:#187969;margin:0 0 12px}
+.complete-card p{color:#637c7c;margin:0 0 23px;font-size:.94rem}
+.modal-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:9px}
+.modal-actions button{min-height:45px}
+.exit-btn{border:1px solid #dbe4e6;color:#466877;background:white;border-radius:13px;padding:12px 18px;font-weight:800}
+.choose-modal{padding:0;border:0;border-radius:23px;width:min(450px,calc(100% - 28px));box-shadow:0 22px 90px #173b4840}
+.choose-modal::backdrop{background:#173b4888;backdrop-filter:blur(3px)}
+.choose-inner{padding:25px;display:flex;flex-direction:column;gap:13px}
+.choose-inner h2{margin:0;font-size:1.35rem}
+.choose-inner label{font-size:.85rem;font-weight:750;color:#607d83}
+.choose-inner select{height:50px;border:1px solid #b9d3d5;border-radius:12px;padding:0 12px;background:#fff}
+.choose-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+@media(max-width:920px){.q-grid{grid-template-columns:1fr 1fr}.q-card{padding:13px}.q-fields{grid-template-columns:1fr}}
+@media(max-width:680px){.exercise{padding:15px 12px 18px}.q-grid{grid-template-columns:1fr}.q-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.q-card{padding:14px}.exercise-actions .primary-btn{width:100%}.exercise-lock{padding:15px}}
+@media(max-width:390px){.q-fields{grid-template-columns:1fr}.modal-actions button{width:100%}}
+@media(prefers-reduced-motion:reduce){.answer-field.is-wrong{animation:none;box-shadow:0 0 0 2px #e9566a}}
+
+.lang-switch button{min-width:43px} .graph .wind-label{font-size:13px}
+
+.mobile-builder{display:none;margin:10px 0 12px;padding:14px;border:1px solid #d8e8e8;border-radius:16px;background:linear-gradient(180deg,#f8fcfc,#f2f8f8);box-shadow:inset 0 1px 0 #fff}
+.mobile-builder-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+.mobile-builder-head h3{margin:0;font-size:1rem;letter-spacing:-.02em}
+.mobile-builder-head p{margin:4px 0 0;color:var(--muted);font-size:.82rem;line-height:1.35}
+.mobile-month-badge{flex:none;padding:7px 10px;border-radius:999px;background:#fff;border:1px solid #d5e5e4;font-size:.75rem;font-weight:800;color:#4d7077}
+.mobile-tool-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}
+.mobile-tool-btn{min-height:48px;border:1px solid #cfe1e2;border-radius:13px;background:#fff;font-weight:800;color:#4d6d77;padding:8px 6px}
+.mobile-tool-btn[data-kind="rain"].selected{background:#e8f4fd;border-color:#77b9dd;color:#1d6ea0}
+.mobile-tool-btn[data-kind="temp"].selected{background:#fff0e7;border-color:#efb496;color:#c9633c}
+.mobile-tool-btn[data-kind="wind"].selected{background:#eceffa;border-color:#aab5df;color:#4d5c99}
+.mobile-reading-card{display:grid;gap:6px;padding:11px 12px;background:#fff;border:1px solid #dce9ea;border-radius:14px;margin-bottom:10px}
+.mobile-reading-card .label{font-size:.74rem;font-weight:800;color:#5b7a82;text-transform:uppercase;letter-spacing:.05em}
+.mobile-reading-card .value{font-size:1.1rem;font-weight:900;color:#174552}
+.mobile-reading-card .hint{font-size:.76rem;color:#678088}
+.mobile-control-area{display:grid;gap:10px}
+.mobile-control-area .mobile-current{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.88rem;font-weight:800;color:#375c65}
+.mobile-control-area .mobile-current strong{font-size:1.05rem;color:#123c49}
+.mobile-range-wrap{display:grid;gap:7px}
+.mobile-range-scale{display:flex;justify-content:space-between;font-size:.72rem;color:#6b8088;font-weight:700}
+.mobile-range{width:100%;height:34px;accent-color:#16849b}
+.mobile-stepper{display:grid;grid-template-columns:56px 1fr 56px;gap:9px;align-items:center}
+.mobile-stepper .round-btn{width:56px;height:46px;border-radius:14px}
+.mobile-direction-select{min-height:48px;border-radius:12px;border:1px solid #c6dde0;background:#fff;padding:0 12px;font-weight:750;color:#193e4a}
+.mobile-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.mobile-actions .primary-btn,.mobile-actions .subtle-btn{min-height:48px;justify-content:center}
+.mobile-status-line{font-size:.77rem;color:#5f7981;margin-top:6px}
+@media(max-width:780px){.mobile-builder{display:block}.graph-scroll{scroll-padding-inline:14px}.control-strip{position:sticky;bottom:10px;z-index:15;background:linear-gradient(180deg,rgba(245,248,245,.3),rgba(245,248,245,.95) 25%,rgba(245,248,245,.98));padding-top:10px;margin-top:6px}.graph{min-width:760px}}
+@media(max-width:430px){.mobile-builder-head{flex-direction:column}.mobile-tool-btn{font-size:.82rem}.mobile-actions{grid-template-columns:1fr}.mobile-reading-card .value{font-size:1rem}}
+
+
+/* Explicit nine-option weather-vane direction control on desktop. */
+.desktop-wind-picker{display:flex;flex-direction:column;align-items:flex-start;gap:5px;margin:4px 0 0;font-size:.79rem;font-weight:750;color:#4a6f78}
+.desktop-wind-picker[hidden]{display:none!important}
+.desktop-wind-picker select{min-height:44px;width:100%;min-width:150px;max-width:225px;padding:8px 10px;border:1px solid #b5d3d9;border-radius:12px;background:#fff;color:#193f4c;font-weight:750}
+@media(max-width:780px){.desktop-wind-picker{display:none!important}.mobile-builder-head{justify-content:flex-end;margin-bottom:4px}}
+/* Smart annotation arrangement: readable connectors, unchanged measurement geometry. */
+.graph .wind-arrow,.graph .wind-label,.graph .rain-reading,.graph .placed-temp-reading{pointer-events:none}
+.graph [data-auto-label]{font-family:"Segoe UI",Arial,sans-serif;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+
+/* Station location: compact offline vector flag + two clearly separated place labels. */
+.theme-dashboard .site-pill.location-pill{
+  display:inline-flex;align-items:center;justify-content:flex-start;gap:11px;
+  min-width:0;max-width:min(100%,330px);padding:8px 13px 8px 9px;
+  border-radius:13px;line-height:1.2;
+}
+.location-pill .location-flag{width:48px;height:32px;min-width:48px;display:block;overflow:hidden;border-radius:5px;box-shadow:0 2px 7px #110a2933;border:1px solid #7c7c963d}
+.location-pill .location-names{display:flex;flex-direction:column;align-items:flex-start;min-width:0;gap:3px}
+.location-pill .location-city{font-weight:850;font-size:.91rem;color:var(--ink);line-height:1.16;white-space:normal}
+.location-pill .location-country{font-weight:680;font-size:.76rem;color:var(--muted);line-height:1.2;white-space:normal}
+html[data-mode="dark"] .location-pill .location-country{color:#cfc3eb}
+@media(max-width:780px){.theme-dashboard .site-pill.location-pill{max-width:100%;padding:8px 12px 8px 8px;gap:9px}.location-pill .location-flag{width:43px;min-width:43px;height:29px}.location-pill .location-city{font-size:.87rem}.location-pill .location-country{font-size:.74rem}}
+
+</style><style id="design-theme">/* 04 · Цифровая география */
+html[data-mode="light"]{--theme-bg:#f1effc;--theme-ink:#000000;--theme-muted:#000000;--theme-paper:#ffffff;--theme-line:#e0dcf0;--theme-aqua:#654cce;--theme-soft:#f0edff;--theme-shadow:0 12px 36px #39266b15;--theme-highlight:#ef6c85;--theme-graph:#fff;--theme-grid:#dfdced;--theme-axis:#000000;--theme-rain:#8f9ee7;--theme-barstroke:#6156b2;--theme-charttext:#514c95;--theme-ctl:#f4f2fc;--theme-card:#f9f8fe;--theme-heading:#7457db;color-scheme:light;}
+html[data-mode="dark"]{--theme-bg:#120e25;--theme-ink:#f2ecff;--theme-muted:#b1a9d2;--theme-paper:#251b42;--theme-line:#483a6b;--theme-aqua:#ba9dff;--theme-soft:#332750;--theme-shadow:0 12px 45px #030008b3;--theme-highlight:#ff839f;--theme-graph:#1b1732;--theme-grid:#4b456a;--theme-axis:#dfd6f7;--theme-rain:#6e80cf;--theme-barstroke:#b2b5ff;--theme-charttext:#e9e4ff;--theme-ctl:#2d244b;--theme-card:#30254f;--theme-heading:#cbafff;color-scheme:dark;}
+
+/* Core colour tokens shared across all four independently switchable concepts */
+html[data-mode]{--bg:var(--theme-bg);--ink:var(--theme-ink);--muted:var(--theme-muted);--paper:var(--theme-paper);--line:var(--theme-line);--aqua:var(--theme-aqua);--aqua-soft:var(--theme-soft);--shadow:var(--theme-shadow);--sun:var(--theme-highlight);--sun-soft:var(--theme-soft);--focus:var(--theme-highlight)}
+html[data-mode] body{color:var(--ink);background:var(--theme-bg)}
+html[data-mode] .panel,html[data-mode] .progress-wrap{background:var(--paper);border-color:var(--line);color:var(--ink);box-shadow:var(--theme-shadow)}
+html[data-mode] .overline,html[data-mode] .panel-label{color:var(--aqua)}
+html[data-mode] .subtitle,html[data-mode] .progress-foot,html[data-mode] .month-note,html[data-mode] .field label,html[data-mode] .inst-caption,html[data-mode] .exercise-lead,html[data-mode] .wind-question-note,html[data-mode] .answers-hint,html[data-mode] .footnote,html[data-mode] .city-line{color:var(--muted)}
+html[data-mode] .month-controls button,html[data-mode] .subtle-btn,html[data-mode] .round-btn,html[data-mode] .exit-btn,html[data-mode] .month-controls select,html[data-mode] .field select,html[data-mode] .answer-field select,html[data-mode] .answer-field input,html[data-mode] .choose-inner select,html[data-mode] .mobile-direction-select,html[data-mode] .mobile-tool-btn{background:var(--theme-ctl);border-color:var(--line);color:var(--ink)}
+html[data-mode] .instrument,html[data-mode] .q-card,html[data-mode] .mobile-reading-card{background:var(--theme-card);border-color:var(--line);color:var(--ink)}
+html[data-mode] .instrument.active{background:var(--theme-soft);border-color:var(--aqua);box-shadow:inset 0 0 0 1px var(--aqua)}
+html[data-mode] .inst-label,html[data-mode] .q-title,html[data-mode] .mobile-reading-card .value,html[data-mode] .mobile-control-area .mobile-current,html[data-mode] .mobile-control-area .mobile-current strong{color:var(--ink)}
+html[data-mode] .instructions,html[data-mode] .graph-instruction,html[data-mode] .exercise-lock,html[data-mode] .mobile-builder,html[data-mode] .wind-note,html[data-mode] .site-pill{background:var(--theme-soft);color:var(--ink);border-color:var(--line)}
+html[data-mode] .instructions b,html[data-mode] .tool-help .circle,html[data-mode] .graph-instruction{color:var(--ink)}
+html[data-mode] .tool-help .circle{background:var(--theme-ctl)}
+html[data-mode] .graph-scroll{background:var(--theme-graph);border-color:var(--line)}
+html[data-mode] .graph > rect:first-of-type{fill:var(--theme-graph)!important}
+html[data-mode] .graph .tick,html[data-mode] .graph .month-lbl,html[data-mode] .graph .axis-label,html[data-mode] .graph .chart-footer{fill:var(--theme-axis)}
+html[data-mode] .graph .month-lbl.selected{fill:var(--aqua)}
+html[data-mode] .graph .grid{stroke:var(--theme-grid)}
+html[data-mode] .graph > line[stroke="#eef3f3"]{stroke:var(--theme-grid)!important}
+html[data-mode] .graph .rain-bar{fill:var(--theme-rain);stroke:var(--theme-barstroke)}
+html[data-mode] .graph .rain-bar.selected{fill:var(--theme-rain);filter:brightness(.9)}
+html[data-mode] .graph .rain-reading{fill:var(--theme-charttext);stroke:var(--theme-graph);stroke-width:2.5px}
+html[data-mode] .graph .wind-label{fill:var(--theme-charttext);stroke:var(--theme-graph);stroke-width:2.5px}
+html[data-mode] .graph .wind-arrow{stroke:var(--theme-axis)}
+html[data-mode] .graph .temp-point{fill:var(--theme-graph);stroke:var(--theme-highlight)}
+html[data-mode] .graph .temp-path{stroke:var(--theme-highlight)}
+html[data-mode] .graph .placed-temp-reading{fill:#fff;stroke:var(--theme-highlight);filter:drop-shadow(0 1px 1px #21142488)}
+html[data-mode] .graph .stripe{fill:var(--aqua);opacity:.10}
+html[data-mode] .graph .hoverline{stroke:var(--aqua)}
+html[data-mode] .graph .hoverdot{stroke:var(--aqua)}
+html[data-mode] .graph .hover-reading{fill:var(--aqua);stroke:var(--theme-graph)}
+html[data-mode] .graph .hover-reading.over-rain{fill:#fff;stroke:none}
+html[data-mode] .legend,html[data-mode] .adjust-title,html[data-mode] .adjust-desc,html[data-mode] .scroll-hint{color:var(--muted)}
+html[data-mode] .control-strip,html[data-mode] .check-bar,html[data-mode] .exercise-header,html[data-mode] .exercise-actions{border-color:var(--line)}
+html[data-mode] .primary-btn{background:var(--aqua);color:var(--btn-text,#fff);box-shadow:none}
+html[data-mode] .primary-btn:not(:disabled):hover{background:var(--aqua);filter:brightness(1.11)}
+html[data-mode] .month-controls button:hover,html[data-mode] .subtle-btn:hover,html[data-mode] .round-btn:hover{background:var(--theme-soft)}
+html[data-mode] .progress-track{background:var(--theme-ctl)}
+html[data-mode] .progress-fill{background:var(--aqua)}
+html[data-mode] .lang-switch{background:var(--theme-ctl);border-color:var(--line)}
+html[data-mode] .lang-switch button{color:var(--muted)}
+html[data-mode] .lang-switch button.selected{background:var(--aqua);color:var(--btn-text,#fff);box-shadow:none}
+html[data-mode] .q-number,html[data-mode] .section-status,html[data-mode] .site-pill,html[data-mode] .mini-month.current{background:var(--theme-soft);border-color:var(--line);color:var(--aqua)}
+html[data-mode] .answer-field label,html[data-mode] .choose-inner label{color:var(--muted)}
+html[data-mode] .complete-card,html[data-mode] .choose-modal,html[data-mode] .choose-inner{background:var(--paper);color:var(--ink);border-color:var(--line)}
+html[data-mode] .complete-card h2{color:var(--aqua)}
+html[data-mode] .complete-card p{color:var(--muted)}
+html[data-mode] .year-complete,html[data-mode] .answer-feedback.good{background:var(--theme-soft);border-color:var(--line);color:var(--aqua)}
+html[data-mode] .mobile-reading-card .hint,html[data-mode] .mobile-status-line,html[data-mode] .mobile-reading-card .label,html[data-mode] .mobile-range-scale{color:var(--muted)}
+html[data-mode] .mobile-month-badge{background:var(--theme-ctl);border-color:var(--line);color:var(--ink)}
+html[data-mode] .mobile-tool-btn.selected{box-shadow:inset 0 0 0 2px var(--aqua)}
+html[data-mode] .mobile-range{accent-color:var(--aqua)}
+html[data-mode] .mobile-stepper .adjust-number{color:var(--ink)}
+html[data-mode] .placed-state{color:var(--aqua)}
+html[data-mode] .month-dots .dot:not(.done){background:var(--theme-line)}
+html[data-mode] .q-card .answer-field.is-wrong{background:#77253935;border-color:#e97986}
+html[data-mode] .answer-field.is-wrong select,html[data-mode] .answer-field.is-wrong input{background:var(--paper);color:var(--ink);border-color:#e97986}
+html[data-mode] .graph-fix,html[data-mode] .answer-feedback{background:var(--paper);color:#cf485c;border-color:#e7798b}
+html[data-mode] .mobile-builder[hidden]{display:none!important}
+/* Mode toggle: right beside the existing language control. */
+.theme-field{min-width:140px}
+.theme-switch{border:1px solid var(--line);background:var(--theme-ctl);color:var(--ink);border-radius:12px;min-height:43px;display:inline-flex;align-items:center;justify-content:center;gap:9px;font-size:.85rem;font-weight:750;padding:8px 14px;white-space:nowrap}
+.theme-switch:hover{border-color:var(--aqua);box-shadow:0 0 0 2px var(--theme-soft)}
+.theme-switch:focus-visible{outline:3px solid var(--theme-highlight);outline-offset:2px}
+.theme-switch .theme-symbol{font-size:1.18rem;line-height:1}
+
+@media(max-width:780px){.theme-field{flex:1;min-width:125px}.theme-switch{width:100%}}
+
+/* Dark-mode readability: no light backgrounds or pale input text. */
+html[data-mode="dark"]{--btn-text:#101b28}
+html[data-mode="dark"] body{color:var(--ink)}
+html[data-mode="dark"] .graph .rain-reading,html[data-mode="dark"] .graph .wind-label{stroke:var(--theme-graph)}
+html[data-mode="dark"] .graph .temp-point{fill:var(--theme-graph)}
+html[data-mode="dark"] .graph .wind-arrow{stroke:var(--theme-axis)}
+html[data-mode="dark"] .graph .hoverline.over-rain{stroke:#fff}
+html[data-mode="dark"] .graph .placed-temp-reading{fill:#fff;stroke:var(--theme-highlight)}
+html[data-mode="dark"] .graph .pulse-error.rain-bar{fill:#9d465b;stroke:#ff8291}
+html[data-mode="dark"] .graph .pulse-error.temp-point{fill:#b54b65;stroke:#ff98ab}
+html[data-mode="dark"] .graph .hover-reading-backdrop{fill:#24344b;stroke:#d7e3f2}
+html[data-mode="dark"] .graph .hover-reading.over-rain{fill:#fff;stroke:none}
+html[data-mode="dark"] .instrument .reading-chip{background:var(--theme-soft);color:var(--ink);border-color:var(--line)}
+html[data-mode="dark"] .instrument .reading-chip small{color:var(--muted)}
+html[data-mode="dark"] .instrument .art svg{border-radius:16px}
+html[data-mode="dark"] .mini-month,html[data-mode="dark"] .mobile-tool-btn,html[data-mode="dark"] .month-controls select{color:var(--ink)}
+html[data-mode="dark"] .month-controls button,html[data-mode="dark"] .subtle-btn,html[data-mode="dark"] .round-btn{color:var(--ink)}
+html[data-mode="dark"] .complete-dialog{background:#040a16c7}
+html[data-mode="dark"] .mobile-builder .mobile-reading-card{background:var(--theme-card)}
+html[data-mode="dark"] .control-strip{background:none}
+@media(max-width:780px){html[data-mode="dark"] .control-strip{background:linear-gradient(180deg,transparent,var(--theme-paper) 25%,var(--theme-paper))}}
+
+/* Contemporary digital geography: vivid ribbon, floating layered cards, gradient detail. */
+body.theme-dashboard{font-family:system-ui,'Segoe UI',sans-serif;background-image:radial-gradient(ellipse 800px 550px at 95% -10%,var(--theme-soft),transparent),radial-gradient(ellipse 700px 550px at -10% 100%,var(--theme-soft),transparent)}
+.theme-dashboard .masthead{background:linear-gradient(120deg,#5740b9 0%,#7656d8 58%,#a16adb 100%);color:#fff;border-radius:26px;padding:28px 29px;box-shadow:0 20px 45px #55409b35}
+.theme-dashboard .masthead h1,.theme-dashboard .masthead .overline,.theme-dashboard .masthead .subtitle{color:#fff}
+.theme-dashboard .masthead h1{font-size:clamp(1.8rem,3.1vw,2.85rem);font-weight:850;letter-spacing:-.057em}
+.theme-dashboard .masthead .logo-icon{background:#ffffff2c;border:1px solid #ffffff70;border-radius:19px}
+.theme-dashboard .panel,.theme-dashboard .progress-wrap,.theme-dashboard .instrument,.theme-dashboard .q-card{border-radius:22px}
+.theme-dashboard .controls{border-radius:24px}
+.theme-dashboard .workspace{border-radius:24px}
+.theme-dashboard .graph-scroll{border-radius:17px}
+.theme-dashboard .reading-chip,.theme-dashboard .month-controls button,.theme-dashboard .primary-btn,.theme-dashboard .theme-switch{border-radius:14px}
+.theme-dashboard .progress-wrap{background:rgba(255,255,255,.16)!important;backdrop-filter:blur(9px);border-color:#ffffff44!important;color:#fff!important}
+.theme-dashboard .progress-head,.theme-dashboard .progress-foot{color:#fff!important}
+.theme-dashboard .progress-track{background:#ffffff40}
+.theme-dashboard .progress-fill{background:linear-gradient(90deg,#ffb6cd,#fff6b4)}
+.theme-dashboard 
+.theme-dashboard .q-number{border-radius:12px;background:var(--theme-soft);color:var(--aqua)}
+.theme-dashboard .instrument.active{box-shadow:0 0 0 2px var(--aqua)}
+.theme-dashboard .overline,.theme-dashboard .panel-label{letter-spacing:.1em}
+html[data-mode="dark"] .theme-dashboard .masthead{background:linear-gradient(125deg,#352069,#4f2b9a 50%,#7945a5)}
+
+/* Digital geography v4: coordinated layered elevation inspired by the progress pane.
+   Main work surfaces are more prominent; nested cards retain a quieter shadow.
+   Distinct shadow colours are tuned for the light and dark mode separately. */
+html[data-mode="light"]{
+  --dashboard-panel-elevation:0 17px 39px rgba(77,51,147,.145),0 4px 12px rgba(70,49,137,.065);
+  --dashboard-card-elevation:0 7px 19px rgba(80,55,147,.11),0 2px 6px rgba(70,45,120,.045);
+  --dashboard-modal-elevation:0 28px 80px rgba(60,39,110,.24),0 9px 22px rgba(57,39,110,.11);
+}
+html[data-mode="dark"]{
+  --dashboard-panel-elevation:0 19px 45px rgba(3,0,14,.62),0 4px 12px rgba(5,0,17,.32);
+  --dashboard-card-elevation:0 9px 24px rgba(4,0,16,.35),0 2px 8px rgba(5,0,20,.22);
+  --dashboard-modal-elevation:0 35px 100px rgba(0,0,0,.74),0 10px 32px rgba(9,0,29,.42);
+}
+html[data-mode] .theme-dashboard .settings,
+html[data-mode] .theme-dashboard .controls,
+html[data-mode] .theme-dashboard .workspace,
+html[data-mode] .theme-dashboard .exercise{
+  box-shadow:var(--dashboard-panel-elevation);
+}
+html[data-mode] .theme-dashboard .instrument,
+html[data-mode] .theme-dashboard .q-card,
+html[data-mode] .theme-dashboard .mobile-builder,
+html[data-mode] .theme-dashboard .mobile-reading-card{
+  box-shadow:var(--dashboard-card-elevation);
+}
+html[data-mode] .theme-dashboard .instrument.active{
+  box-shadow:inset 0 0 0 2px var(--aqua),var(--dashboard-card-elevation);
+}
+html[data-mode] .theme-dashboard .complete-card,
+html[data-mode] .theme-dashboard .choose-modal{
+  box-shadow:var(--dashboard-modal-elevation);
+}
+.theme-dashboard .progress-info{
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+  font-weight:850;
+  letter-spacing:.015em;
+}
+@media(max-width:780px){
+  html[data-mode] .theme-dashboard .controls,
+  html[data-mode] .theme-dashboard .workspace,
+  html[data-mode] .theme-dashboard .exercise{
+    box-shadow:var(--dashboard-panel-elevation);
+  }
+}
+
+
+/* Dark theme: accessible month-switcher chips below the climograph.
+   Distinct filled/current/error states keep high contrast on every screen. */
+html[data-mode="dark"] .theme-dashboard .months-overview .mini-month{
+  background:#342a52;
+  color:#f3edff;
+  border:1px solid #5a4b7b;
+  font-weight:800;
+}
+html[data-mode="dark"] .theme-dashboard .months-overview .mini-month.current{
+  background:#6242ad;
+  color:#ffffff;
+  border-color:#c6a5ff;
+  box-shadow:inset 0 0 0 1px #d7bfff70;
+}
+html[data-mode="dark"] .theme-dashboard .months-overview .mini-month.complete{
+  background:#214c4a;
+  color:#d6fff1;
+  border-color:#4d9b86;
+}
+html[data-mode="dark"] .theme-dashboard .months-overview .mini-month.current.complete{
+  background:#375c74;
+  color:#ffffff;
+  border-color:#9acfe7;
+}
+html[data-mode="dark"] .theme-dashboard .months-overview .mini-month.has-error,
+html[data-mode="dark"] .theme-dashboard .months-overview .mini-month.current.has-error{
+  background:#632d43;
+  color:#ffe8ee;
+  border-color:#ec879d;
+}
+html[data-mode="dark"] .theme-dashboard .months-overview .mini-month:hover{
+  filter:brightness(1.15);
+}
+html[data-mode="dark"] .theme-dashboard .months-overview .mini-month:focus-visible{
+  outline:3px solid #e8b4ff;
+  outline-offset:2px;
+}
+
+
+/* Clear and accessible explanatory text in both themes.
+   Light mode uses literal black; dark mode uses near-white for equivalent contrast. */
+html[data-mode="light"]{
+  --explanation-ink:#000000;
+}
+html[data-mode="dark"]{
+  --explanation-ink:#f9f7ff;
+}
+html[data-mode] :is(
+  .subtitle, .inst-caption, .instructions, .instructions p, .instructions b,
+  .graph-instruction, .scroll-hint, .footnote, .exercise-lead,
+  .exercise-lock, .wind-question-note, .answers-hint, .check-state p,
+  .adjust-desc, .mobile-reading-card .hint, .mobile-status-line,
+  .mobile-builder-head p, .wind-note
+){
+  color:var(--explanation-ink);
+  font-size:0.96rem;
+  line-height:1.58;
+}
+/* Slightly smaller on narrow screens so complete phrases wrap cleanly. */
+@media(max-width:780px){
+  html[data-mode] :is(
+    .subtitle, .inst-caption, .instructions, .instructions p, .instructions b,
+    .graph-instruction, .scroll-hint, .footnote, .exercise-lead,
+    .exercise-lock, .wind-question-note, .answers-hint, .check-state p,
+    .adjust-desc, .mobile-reading-card .hint, .mobile-status-line,
+    .mobile-builder-head p, .wind-note
+  ){font-size:0.92rem;line-height:1.55;}
+}
+
+/* Final typography refinement: clear text in the light theme and accessible contrast in dark. */
+html[data-mode="light"] body.theme-dashboard .legend,
+html[data-mode="light"] body.theme-dashboard .legend span,
+html[data-mode="light"] body.theme-dashboard .city-line,
+html[data-mode="light"] body.theme-dashboard .adjust-title{
+  color:#000000;
+}
+html[data-mode="dark"] body.theme-dashboard .legend,
+html[data-mode="dark"] body.theme-dashboard .legend span,
+html[data-mode="dark"] body.theme-dashboard .city-line,
+html[data-mode="dark"] body.theme-dashboard .adjust-title{
+  color:#ffffff;
+}
+/* Introductory guidance sits on a purple gradient banner in both modes. */
+html[data-mode] body.theme-dashboard .masthead .subtitle{
+  color:#ffffff;
+}
+/* Month selection already identifies the month; only completion dots are needed below it. */
+.theme-dashboard .month-note.month-note-compact{
+  justify-content:flex-end;
+  min-height:11px;
+  margin:5px 0 13px;
+}
+/* Small guidance directly beneath the instrument section title. */
+body.theme-dashboard .instrument-short-help{
+  font-size:13px;
+  font-weight:500;
+  line-height:1.45;
+  margin:0 0 13px;
+  color:#000;
+}
+html[data-mode="dark"] body.theme-dashboard .instrument-short-help{
+  color:#fff;
+}
+
+/* Light theme typography audit: neutral headings, labels, form controls, notes,
+   button captions and chart scale text use true black, not tinted charcoal.
+   Intentionally coloured data series and white text on filled controls are kept. */
+html[data-mode="light"] body.theme-dashboard :is(
+  .panel-label,.overline:not(.masthead .overline),
+  .month-note,.month-controls button,.month-controls select,
+  .progress-info:not(.masthead .progress-info),
+  .field label,.field select,.theme-switch,.theme-switch span,
+  .lang-switch button:not(.selected),
+  .inst-label,.inst-caption,.instrument-short-help,
+  .instructions,.instructions p,.instructions b,
+  .tool-help .circle,.subtle-btn,.round-btn,.exit-btn,
+  .graph-instruction,.scroll-hint,.legend,.legend span,
+  .city-line,.location-city,.location-country,
+  .adjust-title,.adjust-desc,.adjust-number,
+  .check-state,.check-state p,.footnote,.wind-note,
+  .mini-month:not(.current):not(.has-error),
+  .exercise-lead,.exercise-lock,.wind-question-note,.answers-hint,
+  .q-title,.answer-field label,.answer-field input,.answer-field select,
+  .choose-inner,.choose-inner label,.choose-inner select,
+  .complete-card p,.section-status,
+  .mobile-reading-card .label,.mobile-reading-card .value,
+  .mobile-reading-card .hint,.mobile-builder-head p,
+  .mobile-current,.mobile-current strong,.mobile-range-scale,
+  .mobile-status-line,.mobile-month-badge,.mobile-tool-btn:not(.selected),
+  .mobile-direction-select
+){color:#000000;}
+/* Graph typography: black ticks, month names, graph titles and the year axis. */
+html[data-mode="light"] body.theme-dashboard .graph :is(
+  .axis-label,.tick,.month-lbl,.chart-footer
+){fill:#000000;}
+/* The weather vane artwork also contains compass point letters. */
+html[data-mode="light"] body.theme-dashboard #windArt svg text{fill:#000000;}
+/* Keep the gradient masthead legible even when its text matches a generic selector. */
+html[data-mode="light"] body.theme-dashboard .masthead :is(
+ .overline,.subtitle,h1,.progress-head,.progress-head span,
+ .progress-info,.progress-foot
+){color:#ffffff;}
+/* Selected bright language buttons retain white captions; semantic error corrections
+   remain red, existing temperature and rainfall text keeps its chart colour coding. */
+html[data-mode="light"] body.theme-dashboard .lang-switch button.selected{color:#ffffff;}
+
+</style></head><body class="theme-dashboard">
+<div class="shell">
+<header class="masthead"><div class="logo"><div class="logo-icon" aria-hidden="true">🌦️</div><div>
+<div class="overline" data-i18n="overline"></div><h1 data-i18n="title"></h1><p class="subtitle" data-i18n="subtitle"></p>
+</div></div><div class="progress-wrap" role="status"><div class="progress-head"><span data-i18n="progressTitle"></span><span id="progressText" class="progress-info">0 / 100 %</span></div><div class="progress-track"><div id="progressFill" class="progress-fill"></div></div><div id="progressFoot" class="progress-foot"></div></div></header>
+<section class="panel settings" aria-label="Study settings">
+<div class="field city"><label for="citySelect" data-i18n="chooseCity"></label><select id="citySelect"></select></div>
+<div class="field"><label data-i18n="chooseLanguage"></label><div class="lang-switch" role="group" aria-label="Language / Язык / Мова"><button type="button" data-language="ru">RU</button><button type="button" data-language="be">BE</button><button type="button" data-language="en">EN</button></div></div>
+<div class="field theme-field"><label id="themeLabel" for="modeToggle"></label><button id="modeToggle" class="theme-switch" type="button" aria-pressed="false"><span class="theme-symbol" id="modeIcon">☾</span><span id="modeText"></span></button></div>
+</section>
+<main class="layout">
+<section class="panel controls" aria-label="Measurements"><div class="panel-label" data-i18n="chooseMonth"></div>
+<div class="month-controls"><button id="prevMonth" aria-label="Previous month">‹</button><select id="monthSelect" aria-label="Month"></select><button id="nextMonth" aria-label="Next month">›</button></div>
+<div class="month-note month-note-compact"><span class="month-dots" id="monthDots"></span></div>
+<div class="panel-label" style="margin-bottom:4px" data-i18n="instrumentHeading"></div>
+<p class="instrument-short-help" data-i18n="instrumentShortHelp"></p>
+<div class="instrument-list">
+<article class="instrument" data-kind="rain"><div id="rainArt" class="art" aria-hidden="true"></div><div class="inst-info"><div class="inst-label" data-i18n="rainGauge"></div><div class="inst-caption" data-i18n="rainCaption"></div><button class="reading-chip" id="chipRain" data-kind="rain" title="Drag onto chart"></button><div class="placed-state" data-i18n="placed"></div></div></article>
+<article class="instrument" data-kind="temp"><div id="tempArt" class="art" aria-hidden="true"></div><div class="inst-info"><div class="inst-label" data-i18n="thermometer"></div><div class="inst-caption" data-i18n="tempCaption"></div><button class="reading-chip" id="chipTemp" data-kind="temp" title="Drag onto chart"></button><div class="placed-state" data-i18n="placed"></div></div></article>
+<article class="instrument" data-kind="wind"><div id="windArt" class="art" aria-hidden="true"></div><div class="inst-info"><div class="inst-label" data-i18n="vane"></div><div class="inst-caption" data-i18n="windCaption"></div><button class="reading-chip" id="chipWind" data-kind="wind" title="Drag onto chart"></button><div class="placed-state" data-i18n="placedWind"></div><label class="desktop-wind-picker" id="desktopWindPicker" for="desktopWindSelect" hidden><span id="desktopWindPickerLabel"></span><select id="desktopWindSelect" aria-label="Wind direction"></select></label></div></article>
+</div>
+<div class="instructions"><div class="tool-help"><span class="circle">i</span><div><b data-i18n="howTo"></b><p data-i18n="instruction1"></p><p data-i18n="instruction2"></p></div></div></div>
+<div class="buttons-row"><button type="button" class="subtle-btn" id="clearMonth" data-i18n="clearMonth"></button><button type="button" class="subtle-btn" id="clearAll" data-i18n="clearAll"></button></div>
+</section>
+<section class="panel workspace" aria-label="Climograph"><div class="workspace-head"><div><h2 data-i18n="graphTitle"></h2><div class="city-line" id="cityMeta"></div></div><div class="site-pill location-pill" id="sitePill" aria-live="polite"></div></div>
+<div class="legend"><span><i class="key rain"></i><span data-i18n="legendRain"></span></span><span><i class="key temp"></i><span data-i18n="legendTemp"></span></span><span><i class="key wind"></i><span data-i18n="legendWind"></span></span></div>
+<div class="graph-instruction" id="graphInstruction"></div>
+<div class="mobile-builder" id="mobileBuilder" hidden>
+  <div class="mobile-builder-head">
+    <div class="mobile-month-badge" id="mobileMonthBadge"></div>
+  </div>
+  <div class="mobile-tool-tabs" id="mobileToolTabs"></div>
+  <div class="mobile-reading-card">
+    <span class="label" id="mobileReadingLabel"></span>
+    <div class="value" id="mobileReadingValue"></div>
+    <div class="hint" id="mobileReadingHint"></div>
+  </div>
+  <div class="mobile-control-area" id="mobileControlArea"></div>
+  <div class="mobile-actions">
+    <button type="button" class="primary-btn" id="mobilePlaceButton"></button>
+    <button type="button" class="subtle-btn" id="mobileNextMonthButton"></button>
+  </div>
+  <div class="mobile-status-line" id="mobileStatusLine"></div>
+</div>
+<p class="scroll-hint" data-i18n="scrollHint"></p>
+<div class="graph-scroll" id="graphScroll"><svg class="graph" id="graph" tabindex="0" role="img" aria-label="Interactive climograph" viewBox="0 0 1070 620" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<div class="control-strip"><div class="value-adjust"><span class="adjust-title" id="adjustTitle"></span><button type="button" class="round-btn" id="decrease" aria-label="Decrease">−</button><span id="adjustValue" class="adjust-number">—</span><button type="button" class="round-btn" id="increase" aria-label="Increase">+</button><span id="adjustDesc" class="adjust-desc"></span></div></div>
+<div class="check-bar"><div class="check-state"><strong id="checkStatus"></strong><p id="checkSubtitle" hidden></p></div><button type="button" id="checkButton" class="primary-btn" data-i18n="check" hidden></button></div>
+<div id="feedback" class="feedback" role="status" aria-live="polite" hidden></div><div id="graphCorrections" class="graph-corrections" aria-live="polite" hidden></div><div id="success" class="year-complete" hidden></div>
+<div id="overview" class="months-overview" aria-label="Month completion"></div>
+<p class="footnote" data-i18n="footnote"></p><p class="footnote" data-i18n="climateClarifier"></p>
+</section></main>
+<section class="panel exercise" id="analysis" aria-label="Climograph analysis">
+ <header class="exercise-header"><div><div class="panel-label" data-i18n="analysisEyebrow"></div><h2 data-i18n="analysisTitle"></h2><p class="exercise-lead" data-i18n="analysisLead"></p></div><span class="section-status" id="analysisStatus"></span></header>
+ <div class="exercise-lock" id="analysisLocked"><span class="lock-icon">🔒</span><span data-i18n="analysisLocked"></span></div>
+ <div id="analysisContent" hidden><div class="q-grid"><article class="q-card " data-question="warm"><div class="q-top"><span class="q-number">2</span><h3 class="q-title" data-i18n="warmQuestion"></h3></div><div class="q-fields"><div class="answer-field" id="field_warmMonth"><label for="answer_warmMonth" data-i18n="monthField"></label><select id="answer_warmMonth" data-answer="warmMonth" aria-label="warmMonth"></select><div class="correct-answer" id="correct_warmMonth" aria-live="polite" hidden></div></div><div class="answer-field" id="field_warmTemp"><label for="answer_warmTemp" data-i18n="meanTempField"></label><input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="answer_warmTemp" data-answer="warmTemp" placeholder="—" /><div class="correct-answer" id="correct_warmTemp" aria-live="polite" hidden></div></div></div></article><article class="q-card " data-question="cold"><div class="q-top"><span class="q-number">3</span><h3 class="q-title" data-i18n="coldQuestion"></h3></div><div class="q-fields"><div class="answer-field" id="field_coldMonth"><label for="answer_coldMonth" data-i18n="monthField"></label><select id="answer_coldMonth" data-answer="coldMonth" aria-label="coldMonth"></select><div class="correct-answer" id="correct_coldMonth" aria-live="polite" hidden></div></div><div class="answer-field" id="field_coldTemp"><label for="answer_coldTemp" data-i18n="meanTempField"></label><input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="answer_coldTemp" data-answer="coldTemp" placeholder="—" /><div class="correct-answer" id="correct_coldTemp" aria-live="polite" hidden></div></div></div></article><article class="q-card wide-answer" data-question="amp"><div class="q-top"><span class="q-number">4</span><h3 class="q-title" data-i18n="amplitudeQuestion"></h3></div><div class="q-fields"><div class="answer-field" id="field_amplitude"><label for="answer_amplitude" data-i18n="amplitudeField"></label><input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="answer_amplitude" data-answer="amplitude" placeholder="—" /><div class="correct-answer" id="correct_amplitude" aria-live="polite" hidden></div></div></div></article><article class="q-card " data-question="wet"><div class="q-top"><span class="q-number">5</span><h3 class="q-title" data-i18n="wetQuestion"></h3></div><div class="q-fields"><div class="answer-field" id="field_wetMonth"><label for="answer_wetMonth" data-i18n="monthField"></label><select id="answer_wetMonth" data-answer="wetMonth" aria-label="wetMonth"></select><div class="correct-answer" id="correct_wetMonth" aria-live="polite" hidden></div></div><div class="answer-field" id="field_wetRain"><label for="answer_wetRain" data-i18n="precipValueField"></label><input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="answer_wetRain" data-answer="wetRain" placeholder="—" /><div class="correct-answer" id="correct_wetRain" aria-live="polite" hidden></div></div></div></article><article class="q-card " data-question="dry"><div class="q-top"><span class="q-number">6</span><h3 class="q-title" data-i18n="dryQuestion"></h3></div><div class="q-fields"><div class="answer-field" id="field_dryMonth"><label for="answer_dryMonth" data-i18n="monthField"></label><select id="answer_dryMonth" data-answer="dryMonth" aria-label="dryMonth"></select><div class="correct-answer" id="correct_dryMonth" aria-live="polite" hidden></div></div><div class="answer-field" id="field_dryRain"><label for="answer_dryRain" data-i18n="precipValueField"></label><input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="answer_dryRain" data-answer="dryRain" placeholder="—" /><div class="correct-answer" id="correct_dryRain" aria-live="polite" hidden></div></div></div></article><article class="q-card wide-answer" data-question="annual"><div class="q-top"><span class="q-number">7</span><h3 class="q-title" data-i18n="yearPrecipQuestion"></h3></div><div class="q-fields"><div class="answer-field" id="field_annualRain"><label for="answer_annualRain" data-i18n="yearPrecipField"></label><input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="answer_annualRain" data-answer="annualRain" placeholder="—" /><div class="correct-answer" id="correct_annualRain" aria-live="polite" hidden></div></div></div></article><article class="q-card wide-answer" data-question="windAnnual"><div class="q-top"><span class="q-number">8</span><h3 class="q-title" data-i18n="windAnnualQuestion"></h3></div><p class="wind-question-note" data-i18n="windAnnualHint"></p><div class="q-fields"><div class="answer-field" id="field_windAnnual"><label for="answer_windAnnual" data-i18n="windAnnualField"></label><select id="answer_windAnnual" data-answer="windAnnual" aria-label="windAnnual"></select><div class="correct-answer" id="correct_windAnnual" aria-live="polite" hidden></div></div></div></article><article class="q-card wide-answer" data-question="belt"><div class="q-top"><span class="q-number">9</span><h3 class="q-title" data-i18n="beltQuestion"></h3></div><div class="q-fields"><div class="answer-field" id="field_belt"><label for="answer_belt" data-i18n="beltField"></label><select id="answer_belt" data-answer="belt" aria-label="belt"></select><div class="correct-answer" id="correct_belt" aria-live="polite" hidden></div></div></div></article><article class="q-card wide-answer" data-question="type"><div class="q-top"><span class="q-number">10</span><h3 class="q-title" data-i18n="typeQuestion"></h3></div><div class="q-fields"><div class="answer-field" id="field_climateType"><label for="answer_climateType" data-i18n="typeField"></label><select id="answer_climateType" data-answer="climateType" aria-label="climateType"></select><div class="correct-answer" id="correct_climateType" aria-live="polite" hidden></div></div></div></article></div>
+ <div class="exercise-actions"><span class="answers-hint" data-i18n="answersHint"></span><button type="button" class="primary-btn" id="checkAnswers" data-i18n="checkAnswers" hidden></button></div>
+ <div class="answer-feedback" id="answerFeedback" role="status" aria-live="polite" hidden></div></div>
+</section></div>
+<div class="complete-dialog" id="completeModal" role="dialog" aria-modal="true" aria-labelledby="completeTitle" hidden>
+  <div class="complete-card"><span class="complete-burst" aria-hidden="true">🏆✨</span><h2 id="completeTitle" data-i18n="allCompleteTitle"></h2><p data-i18n="allCompleteSub"></p>
+   <div class="modal-actions"><button type="button" class="primary-btn" id="repeatWork" data-i18n="repeat"></button><button type="button" class="subtle-btn" id="chooseWork" data-i18n="chooseAnother"></button><button type="button" class="exit-btn" id="exitWork" data-i18n="exit"></button></div></div>
+</div>
+<dialog class="choose-modal" id="chooseDialog"><div class="choose-inner"><h2 data-i18n="chooseAnother"></h2><label for="chooseCitySelect" data-i18n="chooseCity"></label><select id="chooseCitySelect"></select><div class="choose-actions"><button class="subtle-btn" type="button" id="cancelChoose" data-i18n="cancel"></button><button class="primary-btn" type="button" id="confirmChoose" data-i18n="startCity"></button></div></div></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div><script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id), clamp=(x,a,b)=>Math.max(a,Math.min(b,x)), esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MONTH={be:['Студзень','Люты','Сакавік','Красавік','Май','Чэрвень','Ліпень','Жнівень','Верасень','Кастрычнік','Лістапад','Снежань'],ru:['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],en:['January','February','March','April','May','June','July','August','September','October','November','December']};
+const SHORT={be:['Студ','Лют','Сак','Крас','Май','Чэр','Ліп','Жнів','Вер','Каст','Ліст','Снеж'],ru:['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'],en:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']};
+const DIR={be:['Пн','ПнУ','У','ПдУ','Пд','ПдЗ','З','ПнЗ','Перам.'],ru:['С','СВ','В','ЮВ','Ю','ЮЗ','З','СЗ','Пер.'],en:['N','NE','E','SE','S','SW','W','NW','Var.']};
+const WIND_NAMES={
+ ru:['Северный','Северо-восточный','Восточный','Юго-восточный','Южный','Юго-западный','Западный','Северо-западный','Переменный'],
+ be:['Паўночны','Паўночна-ўсходні','Усходні','Паўднёва-ўсходні','Паўднёвы','Паўднёва-заходні','Заходні','Паўночна-заходні','Пераменны'],
+ en:['North','North-east','East','South-east','South','South-west','West','North-west','Variable']
+};
+const CITY={
+  london:{name:{be:'Лондан',ru:'Лондон',en:'London'},site:{be:'Гарадская сетка ERA5-Land',ru:'Городская точка ERA5-Land',en:'ERA5-Land city grid point'},coords:'51.51° N · 0.13° W',temp:[4.8,4.9,6.8,9.3,12.6,15.6,17.7,17.4,14.8,11.5,7.7,5.2],rain:[58,50,47,54,58,61,61,67,50,62,65,61],wind:[5,5,6,6,6,6,5,5,5,5,5,5],source:'https://bigmeteo.com/en/united-kingdom/england/london/weather-by-month/',windSource:'https://bigmeteo.com/en/united-kingdom/england/london/weather-by-month/',windQuality:'model'},
+  minsk:{name:{be:'Мінск',ru:'Минск',en:'Minsk'},site:{be:'Мінская метэастанцыя',ru:'Минская метеостанция',en:'Minsk weather station'},coords:'53.90° N · 27.57° E',temp:[-4.2,-3.6,0.7,7.6,13.4,17.1,19.1,18.2,12.7,6.7,1.4,-2.6],rain:[47,40,41,43,66,79,97,71,51,55,49,47],wind:[6,6,6,2,7,7,7,6,6,4,4,4],source:'https://en.wikipedia.org/wiki/Minsk',windSource:'https://www.pogodaiklimat.ru/climate/26850.htm',windQuality:'frequency'},
+  brest:{name:{be:'Брэст',ru:'Брест',en:'Brest'},site:{be:'Метэастанцыя Брэста',ru:'Метеостанция Бреста',en:'Brest weather station'},coords:'52.10° N · 23.70° E',temp:[-2.3,-1.2,2.7,9.2,14.5,18.0,19.9,19.2,13.9,8.4,3.4,-0.8],rain:[35,35,33,39,67,68,82,62,56,42,38,40],wind:[6,6,6,2,2,6,6,6,6,6,5,5],source:'https://www.pogodaiklimat.ru/climate/33008.htm',windSource:'https://www.pogodaiklimat.ru/climate/33008.htm',windQuality:'frequency'},
+  vitebsk:{name:{be:'Віцебск',ru:'Витебск',en:'Vitebsk'},site:{be:'Метэастанцыя Віцебска',ru:'Метеостанция Витебска',en:'Vitebsk weather station'},coords:'55.19° N · 30.21° E',temp:[-4.9,-4.7,0.0,7.3,13.4,17.1,19.1,17.9,12.4,6.4,0.7,-3.2],rain:[57,50,45,39,63,76,93,77,63,67,59,56],wind:[5,4,4,4,6,6,6,6,5,4,4,4],source:'https://www.pogodaiklimat.ru/climate/26666.htm',windSource:'https://www.pogodaiklimat.ru/climate/26666.htm',windQuality:'frequency'},
+  gomel:{name:{be:'Гомель',ru:'Гомель',en:'Gomel'},site:{be:'Метэастанцыя Гомеля',ru:'Метеостанция Гомеля',en:'Gomel weather station'},coords:'52.43° N · 30.99° E',temp:[-4.2,-3.5,1.3,9.0,15.0,18.6,20.4,19.3,13.7,7.4,1.6,-2.7],rain:[35,35,36,35,64,72,100,56,52,58,45,42],wind:[4,4,2,2,7,7,7,7,4,4,4,4],source:'https://www.pogodaiklimat.ru/climate/33041.htm',windSource:'https://www.pogodaiklimat.ru/climate/33041.htm',windQuality:'frequency'},
+  grodno:{name:{be:'Гродна',ru:'Гродно',en:'Grodno'},site:{be:'Метэастанцыя Гродна',ru:'Метеостанция Гродно',en:'Grodno weather station'},coords:'53.65° N · 23.84° E',temp:[-2.8,-2.1,1.7,8.3,13.5,17.0,19.0,18.4,13.4,7.7,2.6,-1.3],rain:[33,30,31,35,54,60,82,57,48,42,39,38],wind:[6,6,6,6,0,6,6,6,6,6,4,6],source:'https://www.pogodaiklimat.ru/climate/26820.htm',windSource:'https://ru.weatherspark.com/y/90336/',windQuality:'seasonal'},
+  mogilev:{name:{be:'Магілёў',ru:'Могилёв',en:'Mogilev'},site:{be:'Метэастанцыя Магілёў (аэрапорт)',ru:'Метеостанция Могилёв (аэропорт)',en:'Mogilev Airport weather station'},coords:'53.96° N · 30.10° E',temp:[-5.2,-4.9,-0.3,7.3,13.2,16.6,18.8,17.6,12.2,6.0,0.5,-3.6],rain:[42,38,37,43,59,64,93,65,46,56,48,42],wind:[6,4,6,4,0,6,6,6,6,6,4,6],source:'https://ds.data.jma.go.jp/gmd/tcc/tcc/products/climate/climatview/graph_mkhtml_nrm.php?e=6&k=0&m=12&n=26863&r=0&s=1&y=2020',windSource:'https://ru.weatherspark.com/y/96672/',windQuality:'seasonal'},
+  astana:{name:{be:'Астана',ru:'Астана',en:'Astana'},site:{be:'Гарадская метэастанцыя',ru:'Городская метеостанция',en:'City weather station'},coords:'51.18° N · 71.45° E',temp:[-14.5,-13.6,-6,6.5,14.5,19.6,20.6,19.1,12.6,5,-5.2,-12],rain:[18,17,20,22,33,40,56,31,21,26,29,25],wind:[4,4,6,6,6,6,0,6,6,6,6,4],source:'https://en.wikipedia.org/wiki/Astana',windSource:'https://ru.weatherspark.com/y/107257/',windQuality:'seasonal'},
+  singapore:{name:{be:'Сінгапур',ru:'Сингапур',en:'Singapore'},site:{be:'Метэастанцыя Чангі',ru:'Метеостанция Чанги',en:'Changi Climate Station'},coords:'1.35° N · 103.82° E',temp:[26.8,27.3,27.8,28.2,28.6,28.5,28.2,28.1,28,27.9,27.2,26.8],rain:[222,105,152,164,164,135,147,147,125,168,252,332],wind:[1,1,1,8,8,3,3,4,3,8,8,1],source:'https://www.weather.gov.sg/climate-climate-of-singapore/',windSource:'https://www.weather.gov.sg/climate-climate-of-singapore/',windQuality:'seasonal'},
+  mexico:{name:{be:'Мехіка',ru:'Мехико',en:'Mexico City'},site:{be:'Метэастанцыя Такубая',ru:'Метеостанция Такубая',en:'Tacubaya weather station'},coords:'19.43° N · 99.13° W',temp:[15.4,16.9,18.6,20.3,20.4,19.8,18.8,18.9,18.4,17.6,16.4,15.4],rain:[12,6,12,24,59,133,174,176,158,71,17,5],wind:[4,4,4,4,4,2,2,2,2,0,0,4],source:'https://en.wikipedia.org/wiki/Mexico_City',windSource:'https://weatherspark.com/y/5674/Average-Weather-in-Mexico-City-Mexico-Year-Round',windQuality:'seasonal'}
+};
+
+// Climatic belts follow geographic latitudes (Alisov-style school geography),
+// while types use descriptive regional climates. Mexico City lies inside
+// the tropics but has a cool subtropical-highland climate (Köppen Cwb) due to altitude.
+const CLIMATE={
+ london:{belt:'temperate',type:'oceanic'},
+ minsk:{belt:'temperate',type:'moderateContinental'},
+ brest:{belt:'temperate',type:'moderateContinental'},
+ vitebsk:{belt:'temperate',type:'moderateContinental'},
+ gomel:{belt:'temperate',type:'moderateContinental'},
+ grodno:{belt:'temperate',type:'moderateContinental'},
+ mogilev:{belt:'temperate',type:'moderateContinental'},
+ astana:{belt:'temperate',type:'extremeContinental'},
+ singapore:{belt:'equatorial',type:'equatorialWet'},
+ mexico:{belt:'tropical',type:'highlandDryWinter'}
+};
+const BELTS=['equatorial','subequatorial','tropical','subtropical','temperate','subpolar','polar'];
+const TYPES=['oceanic','moderateContinental','extremeContinental','equatorialWet','highlandDryWinter','monsoon','mediterranean','desert','subarctic'];
+const FIELDS=['warmMonth','warmTemp','coldMonth','coldTemp','amplitude','wetMonth','wetRain','dryMonth','dryRain','annualRain','windAnnual','belt','climateType'];
+const EXTRA_TEXT={
+be:{
+  "workAccuracy": "Правільна выканана: {percent}%.",
+  "windAnnualQuestion": "Які напрамак ветру часцей за ўсё адзначаецца за год для горада «{city}»?",
+  "windAnnualHint": "Вызначы найчасцейшы напрамак сярод месячных паказанняў флюгера. Пераменны напрамак не ўлічвай.",
+  "windAnnualField": "Напрамак ветру",
+  "placeholderWind": "Выберы напрамак ветру",
+  "graphCorrections": "Памылкі на кліматаграме ({n}). Выберы месяц, каб выправіць:",
+  "graphCorrect": "На кліматаграме памылак няма.",
+  "graphField_rain": "Ападкі",
+  "graphField_temp": "Тэмпература",
+  "graphField_wind": "Напрамак ветру",
+  "graphValPair": "Было: {wrong} → правільна: {correct}",
+  "graphNeedRecheck": "Выпраўленні ўнесены. Правер усю работу яшчэ раз.",
+  "analysisEyebrow": "Заданні 2–10 · Даследаванне клімату",
+  "analysisTitle": "Прааналізуй пабудаваную кліматаграму",
+  "analysisLead": "Даследуй гадавы ход тэмпературы і ападкаў, зрабі вылічэнні і вызнач клімат горада.",
+  "analysisLocked": "Размясці ўсе паказанні на кліматаграме. Працяг работы будзе даступны пасля яе пабудовы.",
+  "analysisStatusLocked": "Запоўні кліматаграму",
+  "analysisStatusReady": "Заданні 2–10 даступныя",
+  "analysisStatusDone": "Уся работа выканана ✓",
+  "warmQuestion": "Укажы самы цёплы месяц і яго сярэднюю тэмпературу.",
+  "coldQuestion": "Укажы самы халодны месяц і яго сярэднюю тэмпературу.",
+  "amplitudeQuestion": "Укажы гадавую амплітуду тэмператур — розніцу паміж самым цёплым і самым халодным месяцамі.",
+  "wetQuestion": "Укажы месяц з найбольшай колькасцю ападкаў і запішы іх колькасць.",
+  "dryQuestion": "Укажы месяц з найменшай колькасцю ападкаў і запішы іх колькасць.",
+  "yearPrecipQuestion": "Укажы суму ападкаў за ўвесь год.",
+  "beltQuestion": "У якім кліматычным поясе знаходзіцца {city}?",
+  "typeQuestion": "Які тып клімату характэрны для горада {city}?",
+  "monthField": "Месяц",
+  "meanTempField": "Сярэдняя тэмпература, °C",
+  "amplitudeField": "Амплітуда, °C",
+  "precipValueField": "Колькасць ападкаў, мм",
+  "yearPrecipField": "Сума ападкаў, мм",
+  "beltField": "Кліматычны пояс",
+  "typeField": "Тып клімату",
+  "placeholderMonth": "Выберы месяц",
+  "placeholderBelt": "Выберы кліматычны пояс",
+  "placeholderType": "Выберы тып клімату",
+  "answersHint": "Запоўні ўсе 13 палёў, каб адначасова праверыць кліматаграму і адказы. Дробавыя значэнні можна ўводзіць праз коску або кропку.",
+  "checkAnswers": "Праверыць усю работу ✓",
+  "answersPartial": "Часткова правільна. Знойдзена {n} {plural}!",
+  "answersCorrect": "Усе адказы правільныя!",
+  "answersReadyRetry": "Выпраўленні ўнесены. Націсні «Праверыць усю работу» яшчэ раз.",
+  "correctValue": "Правільна: {value}",
+  "allCompleteTitle": "Малайчына! Ты бліскуча выканаў работу!",
+  "allCompleteSub": "Усе 36 паказанняў кліматаграмы і 13 адказаў у заданнях 2–10 правільныя.",
+  "repeat": "Паўтарыць",
+  "chooseAnother": "Выбраць іншае месца",
+  "exit": "Выйсці",
+  "cancel": "Скасаваць",
+  "startCity": "Пачаць работу",
+  "exitHint": "Работа захавана ў браўзеры. Каб выйсці, можна закрыць гэту ўкладку.",
+  "confirmedChart": "Заданне 1 выканана! Цяпер выканай заданні 2–10.",
+  "graphFirst": "Спачатку запоўні кліматаграму: 36 паказанняў.",
+  "belt_temperate": "Умераны",
+  "belt_equatorial": "Экватарыяльны",
+  "belt_subequatorial": "Субэкватарыяльны",
+  "belt_tropical": "Трапічны",
+  "belt_subtropical": "Субтрапічны",
+  "belt_subpolar": "Субпалярны",
+  "belt_polar": "Палярны",
+  "type_oceanic": "Марскі (акіянічны)",
+  "type_moderateContinental": "Умерана кантынентальны",
+  "type_extremeContinental": "Рэзка кантынентальны",
+  "type_equatorialWet": "Экватарыяльны вільготны",
+  "type_highlandDryWinter": "Высакагорны з сухой зімой (Cwb)",
+  "type_monsoon": "Мусонны",
+  "type_mediterranean": "Міжземнаморскі",
+  "type_desert": "Пустынны",
+  "type_subarctic": "Субарктычны",
+  "climateClarifier": "Кліматычны пояс вызначаецца паводле геаграфічнага становішча, а тып клімату — з улікам вышыні над узроўнем мора і рэжыму ападкаў."
+},
+ru:{
+  workAccuracy:'Правильно выполнено: {percent}%.',
+  graphCorrections:'Ошибки в климатограмме ({n}). Выбери месяц, чтобы исправить:',graphCorrect:'На климатограмме ошибок нет.',graphField_rain:'Осадки',graphField_temp:'Температура',graphField_wind:'Направление ветра',graphValPair:'Было: {wrong} → правильно: {correct}',graphNeedRecheck:'Исправления внесены. После этого проверь всю работу ещё раз.',
+  analysisEyebrow:'Задания 2–10 · Исследование климата', analysisTitle:'Проанализируй построенную климатограмму',
+ analysisLead:'Изучи годовой ход температуры и осадков, выполни вычисления и определи климат города.',
+ analysisLocked:'Размести все показания на климатограмме. Продолжение работы будет доступно после её построения',
+ analysisStatusLocked:'Заполни климатограмму',analysisStatusReady:'Задания 2–10 доступны',analysisStatusDone:'Вся работа выполнена ✓',
+ warmQuestion:'Укажите самый тёплый месяц и его среднюю температуру.',
+ coldQuestion:'Укажите самый холодный месяц и его среднюю температуру.',
+ amplitudeQuestion:'Укажите годовую амплитуду температур — разницу между самым тёплым и самым холодным месяцем.',
+ wetQuestion:'Укажите месяц с наибольшим количеством осадков и запишите значение.',
+ dryQuestion:'Укажите месяц с наименьшим количеством осадков и запишите значение.',
+ yearPrecipQuestion:'Укажите сумму осадков за весь год.',
+ beltQuestion:'К какому климатическому поясу относится {city}?',
+ typeQuestion:'К какому типу климата относится {city}?',
+ monthField:'Месяц',meanTempField:'Средняя температура, °C',amplitudeField:'Амплитуда, °C',
+ precipValueField:'Количество осадков, мм',yearPrecipField:'Сумма осадков, мм',beltField:'Климатический пояс',typeField:'Тип климата',
+ placeholderMonth:'Выберите месяц',placeholderBelt:'Выберите пояс',placeholderType:'Выберите тип климата',
+ answersHint:'Заполни все 13 полей: после этого можно проверить климатограмму и ответы одновременно. Дроби — через запятую или точку.',
+ checkAnswers:'Проверить всю работу ✓',answersPartial:'Частично верно. Найдено {n} {plural}!',answersCorrect:'Все ответы правильные!',answersReadyRetry:'Исправления внесены. Нажми «Проверить всю работу» ещё раз.',
+ correctValue:'Правильно: {value}',
+ allCompleteTitle:'Молодец. Ты блестяще выполнил работу!',allCompleteSub:'Все 36 показаний климатограммы и 13 ответов в заданиях 2–10 верны.',
+ repeat:'Повторить',chooseAnother:'Выбрать другое место',exit:'Выход',cancel:'Отмена',startCity:'Начать работу',
+ exitHint:'Работа сохранена в браузере. Чтобы выйти, можно закрыть эту вкладку.',
+ confirmedChart:'Задание 1 выполнено! Теперь выполни задания 2–10.',
+ graphFirst:'Сначала заполни климатограмму: 36 показаний.',
+ belt_temperate:'Умеренный',belt_equatorial:'Экваториальный',belt_subequatorial:'Субэкваториальный',belt_tropical:'Тропический',belt_subtropical:'Субтропический',belt_subpolar:'Субполярный',belt_polar:'Полярный',
+ type_oceanic:'Морской (океанический)',type_moderateContinental:'Умеренно континентальный',type_extremeContinental:'Резко континентальный',
+ type_equatorialWet:'Экваториальный влажный',type_highlandDryWinter:'Высокогорный с сухой зимой (Cwb)',
+ type_monsoon:'Муссонный',type_mediterranean:'Средиземноморский',type_desert:'Пустынный',type_subarctic:'Субарктический',
+ climateClarifier:'Климатический пояс определяется по географическому положению, тип — с учётом высоты и режима осадков.',
+ },
+en:{
+  workAccuracy:'Correctly completed: {percent}%.',
+  graphCorrections:'Climograph errors ({n}). Select a month to correct:',graphCorrect:'No errors in the climograph.',graphField_rain:'Precipitation',graphField_temp:'Temperature',graphField_wind:'Wind direction',graphValPair:'Entered: {wrong} → correct: {correct}',graphNeedRecheck:'Corrections made. Check the entire work again.',
+  analysisEyebrow:'Tasks 2–10 · Climate investigation',analysisTitle:'Analyze your completed climograph',
+ analysisLead:'Study monthly temperatures and rainfall, calculate annual indicators and identify the city climate.',
+ analysisLocked:'Place all measurements on the climograph. You can continue once the climograph is complete.',
+ analysisStatusLocked:'Fill in the climograph',analysisStatusReady:'Tasks 2–10 unlocked',analysisStatusDone:'All tasks complete ✓',
+ warmQuestion:'Select the warmest month and enter its mean temperature.',
+ coldQuestion:'Select the coldest month and enter its mean temperature.',
+ amplitudeQuestion:'Enter the annual temperature range — the difference between the highest and lowest monthly mean.',
+ wetQuestion:'Select the wettest month and enter its monthly precipitation.',
+ dryQuestion:'Select the driest month and enter its monthly precipitation.',
+ yearPrecipQuestion:'Enter the total precipitation for the whole year.',
+ beltQuestion:'Which geographic climate belt does {city} belong to?',
+ typeQuestion:'Which climate type describes {city}?',
+ monthField:'Month',meanTempField:'Mean temperature, °C',amplitudeField:'Temperature range, °C',
+ precipValueField:'Precipitation, mm',yearPrecipField:'Annual precipitation, mm',beltField:'Climate belt',typeField:'Climate type',
+ placeholderMonth:'Choose a month',placeholderBelt:'Choose a belt',placeholderType:'Choose a climate type',
+ answersHint:'Complete all 13 fields to check the climograph and answers together. Commas and periods are accepted for decimals.',
+ checkAnswers:'Check the entire work ✓',answersPartial:'Partly correct. {n} {plural} found!',answersCorrect:'All answers are correct!',answersReadyRetry:'Corrections entered. Press “Check the entire work” again.',
+ correctValue:'Correct: {value}',
+ allCompleteTitle:'Brilliant work! You completed everything!',allCompleteSub:'All 36 climograph readings and all 13 answers in tasks 2–10 are correct.',
+ repeat:'Repeat',chooseAnother:'Choose another location',exit:'Exit',cancel:'Cancel',startCity:'Start work',
+ exitHint:'Your work was saved in this browser. Close the browser tab to exit.',
+ confirmedChart:'Task 1 complete! Now answer tasks 2–10.',graphFirst:'First fill in all 36 climograph measurements.',
+ belt_temperate:'Temperate',belt_equatorial:'Equatorial',belt_subequatorial:'Subequatorial',belt_tropical:'Tropical',belt_subtropical:'Subtropical',belt_subpolar:'Subpolar',belt_polar:'Polar',
+ type_oceanic:'Oceanic (maritime)',type_moderateContinental:'Moderately continental',type_extremeContinental:'Strongly continental',
+ type_equatorialWet:'Equatorial humid',type_highlandDryWinter:'Subtropical highland with dry winter (Cwb)',
+ type_monsoon:'Monsoon',type_mediterranean:'Mediterranean',type_desert:'Desert',type_subarctic:'Subarctic',
+ climateClarifier:'The climate belt is determined by geographic location; the climate type also takes altitude and precipitation patterns into account.',
+ }};
+
+Object.assign(EXTRA_TEXT.ru,{
+ windAnnualQuestion:'Какое направление ветра чаще всего отмечается за год для города «{city}»?',
+ windAnnualHint:'Определи самое частое направление среди месячных показаний флюгера. Переменное направление не учитывай.',
+ windAnnualField:'Направление ветра',placeholderWind:'Выберите направление ветра'
+});
+Object.assign(EXTRA_TEXT.en,{
+ windAnnualQuestion:'Which wind direction occurs most often during the year in {city}?',
+ windAnnualHint:'Choose the most frequent direction among monthly weather-vane readings; ignore variable winds.',
+ windAnnualField:'Wind direction',placeholderWind:'Choose a wind direction'
+});
+const TEXT={
+be:{
+  "overline": "Віртуальная метэапляцоўка · Геаграфія",
+  "title": "Пабудуй кліматаграму",
+  "subtitle": "Заданне 1: пабудуй кліматаграму. Заданні 2–10: прааналізуй яе. Уся работа правяраецца ў канцы.",
+  "progressTitle": "Прагрэс запаўнення",
+  "chooseCity": "Горад для даследавання",
+  "chooseLanguage": "Мова / Language",
+  "normalsNote": "Кліматычныя нормы за 1991–2020 гг. · Шматгадовыя сярэднямесячныя значэнні",
+  "chooseMonth": "Месяц назіранняў",
+  "instrumentHeading": "Прыборы і паказанні",
+  "instrumentShortHelp": "Выберы прыбор і змясці значэнне яго паказання на кліматаграму",
+  "rainGauge": "Ападкамер",
+  "rainCaption": "Месячная сума ападкаў",
+  "thermometer": "Тэрмометр",
+  "tempCaption": "Сярэдняя тэмпература за месяц",
+  "vane": "Флюгер",
+  "windCaption": "Адкуль пераважна дзьме вецер",
+  "placed": "✓ На графіку",
+  "placedWind": "✓ У слупку ападкаў",
+  "howTo": "Як працаваць",
+  "instruction1": "Выберы месяц і перацягні паказанне прыбора ў падсвечаны слупок. Ападкі паказвай слупком па правай шкале, тэмпературу — кропкай па левай. Стрэлку флюгера змясці ў слупок ападкаў.",
+  "instruction2": "Можна націснуць на паказанне, а потым на графік. Удакладняй значэнне кнопкамі − / +. Побач з правільнай адзнакай уключаецца прывязка.",
+  "clearMonth": "↺ Ачысціць месяц",
+  "clearAll": "Скінуць год",
+  "practical": "Інтэрактыўная практычная работа",
+  "graphTitle": "Заданне 1. Пабудуй кліматаграму",
+  "legendRain": "Ападкі, мм — слупкі",
+  "legendTemp": "Тэмпература, °C — лінія",
+  "legendWind": "Напрамак ветру — стрэлкі",
+  "scrollHint": "↔ На вузкім экране графік пракручваецца. Можна націскаць замест перацягвання.",
+  "check": "Да заданняў 2–10 ↓",
+  "successTitle": "✓ Заданне 1 выканана!",
+  "successText": "Цяпер пераходзь да заданняў 2–10 ніжэй.",
+  "sourceLabel": "Крыніцы звестак:",
+  "tempSourceLabel": "Тэмпература і ападкі",
+  "windSourceLabel": "Напрамкі ветру",
+  "footnote": "Напрамак вызначаецца паводле таго, АДКУЛЬ дзьме вецер.",
+  "windSourceNote": "Заўвага: для некаторых гарадоў напрамкі ветру пададзены паводле пераважнага сезоннага сектара, а не па асобных месячных табліцах паўтаральнасці; «Перам.» — пераменны напрамак.",
+  "checkIncomplete": "Спачатку размясці ўсе 36 паказанняў.",
+  "checkEmpty": "Кліматаграма яшчэ не запоўнена",
+  "checkReady": "Кліматаграма запоўнена — заданні 2–10 даступныя",
+  "checkSolved": "Уся работа праверана ✓",
+  "monthsFilled": "Цалкам запоўнена месяцаў: {n} з 12",
+  "arrowStep": "Паварот на 45°",
+  "step": "Крок: {n}",
+  "startWith": "Спачатку перанясі паказанне",
+  "adjustRain": "Вышыня слупка ападкаў:",
+  "adjustTemp": "Становішча тэмпературнай кропкі:",
+  "adjustWind": "Напрамак стрэлкі флюгера:",
+  "hintRain": "💧 Ападкі: усталюй вышыню слупка па правай шкале (мм).",
+  "hintTemp": "🌡️ Тэмпература: усталюй кропку па левай шкале (°C).",
+  "hintWind": "🧭 Флюгер: змясці стрэлку ў ўжо пабудаваны слупок ападкаў.",
+  "tempAxis": "ТЭМПЕРАТУРА, °C",
+  "rainAxis": "АПАДКІ, мм",
+  "yearAxis": "МЕСЯЦЫ ГОДА",
+  "sitePill": "📍 Адна пляцоўка · {name}",
+  "weatherStation": "Пункт назіранняў: {name}",
+  "doneHint": "Правільнасць усіх дзесяці заданняў правяраецца ў канцы работы.",
+  "noFull": "Трэба завяршыць усе 12 месяцаў",
+  "errors": "Знойдзена памылак: {n}. Выправі чырвоныя пульсуючыя элементы.",
+  "errorsMonths": "Месяцы з памылкамі: {names}.",
+  "fixed": "Памылкі выпраўлены! Націсні «Праверыць» яшчэ раз.",
+  "great": "Выдатна! Усе 36 паказанняў правільныя.",
+  "outGraph": "Размясці паказанне ў межах кліматаграмы.",
+  "wrongMonth": "Выбраны месяц {month}. Перанясі значэнне ў падсвечаны слупок.",
+  "firstRain": "Спачатку пабудуй слупок ападкаў.",
+  "insideBar": "Размясці стрэлку ўнутры слупка ападкаў.",
+  "range": "Выберы месца ў межах графіка.",
+  "placedWindMessage": "Стрэлка размешчана ў слупку ападкаў.",
+  "confirmMonth": "Выдаліць усе тры паказанні за {month}?",
+  "confirmYear": "Ачысціць усе 36 паказанняў для гэтага горада?",
+  "observation": "Паказанне: {x}",
+  "langInfo": "Мова інтэрфейсу: беларуская",
+  "sourceMethod": "Методыка: {s}",
+  "frequency": "найчасцейшы напрамак з васьмі румбаў",
+  "model": "сярэдні пераважны паветраны паток паводле ERA5-Land",
+  "seasonal": "прыблізны месячны напрамак паводле сезоннага апісання; не асобная кліматычная норма",
+  "mobileModeTitle": "Мабільны рэжым пабудовы",
+  "mobileModeLead": "На смартфоне можна выбраць паказанне і паставіць яго на кліматаграму буйнымі элементамі кіравання, без дакладнага дотыку да графіка.",
+  "mobileReadingLabel": "Бягучае паказанне прыбора",
+  "mobileReadingHint": "Спачатку выберы ападкі, тэмпературу або вецер, затым усталюй значэнне і націсні кнопку ніжэй.",
+  "mobileDraftValue": "Значэнне для ўстаноўкі",
+  "mobileSliderRain": "Паўзунок ападкаў",
+  "mobileSliderTemp": "Паўзунок тэмпературы",
+  "mobileWindSelect": "Напрамак ветру",
+  "mobilePlace": "Паставіць на кліматаграму",
+  "mobileNextMonth": "Наступны месяц",
+  "mobileStatus": "{month}: размешчана {filled} з 3 паказанняў.",
+  "mobileMonthDone": "Месяц {month} цалкам запоўнены.",
+  "mobileReadyForPlace": "Націсні «Паставіць на кліматаграму».",
+"variable": "Пераменны"
+},
+ru:{overline:'Виртуальная метеоплощадка · География',title:'Собери климатограмму',subtitle:'Задание 1: построй климатограмму. Задания 2–10: проанализируй её. Вся работа проверяется в конце.',progressTitle:'Прогресс заполнения',chooseCity:'Город для исследования',chooseLanguage:'Язык / Language',normalsNote:'Климатические нормы за 1991–2020 гг. · Многолетние среднемесячные значения',chooseMonth:'Месяц исследования',instrumentHeading:'Приборы и показания',instrumentShortHelp:'Выбери прибор и помести значение его показателя на климатограмму',rainGauge:'Осадкомер',rainCaption:'Месячная сумма осадков',thermometer:'Термометр',tempCaption:'Средняя температура за месяц',vane:'Флюгер',windCaption:'Откуда преимущественно дует ветер',placed:'✓ На графике',placedWind:'✓ В колонке осадков',howTo:'Как работать',instruction1:'Выбери месяц и перетащи показание прибора в подсвеченную колонку. Осадки — столбец по правой шкале, температура — точка по левой шкале. Стрелку флюгера помести на столбец осадков.',instruction2:'Можно нажать на показатель, затем на график. Точность подстраивается кнопками − / +. При попадании рядом с верной отметкой включается привязка к шкале.',clearMonth:'↺ Очистить месяц',clearAll:'Сбросить год',practical:'Интерактивная практическая работа',graphTitle:'Задание 1. Построй климатограмму',legendRain:'Осадки, мм — столбцы',legendTemp:'Температура, °C — линия',legendWind:'Направление ветра — стрелка',scrollHint:'↔ На узком экране график прокручивается. Касание заменяет перенос.',check:'К заданиям 2–10 ↓',successTitle:'✓ Задание 1 выполнено!',successText:'Теперь переходи к заданиям 2–10 ниже.',sourceLabel:'Источники данных:',tempSourceLabel:'Температура и осадки',windSourceLabel:'Направления ветра',footnote:'Направление указывается ОТКУДА дует ветер.',windSourceNote:'Внимание: для некоторых городов ветер задан по сезонно преобладающему сектору, а не по 12 независимым таблицам повторяемости; «Пер.» — переменное направление в межмуссонный период.',checkIncomplete:'Сначала заполни 36 показаний.',checkEmpty:'Климатограмма ещё не заполнена',checkReady:'Климатограмма заполнена — задания 2–10 доступны',checkSolved:'Вся работа проверена ✓',monthsFilled:'Полностью заполнено месяцев: {n} из 12',arrowStep:'Поворот на 45°',step:'Шаг: {n}',startWith:'Сначала перенеси показание',adjustRain:'Высота столбца осадков:',adjustTemp:'Положение точки температуры:',adjustWind:'Направление стрелки флюгера:',hintRain:'💧 Осадки: установи высоту столбца по правой шкале (мм).',hintTemp:'🌡️ Температура: установи точку по левой шкале (°C).',hintWind:'🧭 Флюгер: помести стрелку в уже построенный столбец осадков.',tempAxis:'ТЕМПЕРАТУРА, °C',rainAxis:'ОСАДКИ, мм',yearAxis:'МЕСЯЦЫ ГОДА',sitePill:'📍 Одна площадка · {name}',weatherStation:'Пункт: {name}',doneHint:'Правильность всех десяти заданий проверяется в конце работы.',noFull:'Нужно закончить 12 месяцев',errors:'Найдено ошибок: {n}. Красные пульсирующие элементы нужно исправить.',errorsMonths:'Месяцы с ошибками: {names}.',fixed:'Ошибки устранены! Нажми «Проверить» ещё раз.',great:'Отлично! Все 36 показаний верны.',outGraph:'Помести показатель внутри поля климатограммы.',wrongMonth:'Выбран месяц {month}. Перенеси значение в подсвеченный столбец.',firstRain:'Сначала построй столбец осадков.',insideBar:'Размести стрелку внутри столбца осадков.',range:'Выбери положение в пределах графика.',placedWindMessage:'Стрелка размещена на столбце осадков.',confirmMonth:'Удалить три показания за {month}?',confirmYear:'Очистить все 36 показаний для этого города?',observation:'Показание: {x}',langInfo:'Язык интерфейса: Русский',sourceMethod:'Методика: {s}',frequency:'ветер по максимальной частоте из 8 румбов',model:'средний преобладающий поток по ERA5-Land',seasonal:'приближённый месячный сектор по сезонной характеристике; не отдельная норма',mobileModeTitle:'Мобильный режим построения',mobileModeLead:'На смартфоне можно выбирать показание и ставить его на климатограмму крупными элементами управления, без точного касания графика.',mobileReadingLabel:'Текущее показание прибора',mobileReadingHint:'Сначала выбери осадки, температуру или ветер, затем установи значение и нажми кнопку ниже.',mobileDraftValue:'Устанавливаемое значение',mobileSliderRain:'Ползунок осадков',mobileSliderTemp:'Ползунок температуры',mobileWindSelect:'Направление ветра',mobilePlace:'Поставить на климатограмму',mobileNextMonth:'Следующий месяц',mobileStatus:'{month}: размещено {filled} из 3 показаний.',mobileMonthDone:'Месяц {month} полностью заполнен.',mobileReadyForPlace:'Нажми «Поставить на климатограмму».',variable:'Переменный'},
+en:{overline:'Virtual weather station · Geography',title:'Build a Climograph',subtitle:'Task 1: build a climograph. Tasks 2–10: analyze it. Check the entire work at the end.',progressTitle:'Completion progress',chooseCity:'City to explore',chooseLanguage:'Language / Язык',normalsNote:'1991–2020 climate normals · Long-term monthly averages',chooseMonth:'Observation month',instrumentHeading:'Instruments and readings',instrumentShortHelp:'Choose an instrument and place its reading on the climograph',rainGauge:'Rain gauge',rainCaption:'Monthly precipitation total',thermometer:'Thermometer',tempCaption:'Mean monthly air temperature',vane:'Weather vane',windCaption:'Prevailing wind comes FROM',placed:'✓ On the graph',placedWind:'✓ Inside precipitation bar',howTo:'How it works',instruction1:'Choose a month, then drag an instrument reading to the highlighted column. Plot rainfall as a bar using the right axis and temperature as a point using the left axis. Place the wind arrow on the rainfall bar.',instruction2:'Alternatively tap a reading and then the graph. Fine-tune using − / +. Values snap to the reading when you are close enough.',clearMonth:'↺ Clear month',clearAll:'Reset year',practical:'Interactive geography lab',graphTitle:'Task 1. Build a climograph',legendRain:'Rainfall, mm — bars',legendTemp:'Temperature, °C — line',legendWind:'Wind direction — arrows',scrollHint:'↔ The chart scrolls horizontally on small screens. Tap instead of dragging.',check:'Go to tasks 2–10 ↓',successTitle:'✓ Task 1 completed!',successText:'Now complete tasks 2–10 below.',sourceLabel:'Data sources:',tempSourceLabel:'Temperature & rainfall',windSourceLabel:'Wind direction',footnote:'Wind direction indicates where the wind blows FROM.',windSourceNote:'Note: for some cities, winds are represented by the seasonally prevailing sector, not independent month-by-month frequency tables; “Var.” means variable direction during an inter-monsoon period.',checkIncomplete:'Place all 36 measurements first.',checkEmpty:'Climograph is not complete',checkReady:'Climograph filled — tasks 2–10 available',checkSolved:'Entire work checked ✓',monthsFilled:'Months complete: {n} of 12',arrowStep:'Rotate by 45°',step:'Step: {n}',startWith:'Place the reading first',adjustRain:'Rainfall bar height:',adjustTemp:'Temperature point position:',adjustWind:'Weather-vane arrow direction:',hintRain:'💧 Rain gauge: set bar height using the right axis (mm).',hintTemp:'🌡️ Thermometer: plot the point using the left axis (°C).',hintWind:'🧭 Weather vane: put the arrow on an existing rainfall bar.',tempAxis:'TEMPERATURE, °C',rainAxis:'PRECIPITATION, mm',yearAxis:'MONTHS OF THE YEAR',sitePill:'📍 Single site · {name}',weatherStation:'Station: {name}',doneHint:'Correctness of all ten tasks is checked only at the end.',noFull:'Complete all 12 months',errors:'Incorrect readings: {n}. Fix the red pulsing elements.',errorsMonths:'Months with errors: {names}.',fixed:'No errors remain! Press “Check” again.',great:'Excellent! All 36 readings are correct.',outGraph:'Drop the reading inside the chart area.',wrongMonth:'Selected month: {month}. Use the highlighted column.',firstRain:'Plot the rainfall bar first.',insideBar:'Put the arrow inside the rainfall bar.',range:'Choose a position inside the chart.',placedWindMessage:'Wind arrow placed in rainfall bar.',confirmMonth:'Clear all three readings for {month}?',confirmYear:'Clear all 36 readings for this city?',observation:'Reading: {x}',langInfo:'Interface language: English',sourceMethod:'Method: {s}',frequency:'most frequent of eight compass directions',model:'mean prevailing flow from ERA5-Land',seasonal:'approximate monthly sector from seasonal description; not a separately measured normal',mobileModeTitle:'Mobile build mode',mobileModeLead:'On a phone you can choose a reading and place it on the climograph using large controls instead of precise taps on the chart.',mobileReadingLabel:'Current instrument reading',mobileReadingHint:'Choose precipitation, temperature or wind, set the value, then press the button below.',mobileDraftValue:'Value to place',mobileSliderRain:'Rainfall slider',mobileSliderTemp:'Temperature slider',mobileWindSelect:'Wind direction',mobilePlace:'Place on the climograph',mobileNextMonth:'Next month',mobileStatus:'{month}: {filled} of 3 readings placed.',mobileMonthDone:'Month {month} is complete.',mobileReadyForPlace:'Press “Place on the climograph”.',variable:'Variable'}
+};
+let lang='ru',city='minsk';const empty=()=>Array.from({length:12},()=>({rain:null,temp:null,wind:null}));
+const state={month:0,active:'rain',values:empty(),checked:false,errors:[],solved:false,hover:null,mobileDraft:null,answers:{},answersChecked:false,answerErrors:[],answersSolved:false};
+const tr=(key,vars={})=>(EXTRA_TEXT[lang][key]||TEXT[lang][key]||key).replace(/\{(\w+)\}/g,(_,k)=>vars[k]??'');
+const num=x=>lang!=='en'?String(x).replace('.',','):String(x);
+const direction=x=>DIR[lang][x];
+const ref=m=>({rain:CITY[city].rain[m],temp:CITY[city].temp[m],wind:CITY[city].wind[m]});
+function fmt(k,v){if(v===null)return '—';return k==='rain'?`${num(v)} ${lang==='en'?'mm':'мм'}`:k==='temp'?`${v>0?'+':''}${num(v)} °C`:direction(v);}
+const PT={x:87,y:74,w:900,h:449},B=PT.y+PT.h,CELL=PT.w/12,ix=i=>PT.x+CELL*(i+.5);
+let pMax=120,tMin=-20,tMax=30;
+function rescale(){pMax=Math.max(100,Math.ceil((Math.max(...CITY[city].rain)+10)/50)*50);tMin=Math.floor((Math.min(...CITY[city].temp)-2)/5)*5;tMax=Math.ceil((Math.max(...CITY[city].temp)+2)/5)*5;}
+const pY=mm=>B-(mm/pMax)*PT.h,tY=t=>B-(t-tMin)/(tMax-tMin)*PT.h;
+const storageKey=()=>`meteolab_5cities_${city}_v2`;
+ function save(){try{localStorage.setItem(storageKey(),JSON.stringify({month:state.month,values:state.values,checked:state.checked,verified:state.solved,fullVerified:state.answersSolved,answers:state.answers,answersChecked:state.answersChecked}));localStorage.setItem('meteolab_ui_v2',JSON.stringify({lang,city}));}catch(e){}}
+ function load(){state.values=empty();state.month=0;state.checked=false;state.errors=[];state.solved=false;state.hover=null;state.active='rain';state.mobileDraft=null;state.answers={};state.answersChecked=false;state.answerErrors=[];state.answersSolved=false;try{const d=JSON.parse(localStorage.getItem(storageKey())||'null');if(d&&Array.isArray(d.values)&&d.values.length===12){for(let i=0;i<12;i++)for(const k of ['rain','temp','wind']){const v=d.values[i]?.[k];if(typeof v==='number'&&Number.isFinite(v))state.values[i][k]=v;}state.month=clamp(Number(d.month)||0,0,11);state.answers=(d.answers&&typeof d.answers==='object'&&!Array.isArray(d.answers))?d.answers:{};state.checked=Boolean(d.checked)&&getProgress()===36;state.answersChecked=state.checked&&Boolean(d.answersChecked);if(state.checked){state.errors=chartErrors();state.answerErrors=FIELDS.filter(f=>!isCorrectAnswer(f,expectations()));state.answersSolved=Boolean(d.fullVerified)&&state.errors.length===0&&state.answerErrors.length===0;state.solved=state.answersSolved;}}}catch(e){}rescale();}
+function applyLang(){document.documentElement.lang=lang;document.title=lang==='ru'?'Метеолаб — климатограммы десяти городов':lang==='be'?'Метэалаб — кліматаграмы дзесяці гарадоў':'MeteoLab — Climographs for Ten Cities';for(const el of document.querySelectorAll('[data-i18n]'))el.textContent=tr(el.dataset.i18n);for(const btn of document.querySelectorAll('[data-language]')){btn.classList.toggle('selected',btn.dataset.language===lang);btn.setAttribute('aria-pressed',String(btn.dataset.language===lang))}const cityOpts=Object.entries(CITY).map(([k,v])=>`<option value="${k}">${esc(v.name[lang])}</option>`).join('');$('citySelect').innerHTML=cityOpts;$('citySelect').value=city;$('monthSelect').innerHTML=MONTH[lang].map((x,i)=>`<option value="${i}">${x}</option>`).join('');$('prevMonth').setAttribute('aria-label',lang==='ru'?'Предыдущий месяц':lang==='be'?'Папярэдні месяц':'Previous month');$('nextMonth').setAttribute('aria-label',lang==='ru'?'Следующий месяц':lang==='be'?'Наступны месяц':'Next month');refreshAnswerOptions();render();}
+function setCity(next){if(!(next in CITY)||next===city)return;save();city=next;load();state.mobileDraft=null;save();applyLang();renderAnalysis();refreshFeedback();}
+function setLang(next){if(!['ru','en','be'].includes(next)||lang===next)return;lang=next;state.mobileDraft=null;save();applyLang();renderAnalysis();refreshFeedback();}
+function selectMonth(m){state.month=(m+12)%12;state.hover=null;state.mobileDraft=null;save();render();}
+function tool(k){state.active=k;state.hover=null;state.mobileDraft=null;render();}
+ function setValue(k,x){let v;if(k==='rain')v=clamp(Math.round(x),0,pMax);else if(k==='temp')v=clamp(Math.round((x+Number.EPSILON)*10)/10,tMin,tMax);else v=(Math.round(x)%9+9)%9;state.values[state.month][k]=v;state.mobileDraft=null;state.solved=false;state.answersSolved=false;if(state.checked){state.errors=chartErrors();if(getProgress()!==36){state.checked=false;state.answersChecked=false;state.errors=[];state.answerErrors=[];}}save();render();refreshFeedback();renderAnalysis();}
+function rainSvg(r){let h=clamp(r/pMax*67,3,67),wt=86-h;return `<svg viewBox="0 0 115 115" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="4" y="4" width="107" height="107" rx="18" fill="#e7f4fb"/><ellipse cx="57" cy="99" rx="34" ry="5" fill="#c5e0ef"/><path d="M36 17 L78 17 L74 93 Q57 100 40 93Z" fill="#fff" stroke="#468caf" stroke-width="3"/><path d="M40 ${wt.toFixed(1)} Q57 ${wt-4} 74 ${wt}L73 92Q57 97 41 92Z" fill="#65b7e0" opacity=".85"/><path d="M48 35H61 M48 45H57 M48 55H61 M48 65H57 M48 75H61 M48 85H57" stroke="#4d91b7" stroke-width="1.6"/><path d="M31 24l-4 10M83 23l5 9" stroke="#99bcd7" stroke-width="3"/></svg>`}
+function tempSvg(t){const h=clamp((t-tMin)/(tMax-tMin)*58,4,58);return `<svg viewBox="0 0 115 115" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="4" y="4" width="107" height="107" rx="18" fill="#fff1e7"/><circle cx="78" cy="31" r="14" fill="#ffe0ad"/><rect x="38" y="15" width="23" height="78" rx="11" fill="white" stroke="#aa8d80" stroke-width="3"/><rect x="45" y="23" width="9" height="63" rx="4" fill="#ffe6d6"/><rect x="45" y="${(85-h).toFixed(1)}" width="9" height="${h.toFixed(1)}" rx="4" fill="#e87953"/><circle cx="49.5" cy="85" r="12" fill="#e87953" stroke="white" stroke-width="3"/><path d="M63 27h8 M63 42h6 M63 57h8 M63 72h6" stroke="#bba099" stroke-width="1.6"/></svg>`}
+function vaneSvg(d){const deg=d*45;const mark=d===8?`<g><path d="M34 30h47m-10-6 10 6-10 6m-27-12-10 6 10 6" stroke="#4e6495" stroke-width="3.5" fill="none" stroke-linecap="round"/></g>`:`<g transform="rotate(${deg} 58 41)"><path d="M58 58V12" stroke="#394b8e" stroke-width="4"/><path d="M58 11L48 29H68Z" fill="#50699f"/><path d="M58 55L51 43H65Z" fill="#a4b5d1"/></g>`;return `<svg viewBox="0 0 115 115" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="4" y="4" width="107" height="107" rx="18" fill="#ebeff9"/><ellipse cx="58" cy="100" rx="29" ry="5" fill="#c7d2e9"/><path d="M58 26V99" stroke="#526d91" stroke-width="4"/><path d="M19 43h78M58 17v63" stroke="#a1afc8" stroke-width="1.5" opacity=".55"/>${mark}<circle cx="58" cy="41" r="5" fill="#314b7d"/><g font-family="system-ui" font-size="10" font-weight="700" fill="#526791" text-anchor="middle"><text x="58" y="10">${lang==='ru'?'С':lang==='be'?'Пн':'N'}</text><text x="104" y="46">${lang==='ru'?'В':lang==='be'?'У':'E'}</text><text x="58" y="94">${lang==='ru'?'Ю':lang==='be'?'Пд':'S'}</text><text x="10" y="46">${lang==='ru'?'З':lang==='be'?'З':'W'}</text></g></svg>`}
+
+function isMobileBuild(){return window.matchMedia('(max-width:780px)').matches;}
+function defaultDraftValue(kind){return kind==='rain'?Math.round(pMax*.4):kind==='temp'?clamp(Math.round((((tMin+tMax)/2)+Number.EPSILON)*10)/10,tMin,tMax):0;}
+function getMobileDraft(){
+  const actual=state.values[state.month][state.active];
+  if(state.mobileDraft===null||state.mobileDraft===undefined)state.mobileDraft=actual!==null?actual:defaultDraftValue(state.active);
+  return state.mobileDraft;
+}
+function setMobileDraft(val){
+  const kind=state.active;
+  if(kind==='rain')state.mobileDraft=clamp(Math.round(Number(val)||0),0,pMax);
+  else if(kind==='temp')state.mobileDraft=clamp(Math.round(((Number(val)||0)+Number.EPSILON)*10)/10,tMin,tMax);
+  else state.mobileDraft=((Math.round(Number(val)||0)%9)+9)%9;
+  state.hover=isMobileBuild()&&kind!=='wind'?state.mobileDraft:null;
+  updateAdjust();updateMobileBuilder();renderGraph();
+}
+function placedCountForMonth(m=state.month){return ['rain','temp','wind'].filter(k=>state.values[m][k]!==null).length;}
+function nextOpenMonth(from=state.month){for(let step=1;step<=12;step++){const idx=(from+step)%12;if(placedCountForMonth(idx)<3)return idx;}return (from+1)%12;}
+function mobilePlaceCurrent(){
+  const kind=state.active;
+  if(kind==='wind'&&state.values[state.month].rain===null){toast(tr('firstRain'));tool('rain');return;}
+  const draft=getMobileDraft();
+  setValue(kind,draft);
+  const pending=['rain','temp','wind'].find(k=>state.values[state.month][k]===null);
+  if(pending){tool(pending);toast(tr('mobileReadyForPlace'));}
+  else toast(tr('mobileMonthDone',{month:MONTH[lang][state.month]}));
+}
+function goNextMonthMobile(){selectMonth(nextOpenMonth(state.month));}
+function updateMobileBuilder(){
+  const box=$('mobileBuilder'); if(!box)return;
+  const show=isMobileBuild(); box.hidden=!show; if(!show){state.hover=null;return;}
+  const filled=placedCountForMonth();
+  const draft=getMobileDraft();
+  state.hover=state.active!=='wind'?draft:null;
+  $('mobileMonthBadge').textContent=MONTH[lang][state.month];
+  $('mobileReadingLabel').textContent=tr('mobileReadingLabel');
+  $('mobileReadingValue').textContent=fmt(state.active,ref(state.month)[state.active]);
+  $('mobileReadingHint').textContent=tr('mobileReadingHint');
+  $('mobileStatusLine').textContent=tr('mobileStatus',{filled,month:MONTH[lang][state.month]});
+  $('mobilePlaceButton').textContent=tr('mobilePlace');
+  $('mobileNextMonthButton').textContent=tr('mobileNextMonth');
+  $('mobileToolTabs').innerHTML=[['rain',tr('rainGauge')],['temp',tr('thermometer')],['wind',tr('vane')]].map(([k,label])=>`<button type="button" class="mobile-tool-btn ${state.active===k?'selected':''}" data-mobile-kind="${k}" data-kind="${k}">${esc(label)}</button>`).join('');
+  let control='';
+  if(state.active==='wind'){
+    control=`<div class="mobile-current"><span>${esc(tr('mobileDraftValue'))}</span><strong>${esc(fmt('wind',draft))}</strong></div><label for="mobileWindSelect" class="panel-label" style="margin-bottom:0">${esc(tr('mobileWindSelect'))}</label><select id="mobileWindSelect" class="mobile-direction-select">${WIND_NAMES[lang].map((name,i)=>`<option value="${i}" ${i===draft?'selected':''}>${esc(name)} (${esc(DIR[lang][i])})</option>`).join('')}</select>`;
+  } else {
+    const min=state.active==='rain'?0:tMin,max=state.active==='rain'?pMax:tMax,step=state.active==='rain'?1:0.1;
+    control=`<div class="mobile-current"><span>${esc(tr('mobileDraftValue'))}</span><strong>${esc(fmt(state.active,draft))}</strong></div><div class="mobile-range-wrap"><label for="mobileRange" class="panel-label" style="margin-bottom:0">${esc(tr(state.active==='rain'?'mobileSliderRain':'mobileSliderTemp'))}</label><input id="mobileRange" class="mobile-range" type="range" min="${min}" max="${max}" step="${step}" value="${draft}" aria-label="${esc(tr(state.active==='rain'?'mobileSliderRain':'mobileSliderTemp'))}"><div class="mobile-range-scale"><span>${esc(fmt(state.active,min))}</span><span>${esc(fmt(state.active,max))}</span></div></div><div class="mobile-stepper"><button type="button" class="round-btn" id="mobileMinus" aria-label="minus">−</button><div class="adjust-number">${esc(fmt(state.active,draft))}</div><button type="button" class="round-btn" id="mobilePlus" aria-label="plus">+</button></div>`;
+  }
+  $('mobileControlArea').innerHTML=control;
+}
+
+
+/* Localized countries and built-in vector flag icons. No network dependencies. */
+const COUNTRY={
+  london:{ru:'Великобритания',be:'Вялікабрытанія',en:'United Kingdom'},
+  minsk:{ru:'Беларусь',be:'Беларусь',en:'Belarus'},
+  brest:{ru:'Беларусь',be:'Беларусь',en:'Belarus'},
+  vitebsk:{ru:'Беларусь',be:'Беларусь',en:'Belarus'},
+  gomel:{ru:'Беларусь',be:'Беларусь',en:'Belarus'},
+  grodno:{ru:'Беларусь',be:'Беларусь',en:'Belarus'},
+  mogilev:{ru:'Беларусь',be:'Беларусь',en:'Belarus'},
+
+  astana:{ru:'Казахстан',be:'Казахстан',en:'Kazakhstan'},
+  singapore:{ru:'Республика Сингапур',be:'Рэспубліка Сінгапур',en:'Republic of Singapore'},
+  mexico:{ru:'Мексика',be:'Мексіка',en:'Mexico'}
+};
+const FLAG={
+  london:`<svg class="location-flag" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="60" height="40" fill="#012169"/><path d="M-5 -4L65 44M65 -4L-5 44" stroke="#fff" stroke-width="10"/><path d="M-5 -4L65 44M65 -4L-5 44" stroke="#c8102e" stroke-width="4"/><path d="M30 0V40M0 20H60" stroke="#fff" stroke-width="14"/><path d="M30 0V40M0 20H60" stroke="#c8102e" stroke-width="8"/></svg>`,
+  minsk:`<svg class="location-flag" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="60" height="40" fill="#006b3f"/><rect width="60" height="27" fill="#c8313e"/><rect width="11" height="40" fill="#fff"/><path d="M5.5 1l3 5-3 5-3-5zm0 12l3 5-3 5-3-5zm0 12l3 5-3 5-3-5z" fill="#bb2538"/><path d="M1 0V40M10 0V40" stroke="#c8313e" stroke-width="1"/></svg>`,
+  astana:`<svg class="location-flag" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="60" height="40" fill="#00abc4"/><path d="M5 1V39" stroke="#f6c94e" stroke-width="1.5"/><path d="M2 4l3 3 3-3M2 14l3 3 3-3M2 24l3 3 3-3M2 34l3 3 3-3" fill="none" stroke="#f6c94e" stroke-width="1.7"/><g fill="#f6c94e"><circle cx="35" cy="15" r="6"/><path d="M34 4h2v4h-2zm0 18h2v4h-2zm-15 8q9-8 16-1 8-7 17 1-10-2-17 4-7-6-16-4z"/><path d="M25 6l3 3-1 1-3-3zm21 0l-3 3 1 1 3-3zM22 15h5v2h-5zm21 0h5v2h-5z"/></g></svg>`,
+  singapore:`<svg class="location-flag" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="60" height="40" fill="#fff"/><rect width="60" height="20" fill="#ed2939"/><circle cx="17" cy="10" r="7.6" fill="#fff"/><circle cx="20" cy="8.3" r="6.7" fill="#ed2939"/><g fill="#fff"><path d="M31 2l1.2 2.4 2.7.4-2 1.9.5 2.7-2.4-1.3-2.4 1.3.5-2.7-2-1.9 2.7-.4z"/><path d="M40 6l1.1 2.2 2.4.4-1.7 1.6.4 2.5-2.2-1.2-2.2 1.2.4-2.5-1.7-1.6 2.4-.4z"/><path d="M38 14l1 2 2.3.3-1.6 1.6.4 2.3-2.1-1.1-2.1 1.1.4-2.3-1.6-1.6 2.3-.3z"/><path d="M28 14l1 2 2.3.3-1.6 1.6.4 2.3-2.1-1.1-2.1 1.1.4-2.3-1.6-1.6 2.3-.3z"/><path d="M24 6l1.1 2.2 2.4.4-1.7 1.6.4 2.5-2.2-1.2-2.2 1.2.4-2.5-1.7-1.6 2.4-.4z"/></g></svg>`,
+  mexico:`<svg class="location-flag" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="20" height="40" fill="#006847"/><rect x="20" width="20" height="40" fill="#fff"/><rect x="40" width="20" height="40" fill="#ce1126"/><g transform="translate(30 22)"><path d="M-5 11Q-12 3-6-6Q-2-12 3-8Q8-5 5 0Q1 5 4 8" stroke="#786747" stroke-width="2" fill="#9a8350"/><path d="M-5-4Q-1-11 3-6L5-1Q8-3 9-1L6 1Q3 7-2 6L-4 10Q-10 6-6 1Z" fill="#856f43"/><path d="M-7 13Q-11 9-11 4M-6 14Q-10 10-9 6M6 13Q10 9 10 4M6 14Q10 9 9 6" stroke="#457d3d" stroke-width="1.3" fill="none"/></g></svg>`
+};
+// All Belarusian regional capitals display the same embedded national flag.
+for(const regionalCity of ['brest','vitebsk','gomel','grodno','mogilev']) FLAG[regionalCity]=FLAG.minsk;
+function updateLocationPill(){
+ const named=CITY[city].name[lang],country=COUNTRY[city][lang],el=$('sitePill');
+ el.innerHTML=`${FLAG[city]}<span class="location-names"><strong class="location-city">${esc(named)}</strong><span class="location-country">${esc(country)}</span></span>`;
+ el.setAttribute('aria-label',`${named}, ${country}`);
+}
+
+function updateCards(){const o=ref(state.month),v=state.values[state.month];$('monthSelect').value=String(state.month);$('citySelect').value=city;$('monthDots').innerHTML=['rain','temp','wind'].map(k=>`<i class="dot ${v[k]!==null?'done':''}" title="${k}"></i>`).join('');$('rainArt').innerHTML=rainSvg(o.rain);$('tempArt').innerHTML=tempSvg(o.temp);$('windArt').innerHTML=vaneSvg(o.wind);for(const k of ['rain','temp','wind']){const cap=$(`chip${k.charAt(0).toUpperCase()+k.slice(1)}`);cap.innerHTML=esc(fmt(k,o[k]))+' <small>↗</small>';cap.setAttribute('aria-label',tr('observation',{x:fmt(k,o[k])}));let el=document.querySelector(`.instrument[data-kind="${k}"]`);el.classList.toggle('active',state.active===k);el.classList.toggle('done',v[k]!==null)}updateLocationPill();$('cityMeta').textContent='◈ '+CITY[city].coords;}
+function updateAdjust(){
+ const k=state.active,v=state.values[state.month][k];
+ $('adjustTitle').textContent=tr({rain:'adjustRain',temp:'adjustTemp',wind:'adjustWind'}[k]);
+ $('adjustValue').textContent=fmt(k,v);
+ $('decrease').disabled=v===null; $('increase').disabled=v===null;
+ $('adjustDesc').textContent=v===null?tr('startWith'):(k==='wind'?tr('arrowStep'):tr('step',{n:k==='rain'?(lang==='en'?'1 mm':'1 мм'):'0.1 °C'}));
+ const windPicker=$('desktopWindPicker'),windSelect=$('desktopWindSelect');
+ windPicker.hidden=k!=='wind';
+ if(k==='wind'){
+   const options=`<option value="">${esc(tr('placeholderWind'))}</option>`+WIND_NAMES[lang].map((name,i)=>`<option value="${i}">${esc(name)} (${esc(DIR[lang][i])})</option>`).join('');
+   if(windSelect.innerHTML!==options)windSelect.innerHTML=options;
+   windSelect.value=v===null?'':String(v);
+   $('desktopWindPickerLabel').textContent=tr('windAnnualField');
+ }
+}
+const getProgress=()=>state.values.reduce((s,v)=>s+['rain','temp','wind'].filter(k=>v[k]!==null).length,0);
+ function updateProgress(){let p=getProgress();$('progressText').textContent=`${Math.round(p/36*100)} / 100 %`;$('progressFill').style.width=(p/36*100)+'%';$('progressFoot').textContent=tr('monthsFilled',{n:state.values.filter(v=>Object.values(v).every(x=>x!==null)).length});$('checkButton').hidden=p!==36;$('checkStatus').textContent=p===36?(state.answersSolved?tr('checkSolved'):tr('checkReady')):tr('checkEmpty');$('checkSubtitle').hidden=p!==36;$('checkSubtitle').textContent=p===36?tr('doneHint'):'';$('overview').innerHTML=MONTH[lang].map((mon,i)=>{let done=Object.values(state.values[i]).every(x=>x!==null),bad=state.checked&&state.errors.some(e=>e.m===i);return `<button type="button" data-m="${i}" class="mini-month ${state.month===i?'current':''} ${done?'complete':''} ${bad?'has-error':''}" title="${esc(mon)}" aria-label="${esc(mon)}">${SHORT[lang][i]} ${done?'✓':''}</button>`}).join('');}
+const isErr=(m,k)=>state.checked&&state.errors.some(e=>e.m===m&&e.kind===k);
+/* Automatic SVG annotation arrangement. The measured points, heights and wind bearings are
+   never altered. Only label baselines and weather-vane glyph positions can shift. */
+function annotationBox(x,baseline,width,height=17){return {x:x-width/2,y:baseline-height+3,w:width,h:height};}
+function boxOverlap(a,b,gap=3){return Math.max(0,Math.min(a.x+a.w+gap,b.x+b.w+gap)-Math.max(a.x-gap,b.x))*Math.max(0,Math.min(a.y+a.h+gap,b.y+b.h+gap)-Math.max(a.y-gap,b.y));}
+function annotationWidth(text,kind){
+  // All labels use the same Segoe UI 13px / 700-weight typography.
+  const cap=kind==='temp'?8.1:kind==='wind'?8.6:8.1;
+  return Math.max(21,[...String(text)].reduce((sum,ch)=>sum+(ch==='1'?6.1:ch===','||ch==='.'?4.5:ch==='−'||ch==='-'?5.5:cap),0)+8);
+}
+function bestAnnotation(anchor,candidates,occupied,width,height=17,limits=null){
+  const region=limits||{left:PT.x+4,right:PT.x+PT.w-4,top:47,bottom:B+7};
+  let best=null;
+  for(let i=0;i<candidates.length;i++){
+    let [dx,dy]=candidates[i],x=anchor.x+dx,y=anchor.y+dy;
+    let box=annotationBox(x,y,width,height);
+    const outside=Math.max(0,region.left-box.x)+Math.max(0,box.x+box.w-region.right)+Math.max(0,region.top-box.y)+Math.max(0,box.y+box.h-region.bottom);
+    const overlap=occupied.reduce((sum,other)=>sum+boxOverlap(box,other),0);
+    const score=outside*900+overlap*65+Math.hypot(dx,dy)*.26+i*.2;
+    if(!best||score<best.score)best={x,y,box,score,dx,dy};
+    if(outside===0&&overlap===0)break;
+  }
+  occupied.push(best.box);
+  return best;
+}
+function annotationLeader(anchor,label,color){
+  const cx=label.x,cy=label.box.y+label.box.h/2;
+  if(Math.hypot(cx-anchor.x,cy-anchor.y)<26)return '';
+  return `<line x1="${anchor.x}" y1="${anchor.y}" x2="${cx}" y2="${cy}" stroke="${color}" stroke-width="1.3" opacity=".66" stroke-dasharray="2 3" pointer-events="none"/>`;
+}
+function calculateWindGlyph(x,barTop,tempY,variable,occupied,hoverBox){
+  const depth=Math.max(0,B-barTop),hh=variable?14:14,hw=variable?20:13;
+  const defaultY=B-clamp(depth*.5,10,85);
+  const candidates=[defaultY];
+  if(depth>31){
+    for(const step of [18,-18,35,-35,52,-52,70,-70,90,-90]){
+      const y=clamp(defaultY+step,barTop+hh+1,B-hh-1);
+      if(!candidates.some(v=>Math.abs(y-v)<2))candidates.push(y);
+    }
+  }
+  let best=null;
+  for(const y of candidates){
+    let box={x:x-hw-3,y:y-hh-3,w:2*hw+6,h:2*hh+6};
+    const outside=(depth>=32?Math.max(0,barTop+hh-y)+Math.max(0,y-(B-hh)):0);
+    const overlap=occupied.reduce((sum,item)=>sum+boxOverlap(box,item,2),0);
+    const score=outside*1000+overlap*70+Math.abs(y-defaultY)*.55;
+    if(best===null||score<best.score)best={x,y,box,score};
+    if(score===0)break;
+  }
+  occupied.push(best.box);
+  return best;
+}
+function renderGraph(){
+ const a=['<defs><linearGradient id="rgr" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4fa1d6"/><stop offset="100%" stop-color="#8cc9ea"/></linearGradient></defs>','<rect width="1070" height="620" fill="white" rx="10"/>'];
+ a.push(`<rect class="stripe" x="${PT.x+CELL*state.month+4}" y="${PT.y-8}" width="${CELL-8}" height="${PT.h+20}" rx="9"/>`);
+ const pStep=pMax>250?50:pMax>150?25:20;
+ for(let v=0;v<=pMax;v+=pStep){const y=pY(v);a.push(`<line class="grid ${v===0?'zero':''}" x1="${PT.x}" x2="${PT.x+PT.w}" y1="${y}" y2="${y}"/><text class="tick" x="${PT.x+PT.w+22}" y="${y+5}">${v}</text>`)}
+ for(let t=tMin;t<=tMax;t+=5){const y=tY(t);a.push(`<line class="grid ${t===0?'zero':''}" opacity=".46" x1="${PT.x}" x2="${PT.x+PT.w}" y1="${y}" y2="${y}"/><text class="tick" x="${PT.x-17}" y="${y+5}" text-anchor="end">${t>0?'+':''}${t}</text>`)}
+ a.push(`<text x="${PT.x}" y="33" class="axis-label">${tr('tempAxis')}</text><text x="${PT.x+PT.w}" y="33" text-anchor="end" class="axis-label">${tr('rainAxis')}</text>`);
+ for(let i=0;i<12;i++){
+   const x=ix(i),v=state.values[i];
+   a.push(`<line x1="${PT.x+i*CELL}" y1="${PT.y}" x2="${PT.x+i*CELL}" y2="${B}" stroke="#eef3f3" stroke-width="1"/>`);
+   if(v.rain!==null){let y=pY(v.rain);a.push(`<rect x="${x-21}" y="${y}" width="42" height="${Math.max(1,B-y)}" rx="4" class="rain-bar ${i===state.month?'selected':''} ${isErr(i,'rain')?'pulse-error':''}"/>`)}
+   a.push(`<text x="${x}" y="${B+36}" text-anchor="middle" class="month-lbl ${i===state.month?'selected':''}">${SHORT[lang][i]}</text>`);
+ }
+ for(let i=0;i<11;i++){
+   const v=state.values[i].temp,nn=state.values[i+1].temp;
+   if(v!==null&&nn!==null)a.push(`<line class="temp-path" x1="${ix(i)}" y1="${tY(v)}" x2="${ix(i+1)}" y2="${tY(nn)}"/>`);
+ }
+ // First reserve exact locations for the real temperature points.
+ const occupied=[];
+ for(let i=0;i<12;i++){
+   const v=state.values[i].temp;
+   if(v!==null){const x=ix(i),y=tY(v);occupied.push({x:x-10,y:y-10,w:20,h:20});
+     a.push(`<circle cx="${x}" cy="${y}" r="7" class="temp-point ${isErr(i,'temp')?'pulse-error':''}"/>`);
+   }
+ }
+ // Keep an active measurement guide prominent and reserve its numeric label so existing
+ // labels move out of the way while a pupil moves the cursor.
+ const hoverDraw=[],hoverLabels=[];
+ if(state.hover!==null&&state.active!=='wind'){
+   const x=ix(state.month),y=state.active==='rain'?pY(state.hover):tY(state.hover);
+   const rain=state.values[state.month].rain,rainTop=rain===null?Infinity:pY(rain);
+   const markOverRain=rain!==null&&y>=rainTop&&y<=B;
+   const reading=fmt(state.active,state.hover),w=Math.max(52,annotationWidth(reading,state.active)+15);
+   const plan=bestAnnotation({x,y},[[0,-19],[0,32],[30,-18],[-30,-18],[30,34],[-30,34],[0,-39],[0,52]],occupied,w,21);
+   const inRain=rain!==null&&plan.box.y+plan.box.h/2>=rainTop&&plan.box.y<=B;
+   hoverDraw.push(`<line class="hoverline ${markOverRain?'over-rain':''}" x1="${x-27}" y1="${y}" x2="${x+27}" y2="${y}"/><circle class="hoverdot ${markOverRain?'over-rain':''}" cx="${x}" cy="${y}" r="5"/>`);
+   hoverLabels.push(annotationLeader({x,y},plan,'#14999f'));
+   if(inRain)hoverLabels.push(`<rect class="hover-reading-backdrop" x="${plan.box.x-3}" y="${plan.box.y-3}" width="${plan.box.w+6}" height="${plan.box.h+6}" rx="8"/>`);
+   hoverLabels.push(`<text class="hover-reading ${inRain?'over-rain':''}" x="${plan.x}" y="${plan.y}" text-anchor="middle">${esc(reading)}</text>`);
+ }
+ // Place direction arrows only within their own month's precipitation bar. Leave the
+ // instrument bearing unchanged, moving the glyph vertically when a temperature point is near.
+ const windGlyphs=[],winds=[];
+ for(let i=0;i<12;i++){
+   const v=state.values[i];if(v.wind===null)continue;
+   const x=ix(i),barTop=v.rain===null?B:pY(v.rain);
+   const glyph=calculateWindGlyph(x,barTop,v.temp===null?null:tY(v.temp),v.wind===8,occupied);
+   winds.push({i,x,y:glyph.y,v:v.wind});
+   if(v.wind===8){windGlyphs.push(`<g transform="translate(${x},${glyph.y})" class="${isErr(i,'wind')?'pulse-error':''}"><rect x="-19" y="-13" width="38" height="25" rx="12" fill="#eaeefb" stroke="#7289b5"/><text class="wind-label" x="0" y="5">${direction(v.wind)}</text></g>`)}
+   else{windGlyphs.push(`<g transform="translate(${x},${glyph.y})"><g class="wind-arrow ${isErr(i,'wind')?'pulse-error':''}" transform="rotate(${v.wind*45})"><path d="M0 10 V-12 M-6 -6 L0 -12 L6 -6"/></g></g>`)}
+   if(isErr(i,'wind'))windGlyphs.push(`<circle class="err-halo" cx="${x}" cy="${glyph.y}" r="22"/>`);
+ }
+ a.push(...windGlyphs,...hoverDraw);
+ // Place measurements as one annotation layer: rainfall, wind and temperature share the
+ // same collision boxes and react to all other existing texts and markers.
+ const lines=[],labels=[];
+ for(let i=0;i<12;i++){
+   const v=state.values[i];if(v.rain===null)continue;
+   const x=ix(i),y=pY(v.rain),text=String(v.rain);
+   const target={x,y};
+   const shifts=[[0,-10],[0,24],[-22,-10],[22,-10],[-23,24],[23,24],[0,-28],[0,42],[-30,-29],[30,-29],[-31,43],[31,43]];
+   const plan=bestAnnotation(target,shifts,occupied,annotationWidth(text,'rain'));
+   lines.push(annotationLeader(target,plan,'#2774a5'));
+   labels.push(`<text class="rain-reading" data-auto-label="rain" data-month="${i}" x="${plan.x}" y="${plan.y}" text-anchor="middle">${text}</text>`);
+ }
+ for(const wind of winds){
+   if(wind.v===8)continue; // Variable wind is labelled inside its own pictogram.
+   const {x,y,i,v}=wind,text=direction(v),target={x,y};
+   const shifts=[[0,29],[0,-22],[26,5],[-26,5],[25,28],[-25,28],[0,46],[0,-39],[31,-25],[-31,-25]];
+   const plan=bestAnnotation(target,shifts,occupied,annotationWidth(text,'wind'));
+   lines.push(annotationLeader(target,plan,'#536a9f'));
+   labels.push(`<text class="wind-label" data-auto-label="wind" data-month="${i}" x="${plan.x}" y="${plan.y}" text-anchor="middle">${esc(text)}</text>`);
+ }
+ for(let i=0;i<12;i++){
+   const v=state.values[i];if(v.temp===null)continue;
+   const x=ix(i),y=tY(v.temp),text=`${v.temp>0?'+':''}${num(v.temp)}`,target={x,y};
+   const shifts=[[0,-16],[0,29],[-25,-16],[25,-16],[-25,27],[25,27],[0,-34],[0,49],[-30,-35],[30,-35],[-30,49],[30,49],[0,-53],[0,66]];
+   const plan=bestAnnotation(target,shifts,occupied,annotationWidth(text,'temp'));
+   lines.push(annotationLeader(target,plan,'#e16f49'));
+   labels.push(`<text class="placed-temp-reading" data-auto-label="temp" data-month="${i}" x="${plan.x}" y="${plan.y}" text-anchor="middle">${esc(text)}</text>`);
+ }
+ a.push(...lines,...labels,...hoverLabels);
+ a.push(`<text x="${PT.x+PT.w/2}" y="601" text-anchor="middle" class="chart-footer">${tr('yearAxis')} · ${CITY[city].name[lang]}</text>`);
+ $('graph').innerHTML=a.join('');
+ $('graphInstruction').textContent=tr({rain:'hintRain',temp:'hintTemp',wind:'hintWind'}[state.active]);
+}
+function render(){updateCards();updateAdjust();updateProgress();updateMobileBuilder();renderGraph();}
+let toastTimer;function toast(s){const el=$('toast');el.textContent=s;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2500)}
+function graphPoint(X,Y){let r=$('graph').getBoundingClientRect();return {x:(X-r.left)*1070/r.width,y:(Y-r.top)*620/r.height};}
+function placeAt(X,Y,k){const {x,y}=graphPoint(X,Y);if(x<PT.x-9||x>PT.x+PT.w+9||y<PT.y-14||y>B+18){toast(tr('outGraph'));return false;}let m=clamp(Math.floor((x-PT.x)/CELL),0,11);if(m!==state.month){toast(tr('wrongMonth',{month:MONTH[lang][state.month]}));return false;}if(k==='wind'){if(state.values[m].rain===null){toast(tr('firstRain'));tool('rain');return false;}if(y<pY(state.values[m].rain)-13){toast(tr('insideBar'));return false;}setValue('wind',ref(m).wind);toast(tr('placedWindMessage'));return true;}if(y<PT.y||y>B){toast(tr('range'));return false;}let v=k==='rain'?(B-y)/PT.h*pMax:(B-y)/PT.h*(tMax-tMin)+tMin;let target=ref(m)[k],pos=k==='rain'?pY(target):tY(target);if(Math.abs(y-pos)<=(k==='rain'?11:15))v=target;setValue(k,v);return true;}
+function svgEventValue(e,k){let {x,y}=graphPoint(e.clientX,e.clientY);if(x<PT.x||x>PT.x+PT.w||y<PT.y||y>B||k==='wind')return null;let v=k==='rain'?(B-y)/PT.h*pMax:(B-y)/PT.h*(tMax-tMin)+tMin;return k==='rain'?Math.round(v):Math.round(v*10)/10;}
+ function chartErrors(){const errs=[];for(let i=0;i<12;i++)for(const k of ['rain','temp','wind'])if(state.values[i][k]!==ref(i)[k])errs.push({m:i,kind:k});return errs;}
+ function refreshFeedback(){const el=$('feedback'),list=$('graphCorrections');if(!state.checked){el.hidden=true;list.hidden=true;return;}el.hidden=false;const n=state.errors.length;el.className='feedback'+(n?'':' good');el.textContent=n?tr('graphCorrections',{n}):tr('graphCorrect');list.hidden=!n;if(n){list.innerHTML=state.errors.map(({m,kind})=>{const wrong=fmt(kind,state.values[m][kind]),correct=fmt(kind,ref(m)[kind]);return `<button type="button" class="graph-fix" data-correct-month="${m}"><strong>${esc(MONTH[lang][m])} · ${esc(tr('graphField_'+kind))}</strong><span class="wrong-value">${esc(wrong)}</span> → <span class="true-value">${esc(correct)}</span></button>`}).join('')}else list.innerHTML='';}
+ function check(){if(getProgress()!==36){toast(tr('checkIncomplete'));return;}$('analysis').scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});}
+let dragged=null,ignoreUntil=0;for(const cap of document.querySelectorAll('.reading-chip')){cap.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;dragged={kind:cap.dataset.kind,x:e.clientX,y:e.clientY,id:e.pointerId,moved:false,ghost:null};tool(cap.dataset.kind);e.preventDefault()});cap.addEventListener('click',e=>{if(Date.now()<ignoreUntil)e.preventDefault();else tool(cap.dataset.kind)})}
+window.addEventListener('pointermove',e=>{if(!dragged||e.pointerId!==dragged.id)return;const dist=Math.hypot(e.clientX-dragged.x,e.clientY-dragged.y);if(dist>8&&!dragged.moved){dragged.moved=true;dragged.ghost=document.createElement('div');dragged.ghost.className='drag-ghost';dragged.ghost.textContent=fmt(dragged.kind,ref(state.month)[dragged.kind]);document.body.appendChild(dragged.ghost)}if(dragged.moved){dragged.ghost.style.left=e.clientX+'px';dragged.ghost.style.top=e.clientY+'px';let v=svgEventValue(e,dragged.kind);if(state.hover!==v){state.hover=v;renderGraph()}}},{passive:true});
+window.addEventListener('pointerup',e=>{if(!dragged||e.pointerId!==dragged.id)return;if(dragged.moved){placeAt(e.clientX,e.clientY,dragged.kind);ignoreUntil=Date.now()+300;}dragged.ghost?.remove();dragged=null;state.hover=null;renderGraph()});window.addEventListener('pointercancel',()=>{dragged?.ghost?.remove();dragged=null;state.hover=null;renderGraph()});
+$('graph').addEventListener('pointermove',e=>{if(dragged)return;let v=svgEventValue(e,state.active);if(v!==state.hover){state.hover=v;renderGraph()}});$('graph').addEventListener('pointerleave',()=>{if(!dragged&&state.hover!==null){state.hover=null;renderGraph()}});$('graph').addEventListener('click',e=>{if(Date.now()<ignoreUntil)return;placeAt(e.clientX,e.clientY,state.active)});
+$('graph').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();const k=state.active;if(k==='wind'){if(state.values[state.month].rain!==null)setValue(k,ref(state.month).wind);else toast(tr('firstRain'))}else setValue(k,state.values[state.month][k]??ref(state.month)[k]);}else if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();adjust(e.key==='ArrowUp'?1:-1)}});
+function adjust(sign){let k=state.active,v=state.values[state.month][k];if(v===null)return;setValue(k,v+sign*(k==='rain'?1:k==='temp'?.1:1));}
+$('decrease').addEventListener('click',()=>adjust(-1));$('increase').addEventListener('click',()=>adjust(1));$('monthSelect').addEventListener('change',e=>selectMonth(+e.target.value));$('prevMonth').addEventListener('click',()=>selectMonth(state.month-1));$('nextMonth').addEventListener('click',()=>selectMonth(state.month+1));$('overview').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(b)selectMonth(+b.dataset.m)});
+$('citySelect').addEventListener('change',e=>setCity(e.target.value));document.querySelectorAll('[data-language]').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.language)));
+$('mobileToolTabs').addEventListener('click',e=>{const b=e.target.closest('[data-mobile-kind]');if(b)tool(b.dataset.mobileKind||b.dataset.kind);});
+$('mobileControlArea').addEventListener('input',e=>{if(e.target.id==='mobileRange')setMobileDraft(e.target.value);if(e.target.id==='mobileWindSelect')setMobileDraft(e.target.value);});
+$('mobileControlArea').addEventListener('change',e=>{if(e.target.id==='mobileWindSelect')setMobileDraft(e.target.value);});
+$('mobileControlArea').addEventListener('click',e=>{if(e.target.id==='mobileMinus'){e.preventDefault();setMobileDraft((getMobileDraft())-(state.active==='rain'?1:0.1));}if(e.target.id==='mobilePlus'){e.preventDefault();setMobileDraft((getMobileDraft())+(state.active==='rain'?1:0.1));}});
+$('desktopWindSelect').addEventListener('change',e=>{
+ const input=e.target.value;
+ if(input==='')return;
+ if(state.values[state.month].rain===null){toast(tr('firstRain'));e.target.value='';return;}
+ setValue('wind',+input);
+});
+$('mobilePlaceButton').addEventListener('click',mobilePlaceCurrent);$('mobileNextMonthButton').addEventListener('click',goNextMonthMobile);
+ $('clearMonth').addEventListener('click',()=>{if(Object.values(state.values[state.month]).every(v=>v===null))return;if(confirm(tr('confirmMonth',{month:MONTH[lang][state.month]}))){state.values[state.month]={rain:null,temp:null,wind:null};state.checked=false;state.answersChecked=false;state.errors=[];state.answerErrors=[];state.solved=false;state.answersSolved=false;$('success').hidden=true;$('feedback').hidden=true;$('graphCorrections').hidden=true;save();render();renderAnalysis()}});
+ $('clearAll').addEventListener('click',()=>{if(confirm(tr('confirmYear'))){state.values=empty();state.month=0;state.active='rain';state.checked=false;state.answersChecked=false;state.errors=[];state.answerErrors=[];state.solved=false;state.answersSolved=false;$('success').hidden=true;$('feedback').hidden=true;$('graphCorrections').hidden=true;save();render();renderAnalysis()}});
+$('checkButton').addEventListener('click',check);window.addEventListener('resize',()=>{if(state.hover!==null){state.hover=null;renderGraph()}});
+ $('graphCorrections').addEventListener('click',e=>{const b=e.target.closest('[data-correct-month]');if(!b)return;selectMonth(+b.dataset.correctMonth);$('graphScroll').scrollIntoView({behavior:'smooth',block:'center'});});
+
+function monthOptions(selected){return `<option value="">${esc(tr('placeholderMonth'))}</option>`+MONTH[lang].map((m,i)=>`<option value="${i}" ${String(selected)===String(i)?'selected':''}>${esc(m)}</option>`).join('');}
+function labelFor(f,value){if(value===null||value===undefined)return '—';if(f.endsWith('Month'))return MONTH[lang][+value]||'—';if(f==='belt')return tr('belt_'+value);if(f==='climateType')return tr('type_'+value);if(f==='windAnnual')return WIND_NAMES[lang][value]+' ('+DIR[lang][value]+')';return num(value)+(f==='annualRain'||f.endsWith('Rain')?' '+(lang==='en'?'mm':'мм'):' °C');}
+function refreshAnswerOptions(){for(const f of FIELDS){const el=$('answer_'+f);if(!el)continue;if(f.endsWith('Month'))el.innerHTML=monthOptions(state.answers[f]??'');else if(f==='windAnnual')el.innerHTML=`<option value="">${esc(tr('placeholderWind'))}</option>`+WIND_NAMES[lang].slice(0,8).map((name,i)=>`<option value="${i}">${esc(name)} (${esc(DIR[lang][i])})</option>`).join('');else if(f==='belt'||f==='climateType'){const opts=f==='belt'?BELTS:TYPES;const placeholder=f==='belt'?'placeholderBelt':'placeholderType';const prefix=f==='belt'?'belt_':'type_';el.innerHTML=`<option value="">${esc(tr(placeholder))}</option>`+opts.map(k=>`<option value="${k}">${esc(tr(prefix+k))}</option>`).join('');}el.value=state.answers[f]??'';}
+$('chooseCitySelect').innerHTML=Object.entries(CITY).map(([k,v])=>`<option value="${k}">${esc(v.name[lang])}</option>`).join('');$('chooseCitySelect').value=city;document.querySelector('[data-i18n="windAnnualQuestion"]').textContent=tr('windAnnualQuestion',{city:CITY[city].name[lang]});document.querySelector('[data-i18n="beltQuestion"]').textContent=tr('beltQuestion',{city:CITY[city].name[lang]});document.querySelector('[data-i18n="typeQuestion"]').textContent=tr('typeQuestion',{city:CITY[city].name[lang]});}
+function parseNumber(s){if(typeof s!=='string'||!s.trim())return null;const fixed=s.trim().replace(',','.');return /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(fixed)?Number(fixed):null;}
+const extremes=(series,extreme)=>{const val=extreme==='max'?Math.max(...series):Math.min(...series);return {value:val,months:series.flatMap((v,i)=>v===val?[i]:[])};};
+function annualWindDirections(){
+ const count=Array(8).fill(0);
+ for(const d of CITY[city].wind) if(Number.isInteger(d)&&d>=0&&d<8) count[d]++;
+ const max=Math.max(...count);
+ return count.map((n,i)=>n===max?i:-1).filter(i=>i!==-1);
+}
+function expectations(){const {temp,rain}=CITY[city];const hi=extremes(temp,'max'),lo=extremes(temp,'min'),wet=extremes(rain,'max'),dry=extremes(rain,'min');return {warmMonth:hi.months,warmTemp:hi.value,coldMonth:lo.months,coldTemp:lo.value,amplitude:Math.round((hi.value-lo.value)*10)/10,wetMonth:wet.months,wetRain:wet.value,dryMonth:dry.months,dryRain:dry.value,annualRain:rain.reduce((a,b)=>a+b,0),windAnnual:annualWindDirections(),belt:CLIMATE[city].belt,climateType:CLIMATE[city].type};}
+function correctAnswer(f,exp){const val=exp[f];if(Array.isArray(val))return val.map(i=>f==='windAnnual'?WIND_NAMES[lang][i]+' ('+DIR[lang][i]+')':MONTH[lang][i]).join(lang==='ru'?' или ':lang==='be'?' або ':' or ');return labelFor(f,val);}
+function beForm(n){return n%10===1&&n%100!==11?'памылка':(n%10>=2&&n%10<=4&&!(n%100>=12&&n%100<=14)?'памылкі':'памылак');}
+function errorMessage(n){let ruForm=n%10===1&&n%100!==11?'ошибка':(n%10>=2&&n%10<=4&&!(n%100>=12&&n%100<=14)?'ошибки':'ошибок');const accuracy=Math.round(100*(36+FIELDS.length-n)/(36+FIELDS.length));return tr('answersPartial',{n,plural:lang==='ru'?ruForm:lang==='be'?beForm(n):n===1?'mistake':'mistakes'})+' '+tr('workAccuracy',{percent:accuracy});}
+function isCorrectAnswer(f,exp){const user=state.answers[f];const goal=exp[f];if(Array.isArray(goal))return goal.includes(Number(user))&&user!==undefined&&user!=='';if(f==='belt'||f==='climateType')return user===goal;const n=parseNumber(String(user??''));return n!==null&&Math.abs(n-goal)<0.00001;}
+ function renderAnalysis(){const open=getProgress()===36;const content=$('analysisContent');if(!content)return;$('analysisLocked').hidden=open;content.hidden=!open;$('analysisStatus').textContent=state.answersSolved?tr('analysisStatusDone'):open?tr('analysisStatusReady'):tr('analysisStatusLocked');if(!open){$('answerFeedback').hidden=true;return;}for(const f of FIELDS){const el=$('answer_'+f);if(!el)continue;if(document.activeElement!==el&&el.value!==String(state.answers[f]??''))el.value=state.answers[f]??'';const bad=state.answersChecked&&state.answerErrors.includes(f),wrapper=$('field_'+f),tip=$('correct_'+f);wrapper.classList.toggle('is-wrong',bad);wrapper.classList.toggle('is-correct',state.answersChecked&&!bad&&el.value!=='');tip.hidden=!bad;tip.textContent=bad?tr('correctValue',{value:correctAnswer(f,expectations())}):'';}const all=FIELDS.every(f=>String(state.answers[f]??'').trim()!=='');$('checkAnswers').hidden=!all;const result=$('answerFeedback');if(!state.answersChecked){result.hidden=true;}else{const n=state.errors.length+state.answerErrors.length;result.hidden=state.answersSolved;result.className='answer-feedback'+(n?'':' good');result.textContent=n?errorMessage(n):tr('answersReadyRetry');}}
+ function onAnswerChange(e){const k=e.target.dataset.answer;if(!FIELDS.includes(k))return;state.answers[k]=e.target.value;state.answersSolved=false;state.solved=false;if(state.answersChecked){const exp=expectations();state.answerErrors=FIELDS.filter(f=>!isCorrectAnswer(f,exp));}save();renderAnalysis();}
+ function checkAnswers(){if(getProgress()!==36){toast(tr('graphFirst'));return;}const missing=FIELDS.some(k=>String(state.answers[k]??'').trim()==='');if(missing){toast(tr('answersHint'));return;}state.checked=true;state.answersChecked=true;state.errors=chartErrors();const expected=expectations();state.answerErrors=FIELDS.filter(f=>!isCorrectAnswer(f,expected));const total=state.errors.length+state.answerErrors.length;state.solved=total===0;state.answersSolved=total===0;save();render();refreshFeedback();renderAnalysis();if(total===0){$('completeModal').hidden=false;$('repeatWork').focus();}else{$('answerFeedback').scrollIntoView({behavior:'smooth',block:'nearest'});toast(errorMessage(total));}}
+ function freshStart(){state.values=empty();state.month=0;state.active='rain';state.checked=false;state.errors=[];state.solved=false;state.hover=null;state.answers={};state.answersChecked=false;state.answerErrors=[];state.answersSolved=false;$('completeModal').hidden=true;$('success').hidden=true;$('feedback').hidden=true;$('graphCorrections').hidden=true;save();refreshAnswerOptions();render();renderAnalysis();window.scrollTo({top:0,behavior:'smooth'});}
+function showCityDialog(){$('completeModal').hidden=true;$('chooseCitySelect').value=city;if(typeof $('chooseDialog').showModal==='function')$('chooseDialog').showModal();else $('chooseDialog').setAttribute('open','');}
+function chooseAnotherCity(){const v=$('chooseCitySelect').value;$('chooseDialog').close?.();if(v===city){freshStart();return;}setCity(v);$('completeModal').hidden=true;window.scrollTo({top:0,behavior:'smooth'});}
+document.querySelectorAll('[data-answer]').forEach(el=>{el.addEventListener('input',onAnswerChange);el.addEventListener('change',onAnswerChange);});
+$('checkAnswers').addEventListener('click',checkAnswers);
+$('repeatWork').addEventListener('click',freshStart);
+$('chooseWork').addEventListener('click',showCityDialog);
+$('cancelChoose').addEventListener('click',()=>$('chooseDialog').close?.());
+$('confirmChoose').addEventListener('click',chooseAnotherCity);
+$('exitWork').addEventListener('click',()=>{save();window.location.replace('about:blank');});
+ // Tasks 2–10 unlock after all 36 plotted values are entered; only the final button evaluates work.
+
+try{const opt=JSON.parse(localStorage.getItem('meteolab_ui_v2')||'null');if(opt&&['ru','en','be'].includes(opt.lang))lang=opt.lang;if(opt&&CITY[opt.city])city=opt.city;}catch(e){}
+load();applyLang();renderAnalysis();
+window.Meteolab={getState:()=>JSON.parse(JSON.stringify({city,lang,month:state.month,active:state.active,values:state.values,progress:getProgress(),errors:state.errors,solved:state.solved,answers:state.answers,answerErrors:state.answerErrors,answersSolved:state.answersSolved,pMax,tMin,tMax})),cities:Object.keys(CITY),reference:(c=city)=>CITY[c].temp.map((temp,i)=>({temp,rain:CITY[c].rain[i],wind:CITY[c].wind[i]})),chooseCity:setCity,chooseLanguage:setLang,selectMonth,selectTool:tool,expectations,answer:(field,value)=>{if(FIELDS.includes(field)){state.answers[field]=String(value);onAnswerChange({target:{dataset:{answer:field},value:String(value)}})}},checkAnswers,checkWork:checkAnswers,repeat:freshStart,placeExact:(month,kind)=>{selectMonth(month);setValue(kind,ref(month)[kind])},check};
+})();
+</script>
+<script id="mode-script">
+(()=>{
+const key='meteolab_visual_dashboard_mode_v1';
+const root=document.documentElement;
+const btn=document.getElementById('modeToggle');
+const labels={ru:{heading:'Тема оформления',light:'Светлая',dark:'Тёмная'},be:{heading:'Тэма афармлення',light:'Светлая',dark:'Цёмная'},en:{heading:'Appearance',light:'Light',dark:'Dark'}};
+let saved;
+try{saved=localStorage.getItem(key)}catch(e){}
+let mode=saved==='dark'||saved==='light'?saved:'light';
+function setMode(next){mode=next;root.setAttribute('data-mode',mode);try{localStorage.setItem(key,mode)}catch(e){}refresh();}
+function refresh(){const t=labels[root.lang]||labels.ru;document.getElementById('themeLabel').textContent=t.heading;
+document.getElementById('modeText').textContent=mode==='dark'?t.dark:t.light;
+document.getElementById('modeIcon').textContent=mode==='dark'?'☾':'☀';
+btn.setAttribute('aria-pressed',String(mode==='dark'));btn.title=t.heading+' — '+t[mode];}
+btn.addEventListener('click',()=>setMode(mode==='dark'?'light':'dark'));
+(new MutationObserver(refresh)).observe(root,{attributes:true,attributeFilter:['lang']});
+setMode(mode);
+window.MeteolabDesign={name:'04 · Цифровая география',getMode:()=>mode,setMode};
+})();
+</script>
+</body></html>

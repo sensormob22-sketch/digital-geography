@@ -1,0 +1,66 @@
+/* Платформа «Цифровая география». Service Worker: core shell + opt-in works. */
+const VERSION='geo-core-2026-10-v1';
+const CORE=`${VERSION}-shell`;
+const WORKS='geo-offline-works-v1';
+const BASE=new URL(self.registration.scope);
+const coreFiles=['./','index.html','offline.html','manifest.webmanifest','assets/styles.css','assets/app.js','assets/pwa.js','assets/favicon.svg','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/icon-maskable-512.png'];
+const inScope=(url)=>url.origin===self.location.origin && url.pathname.startsWith(BASE.pathname);
+const absolute=path=>new URL(path,BASE).href;
+const workURL=absolute('works/9/3/index.html');
+self.addEventListener('install',event=>{
+  event.waitUntil(caches.open(CORE).then(cache=>cache.addAll(coreFiles.map(absolute))));
+  // No skipWaiting: never interrupt a pupil's unfinished work.
+});
+self.addEventListener('activate',event=>{
+  event.waitUntil((async()=>{
+    const names=await caches.keys();
+    await Promise.all(names.filter(n=>n.startsWith('geo-core-')&&n!==CORE).map(n=>caches.delete(n)));
+    await self.clients.claim();
+  })());
+});
+self.addEventListener('fetch',event=>{
+  const request=event.request;
+  if(request.method!=='GET'||!inScope(new URL(request.url)))return;
+  const uri=new URL(request.url);
+  const isWork=uri.pathname===new URL(workURL).pathname || uri.pathname===new URL(absolute('works/9/3/')).pathname;
+  if(isWork){
+    event.respondWith((async()=>{
+      const cache=await caches.open(WORKS);
+      const hit=await cache.match(workURL);
+      if(hit)return hit;
+      try{return await fetch(request)}catch{return (await caches.match(absolute('offline.html'))) || Response.error()}
+    })());
+    return;
+  }
+  if(request.mode==='navigate'){
+    event.respondWith((async()=>{
+      try{const response=await fetch(request);if(response.ok){const cache=await caches.open(CORE);await cache.put(absolute('index.html'),response.clone());}return response;}
+      catch{return (await caches.match(absolute('index.html'))) || (await caches.match(absolute('offline.html'))) || Response.error()}
+    })());
+    return;
+  }
+  event.respondWith((async()=>{
+    const cached=await caches.match(request,{ignoreSearch:true});
+    if(cached)return cached;
+    try{return await fetch(request)}catch{return Response.error()}
+  })());
+});
+self.addEventListener('message',event=>{
+  const msg=event.data||{}; const port=event.ports?.[0];
+  const reply=data=>port?.postMessage(data);
+  if(msg.type==='SKIP_WAITING'){self.skipWaiting();return;}
+  event.waitUntil((async()=>{
+    if(['CACHE_WORK','REMOVE_WORK','CHECK_WORK'].includes(msg.type)){
+      const cache=await caches.open(WORKS);
+      try{
+        if(msg.type==='CHECK_WORK'){reply({ok:true,downloaded:!!(await cache.match(workURL))});return;}
+        if(msg.type==='REMOVE_WORK'){await cache.delete(workURL);reply({ok:true,downloaded:false});return;}
+        const response=await fetch(workURL,{cache:'reload'});
+        if(!response.ok)throw Error(`HTTP ${response.status}`);
+        await cache.put(workURL,response.clone());
+        reply({ok:true,downloaded:true});return;
+      }catch(err){reply({ok:false,error:String(err)});return;}
+    }
+    reply({ok:false,error:'Unknown request'});
+  })());
+});

@@ -1,0 +1,38 @@
+<aside class="sidebar" id="sidebar" aria-label="Основное меню">
+    <a class="brand" href="#practice/9" aria-label="Главная страница практических работ">
+      <span class="brand-symbol" aria-hidden="true"><svg viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="17" stroke="currentColor" stroke-width="2.1"/><path d="M5 22h34M22 5c-8 9-8 25 0 34M22 5c8 9 8 25 0 34M9 12c7 5 19 5 26 0M9 32c7-5 19-5 26 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+      <span class="brand-copy"><strong data-i18n="brand">ГЕОГРАФИЯ</strong><small data-i18n="brandSub">Интерактивное обучение</small></span>
+    </a>
+    <div class="sidebar-kicker" data-i18n="menu">НАВИГАЦИЯ</div>
+    <nav class="side-nav" id="mainNavigation" aria-label="Разделы сайта">
+      <button type="button" class="nav-main" data-section="about" id="navAbout">
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M5.5 20v-1.2c0-3.5 2.9-6.2 6.5-6.2s6.5 2.7 6.5 6.2V20"/></svg>
+        <span data-i18n="about">О себе</span>
+      </button>
+      <div class="nav-category">
+        <button type="button" class="nav-main" id="navPractice" data-toggle="practice" aria-expanded="true" aria-controls="submenuPractice">
+          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h7.5a4 4 0 0 1 3 1.3A4 4 0 0 1 17.5 5.5H20v13h-3.5a4.5 4.5 0 0 0-4 1.5 4.5 4.5 0 0 0-4-1.5H4zM12.5 6.7V20"/></svg>
+          <span data-i18n="practices">Практические работы по географии</span>
+          <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+        </button>
+        <div class="submenu" id="submenuPractice" data-submenu="practice"></div>
+      </div>
+      <div class="nav-category">
+        <button type="button" class="nav-main" id="navNomenclature" data-toggle="nomenclature" aria-expanded="false" aria-controls="submenuNomenclature">
+          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 5 6-2 6 3 6-2v15l-6 2-6-3-6 2zM9 3v15M15 6v15"/></svg>
+          <span data-i18n="nomenclature">Географическая номенклатура</span>
+          <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+        </button>
+        <div class="submenu" id="submenuNomenclature" data-submenu="nomenclature" hidden></div>
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="side-note"><span class="note-dot"></span><span data-i18n="sideNote">Практика, карты и исследования — в одном месте</span></div>
+      <div class="side-controls">
+        <span class="control-label" data-i18n="theme">Оформление</span>
+        <button type="button" class="theme-button" id="themeButton" aria-label="Переключить тему">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.5 13A8.5 8.5 0 0 1 11 3.5 8.5 8.5 0 1 0 20.5 13Z"/></svg><span id="themeLabel" data-i18n="darkMode">Тёмная тема</span>
+        </button>
+      </div>
+    </div>
+  </aside>
