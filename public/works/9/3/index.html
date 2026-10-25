@@ -1358,4 +1358,213 @@ window.MeteolabDesign={name:'04 · Цифровая география',getMode:
 })();
 </script>
 
+<script id="pdf-report-script">
+
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const dict={
+ru:{share:'Поделиться',save:'Сохранить PDF',native:'Поделиться файлом…',title:'МЕТЕОЛАБ · ОТЧЁТ О РАБОТЕ',graph:'1. Построенная климатограмма',table:'Показания приборов по месяцам',analysis:'2–10. Анализ климатограммы',month:'Месяц',rain:'Осадки',temp:'Температура',wind:'Ветер',verdict:'Проверка',correct:'Верно',wrong:'Ошибка',right:'Правильно',total:'ИТОГ ПРОВЕРКИ',errors:'Ошибок',accuracy:'Правильность',of:'из',note:'Ошибочные показания и ответы выделены красным.',page:'Страница',name:'Название PDF-файла',notReady:'Сначала завершите работу и проверьте ответы.',fail:'Не удалось создать PDF: '},
+be:{share:'Падзяліцца',save:'Захаваць PDF',native:'Падзяліцца файлам…',title:'МЕТЭАЛАБ · СПРАВАЗДАЧА АБ РАБОЦЕ',graph:'1. Пабудаваная кліматаграма',table:'Паказанні прыбораў па месяцах',analysis:'2–10. Аналіз кліматаграмы',month:'Месяц',rain:'Ападкі',temp:'Тэмпература',wind:'Вецер',verdict:'Праверка',correct:'Правільна',wrong:'Памылка',right:'Правільна',total:'ВЫНІК ПРАВЕРКІ',errors:'Памылак',accuracy:'Правільнасць',of:'з',note:'Памылковыя паказанні і адказы вылучаны чырвоным.',page:'Старонка',name:'Назва PDF-файла',notReady:'Спачатку скончыце работу і праверце адказы.',fail:'Не ўдалося стварыць PDF: '},
+en:{share:'Share',save:'Save PDF',native:'Share file…',title:'METEOLAB · WORK REPORT',graph:'1. Completed climograph',table:'Monthly instrument readings',analysis:'2–10. Climograph analysis',month:'Month',rain:'Rainfall',temp:'Temperature',wind:'Wind',verdict:'Review',correct:'Correct',wrong:'Error',right:'Expected',total:'ASSESSMENT RESULT',errors:'Mistakes',accuracy:'Accuracy',of:'of',note:'Incorrect measurements and answers are highlighted in red.',page:'Page',name:'PDF file name',notReady:'Complete and check your work first.',fail:'Could not create PDF: '}};
+const pal={navy:'#183b4b',muted:'#637c87',line:'#d7e4e8',teal:'#118899',red:'#bd3047',softRed:'#ffecef',green:'#23745a',soft:'#edf7f7'};
+const W=1414,H=2000,PAD=80;
+const current=()=>dict[document.documentElement.lang]||dict.ru;
+let currentAnchor=null;
+function menuClose(){
+ $('pdfShareMenu').hidden=true;currentAnchor=null;
+ ['shareResult','shareSuccess'].forEach(id=>$(id).setAttribute('aria-expanded','false'));
+}
+function textUpdate(){
+ const t=current();
+ $('shareResultLabel').textContent=t.share;$('shareSuccessLabel').textContent=t.share;
+ $('pdfSaveLabel').textContent=t.save;$('pdfNativeShareLabel').textContent=t.native;
+ $('pdfNativeShareAction').hidden=typeof navigator.share!=='function';
+ $('pdfShareMenu').setAttribute('aria-label',t.share);
+}
+function menuToggle(btn){
+ const box=$('pdfShareMenu');
+ if(!box.hidden&&currentAnchor===btn){menuClose();return}
+ menuClose();textUpdate();box.hidden=false;currentAnchor=btn;
+ const rect=btn.getBoundingClientRect(),w=box.offsetWidth,h=box.offsetHeight;
+ box.style.left=Math.max(10,Math.min(innerWidth-w-10,rect.right-w))+'px';
+ box.style.top=(rect.bottom+8+h>innerHeight?Math.max(10,rect.top-h-8):rect.bottom+8)+'px';
+ btn.setAttribute('aria-expanded','true');$('pdfSaveAction').focus();
+}
+function canvasPage(){
+ const cv=document.createElement('canvas');cv.width=W;cv.height=H;
+ const ctx=cv.getContext('2d',{alpha:false});ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
+ return {cv,ctx};
+}
+function txt(ctx,value,x,y,size=22,color=pal.navy,bold=false,align='left'){
+ ctx.save();ctx.font=(bold?'700 ':'400 ')+size+'px "Segoe UI",Arial,sans-serif';
+ ctx.textAlign=align;ctx.textBaseline='alphabetic';ctx.fillStyle=color;
+ ctx.fillText(String(value??''),x,y);ctx.restore();
+}
+function fit(ctx,value,width,size=21,bold=false){
+ let str=String(value??'');ctx.font=(bold?'700 ':'400 ')+size+'px "Segoe UI",Arial,sans-serif';
+ if(ctx.measureText(str).width<=width)return str;
+ while(str.length>1&&ctx.measureText(str+'…').width>width)str=str.slice(0,-1);
+ return str+'…';
+}
+function round(ctx,x,y,w,h,r,fill,stroke=null){
+ ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=fill;ctx.fill();
+ if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke()}
+}
+function pageHead(ctx,r,t,index){
+ round(ctx,PAD,55,W-2*PAD,127,17,pal.soft);
+ txt(ctx,t.title,PAD+24,109,34,pal.navy,true);
+ txt(ctx,r.cityName+' · '+r.coords,PAD+24,153,26,pal.teal,true);
+ txt(ctx,r.date,W-PAD-20,154,22,pal.muted,false,'right');
+ ctx.fillStyle=pal.line;ctx.fillRect(PAD,1919,W-2*PAD,2);
+ txt(ctx,t.page+' '+index+' / 2',W-PAD,1951,20,pal.muted,false,'right');
+}
+function plot(ctx,r,x,y,w,h,t){
+ const b=r.bounds,monthGap=w/12,ybot=y+h;
+ ctx.strokeStyle=pal.line;ctx.lineWidth=1.5;
+ for(let j=0;j<=5;j++){
+  const py=ybot-j*h/5;
+  ctx.beginPath();ctx.moveTo(x,py);ctx.lineTo(x+w,py);ctx.stroke();
+  txt(ctx,String(Math.round(b.pMax*j/5)),x+w+11,py+5,17,pal.muted);
+  txt(ctx,String(Math.round(b.tMin+(b.tMax-b.tMin)*j/5)),x-12,py+5,17,pal.muted,false,'right');
+ }
+ txt(ctx,t.temp+' °C',x,y-17,20,pal.muted,true);
+ txt(ctx,t.rain+' mm',x+w,y-17,20,pal.muted,true,'right');
+ const rainY=v=>ybot-v/b.pMax*h;
+ const tempY=v=>ybot-(v-b.tMin)/(b.tMax-b.tMin)*h;
+ const err=(idx,kind)=>r.chartErrors.some(e=>e.month===idx&&e.kind===kind);
+ r.readings.forEach((row,i)=>{
+  const mid=x+(i+.5)*monthGap,pr=rainY(row.raw.rain),tw=monthGap*.48,wrong=err(i,'rain');
+  ctx.fillStyle=wrong?'#f1a6b2':'#75b9e2';
+  ctx.fillRect(mid-tw/2,pr,tw,ybot-pr);
+  ctx.strokeStyle=wrong?pal.red:'#387eab';ctx.lineWidth=wrong?4:1.5;
+  ctx.strokeRect(mid-tw/2,pr,tw,ybot-pr);
+  txt(ctx,String(row.raw.rain),mid,Math.max(y+22,pr-9),19,wrong?pal.red:'#205e83',wrong,'center');
+  txt(ctx,row.month.slice(0,3),mid,ybot+30,19,pal.navy,true,'center');
+ });
+ ctx.beginPath();ctx.strokeStyle='#e87b50';ctx.lineWidth=4;
+ r.readings.forEach((row,i)=>{const mid=x+(i+.5)*monthGap,ty=tempY(row.raw.temp);
+  if(i===0)ctx.moveTo(mid,ty);else ctx.lineTo(mid,ty);
+ });ctx.stroke();
+ r.readings.forEach((row,i)=>{
+  const mid=x+(i+.5)*monthGap,ty=tempY(row.raw.temp),wrong=err(i,'temp');
+  ctx.beginPath();ctx.arc(mid,ty,wrong?8:6,0,Math.PI*2);
+  ctx.fillStyle=wrong?'#ffe2e7':'#ffffff';ctx.fill();
+  ctx.lineWidth=wrong?4:3;ctx.strokeStyle=wrong?pal.red:'#d76643';ctx.stroke();
+  txt(ctx,String(row.values.temp).replace(' °C',''),mid,ty-13,17,wrong?pal.red:'#a64a35',wrong,'center');
+  const isBadWind=err(i,'wind'),py=ybot-24;
+  round(ctx,mid-27,py-10,54,26,8,isBadWind?pal.softRed:'#edf1fd',isBadWind?pal.red:null);
+  txt(ctx,String(row.values.wind),mid,py+9,16,isBadWind?pal.red:'#354881',isBadWind,'center');
+ });
+}
+function firstPage(r,t){
+ const p=canvasPage(),ctx=p.ctx;pageHead(ctx,r,t,1);
+ txt(ctx,t.graph,PAD,236,30,pal.navy,true);
+ const chartX=PAD+72,chartY=330,chartW=W-2*PAD-142,chartH=468;
+ plot(ctx,r,chartX,chartY,chartW,chartH,t);
+ txt(ctx,t.table,PAD,936,30,pal.navy,true);
+ const headY=962;
+ round(ctx,PAD,headY,W-2*PAD,49,9,pal.soft);
+ const col=[PAD+17,PAD+283,PAD+537,PAD+781,PAD+1064];
+ [t.month,t.rain,t.temp,t.wind,t.verdict].forEach((v,i)=>txt(ctx,v,col[i],headY+32,21,pal.navy,true));
+ r.readings.forEach((row,i)=>{
+  const yy=headY+49+i*62,bad=Object.values(row.errors).some(Boolean);
+  ctx.fillStyle=bad?pal.softRed:i%2?'#f7fafa':'#ffffff';
+  ctx.fillRect(PAD,yy,W-2*PAD,62);
+  if(bad){ctx.fillStyle=pal.red;ctx.fillRect(PAD,yy,5,62)}
+  txt(ctx,row.month,col[0],yy+39,21,pal.navy,true);
+  ['rain','temp','wind'].forEach((k,j)=>{
+   const value=row.values[k];const wrong=row.errors[k];
+   txt(ctx,fit(ctx,value,j===2?260:230,22,wrong),col[j+1],yy+39,22,wrong?pal.red:pal.navy,wrong);
+  });
+  txt(ctx,bad?t.wrong:t.correct,col[4],yy+39,20,bad?pal.red:pal.green,bad);
+  ctx.fillStyle=pal.line;ctx.fillRect(PAD,yy+61,W-2*PAD,1);
+ });
+ txt(ctx,t.note,PAD,1847,22,pal.muted);
+ return p.cv;
+}
+function secondPage(r,t){
+ const p=canvasPage(),ctx=p.ctx;pageHead(ctx,r,t,2);
+ txt(ctx,t.analysis,PAD,239,32,pal.navy,true);
+ const start=267,rowH=99;
+ r.tasks.forEach((row,i)=>{
+  const y=start+i*rowH,bad=row.wrong;
+  round(ctx,PAD,y,W-2*PAD,rowH-8,12,bad?pal.softRed:i%2?'#f8fbfb':'#ffffff',bad?'#e6b2bb':pal.line);
+  round(ctx,PAD+15,y+12,49,41,10,bad?'#f9d5dc':'#e1f2f2');
+  txt(ctx,row.number||'-',PAD+39,y+41,22,bad?pal.red:pal.teal,true,'center');
+  txt(ctx,fit(ctx,row.label+' · '+row.question,785,21,true),PAD+77,y+35,21,pal.navy,true);
+  txt(ctx,fit(ctx,row.actual,550,23,bad),PAD+77,y+70,23,bad?pal.red:pal.navy,bad);
+  if(bad)txt(ctx,fit(ctx,t.right+': '+row.correct,535,19,true),W-PAD-16,y+70,19,pal.red,true,'right');
+  else txt(ctx,t.correct,W-PAD-22,y+66,21,pal.green,true,'right');
+ });
+ const y=1710;round(ctx,PAD,y,W-2*PAD,181,18,pal.soft);
+ txt(ctx,t.total,PAD+29,y+51,31,pal.navy,true);
+ txt(ctx,t.errors+': '+r.mistakes,PAD+29,y+101,31,r.mistakes?pal.red:pal.green,true);
+ txt(ctx,t.accuracy+': '+r.accuracy+'%',W-PAD-29,y+101,32,pal.navy,true,'right');
+ txt(ctx,String(r.chartCount+r.taskCount-r.mistakes)+' '+t.of+' '+String(r.chartCount+r.taskCount),PAD+29,y+150,22,pal.muted);
+ return p.cv;
+}
+function pdfFile(canvases){
+ const te=new TextEncoder(),parts=[],offsets=[0];let pos=0;
+ const write=b=>{parts.push(b);pos+=b.length};
+ const a=s=>write(te.encode(s));
+ a('%PDF-1.4\n%METEOLAB\n');
+ const total=2+3*canvases.length;
+ const object=(id,blocks)=>{offsets[id]=pos;a(id+' 0 obj\n');for(const b of blocks){if(typeof b==='string')a(b);else write(b)}a('\nendobj\n')};
+ object(1,['<< /Type /Catalog /Pages 2 0 R >>']);
+ object(2,['<< /Type /Pages /Kids ['+canvases.map((_,i)=>(3+i*3)+' 0 R').join(' ')+'] /Count '+canvases.length+' >>']);
+ canvases.forEach((cv,i)=>{
+  const id=3+i*3,stream='q\n595.276 0 0 841.89 0 0 cm\n/Im0 Do\nQ\n';
+  const binary=atob(cv.toDataURL('image/jpeg',.93).split(',')[1]),jpg=new Uint8Array(binary.length);
+  for(let j=0;j<binary.length;j++)jpg[j]=binary.charCodeAt(j);
+  object(id,['<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.276 841.89] /Resources << /XObject << /Im0 '+(id+2)+' 0 R >> >> /Contents '+(id+1)+' 0 R >>']);
+  object(id+1,['<< /Length '+te.encode(stream).length+' >>\nstream\n',stream,'endstream']);
+  object(id+2,['<< /Type /XObject /Subtype /Image /Width '+cv.width+' /Height '+cv.height+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+jpg.length+' >>\nstream\n',jpg,'\nendstream']);
+ });
+ const xref=pos;a('xref\n0 '+(total+1)+'\n0000000000 65535 f \n');
+ for(let i=1;i<=total;i++)a(String(offsets[i]).padStart(10,'0')+' 00000 n \n');
+ a('trailer\n<< /Size '+(total+1)+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF');
+ return new Blob(parts,{type:'application/pdf'});
+}
+const generate=async()=>{const r=window.Meteolab.getReportData(),t=dict[r.lang]||dict.ru;
+ if(!r.checked)throw Error(t.notReady);
+ return pdfFile([firstPage(r,t),secondPage(r,t)])};
+const suggestedName=r=>('MeteoLab_'+r.cityName+'_'+new Date().toISOString().slice(0,10)+'.pdf').replace(/[\\/:*?"<>|]/g,'_');
+const download=(blob,name)=>{const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)};
+async function save(){
+ const t=current(),r=window.Meteolab.getReportData();if(!r.checked){alert(t.notReady);return}
+ menuClose();const name=suggestedName(r);let handle=null;
+ if(typeof window.showSaveFilePicker==='function'){
+  try{handle=await window.showSaveFilePicker({suggestedName:name,types:[{description:'PDF',accept:{'application/pdf':['.pdf']}}],excludeAcceptAllOption:true})}
+  catch(e){if(e.name==='AbortError')return}
+ }
+ try{
+  const blob=await generate();
+  if(handle){const target=await handle.createWritable();await target.write(blob);await target.close();return}
+  const input=window.prompt(t.name,name);if(input===null)return;
+  const filename=(input.trim()||name).replace(/[\\/:*?"<>|]/g,'_').replace(/\.pdf$/i,'')+'.pdf';
+  const file=new File([blob],filename,{type:'application/pdf'});
+  if(/Android|iPhone|iPad/i.test(navigator.userAgent)&&navigator.canShare?.({files:[file]})){
+   try{await navigator.share({files:[file],title:filename});return}catch(e){if(e.name==='AbortError')return}
+  }
+  download(blob,filename);
+ }catch(e){console.error(e);alert(t.fail+String(e.message||e))}
+}
+async function shareNative(){
+ const t=current(),r=window.Meteolab.getReportData();if(!r.checked){alert(t.notReady);return}
+ menuClose();
+ try{
+  const blob=await generate(),file=new File([blob],suggestedName(r),{type:'application/pdf'});
+  if(navigator.canShare?.({files:[file]})&&navigator.share)await navigator.share({files:[file],title:file.name});
+  else download(blob,file.name);
+ }catch(e){if(e.name!=='AbortError'){console.error(e);alert(t.fail+String(e.message||e))}}
+}
+['shareResult','shareSuccess'].forEach(id=>$(id).addEventListener('click',e=>{e.stopPropagation();menuToggle(e.currentTarget)}));
+$('pdfSaveAction').addEventListener('click',save);
+$('pdfNativeShareAction').addEventListener('click',shareNative);
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#pdfShareMenu,.pdf-share-trigger'))menuClose()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')menuClose()});
+new MutationObserver(textUpdate).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+textUpdate();window.MeteolabReport={generate,save};
+})();
+</script>
 </body></html>
