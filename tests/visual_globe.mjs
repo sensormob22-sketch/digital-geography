@@ -68,7 +68,10 @@ try{
  assert(await page.locator('#points').evaluate(c=>!!c.getContext('2d')));
  await choose('Гималаи');
  assert.match(await page.locator('#factName').innerText(),/Гималаи/);
- assert.match(await page.locator('#factMeta').innerText(),/Приблизительный учебный контур/);
+ assert.deepEqual(await page.locator('#factMeta dt').allInnerTexts(),['Тип объекта','Тематическая группа','Точка-ориентир']);
+ assert.equal(await page.locator('#factMeta dd').count(),3);
+ assert.equal(await page.locator('#count,.counter').count(),0);
+ assert(!/Границы на глобусе|^Карта$/m.test(await page.locator('#factPanel').innerText()));
  assert.equal(await page.locator('#legendPanel input[type="checkbox"]').count(),0,'Contour toggles must not be present');
  assert.equal(await page.evaluate(()=>document.documentElement.dataset.geodata),'50m');
  assert.match(await page.locator('#hint').innerText(),/Перетаскивайте/);
@@ -95,7 +98,10 @@ try{
  assert.match(await page.locator('#hint').innerText(),/Drag to rotate/);
  assert.equal(await page.locator('#plus').getAttribute('title'),'Zoom in');
  assert.equal(await page.locator('#legendPanel input[type="checkbox"]').count(),0);
- assert.match(await page.locator('#factMeta').innerText(),/Approximate teaching outline/);
+ assert.deepEqual(await page.locator('#factMeta dt').allInnerTexts(),['Object type','Topic group','Reference point']);
+ assert.equal(await page.locator('#factMeta dd').count(),3);
+ assert.equal(await page.locator('#count,.counter').count(),0);
+ assert(!/Outline on globe|^Map$/m.test(await page.locator('#factPanel').innerText()));
  const political=path.join(dir,'political_boswash_en.jpg');
  await page.screenshot({path:political,type:'jpeg',quality:70,fullPage:true});
  console.log('POLITICAL_BROWSER_OK',JSON.stringify(pix));
@@ -107,8 +113,19 @@ try{
  assert.equal((await page.locator('#factName').innerText()).trim(),'Мінск');
  assert.match(await page.locator('#legendTitle').innerText(),/Умоўныя абазначэнні/);
  assert.match(await page.locator('#mapMode').innerText(),/Палітычны/);
+ assert.deepEqual(await page.locator('#factMeta dt').allInnerTexts(),['Тып аб’екта','Тэматычная група','Кропка-арыенцір']);
+ assert.equal(await page.locator('#factMeta dd').count(),3);
+ assert.equal(await page.locator('#count,.counter').count(),0);
  assert.match(await page.locator('#hint').innerText(),/Перацягвайце/);
- const overflow=await page.evaluate(()=>({documentWidth:document.documentElement.scrollWidth,viewportWidth:innerWidth}));
+ const overflow=await page.evaluate(()=>({
+   documentWidth:document.documentElement.scrollWidth,viewportWidth:innerWidth,
+   descriptionSize:parseFloat(getComputedStyle(document.querySelector('.fact-description')).fontSize),
+   metaSize:parseFloat(getComputedStyle(document.getElementById('factMeta')).fontSize),
+   cardWidth:document.getElementById('factPanel').getBoundingClientRect().width,
+   cardContentWidth:document.getElementById('factMeta').getBoundingClientRect().width
+ }));
+ assert(overflow.descriptionSize>=12.5&&overflow.metaSize>=11.5,'Mobile card text is too small');
+ assert(overflow.cardContentWidth<=overflow.cardWidth,'Mobile reference information exceeds card bounds');
  assert(overflow.documentWidth<=overflow.viewportWidth+4,'Horizontal overflow on mobile '+JSON.stringify(overflow));
  const mobile=path.join(dir,'mobile_minsk_be.jpg');
  await page.screenshot({path:mobile,type:'jpeg',quality:68,fullPage:true});
