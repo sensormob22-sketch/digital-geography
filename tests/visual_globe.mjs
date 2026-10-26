@@ -84,7 +84,7 @@ try{
  await page.locator('#legendPanel input[data-area-layer="natural"]').check();
  // Political / megaregion contour; switches to EN without dropping selection.
  await open('/globus/index.html?grade=11&lang=ru&theme=dark');
- await choose('Босваш');
+ await choose('Босваш (Приатлантический)');
  assert.match(await page.locator('#mapMode').innerText(),/Политический/);
  pix=await pixelSummary();
  assert(pix.pink>20,'Urban megaregion contour is not visible');
