@@ -27,7 +27,12 @@ for(const [name,shape] of contours){
   }
  }
 }
-assert(natural>=60&&urban>=25,'Unexpected missing contour geometries');
+assert(natural>=66&&urban>=25,'Unexpected missing contour geometries');
+const areaType=/Материк|Часть света|Океан|Горы|Горная система|Равнина|Низменность|Плоскогорье|Нагорье|Море|Залив|Озеро|Группа озёр|Пустыня|Впадина|Полуостров|Возвышенность|Гряда|Национальный парк/;
+for(const grade of [6,7,8,9,10,11])for(const [,rows] of cat[grade])for(const entry of rows.split(';')){
+ const [name,,,type]=entry.split('|');
+ if(areaType.test(type))assert(data.get(name),'Missing areal outline for '+name+' ('+type+')');
+}
 assert(data.get('Гималаи').kind==='natural','Himalayas should be natural');
 assert(data.get('Босваш (Приатлантический)').kind==='urban','BosWash should be urban');
 assert(data.get('Токио').kind==='urban','Tokyo alias should be urban');
