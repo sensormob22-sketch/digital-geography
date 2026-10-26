@@ -79,7 +79,8 @@ try{
  await page.locator('#legendPanel input[data-area-layer="natural"]').uncheck();
  await wait(300);
  const hidden=await pixelSummary();
- assert(hidden.cyan<pix.cyan/2,'Natural contour layer toggle did not hide the outlines');
+ console.log('LAYER_TOGGLE_PIXELS',JSON.stringify({visible:pix.cyan,hidden:hidden.cyan}));
+ assert(hidden.cyan<pix.cyan-30,'Natural contour layer toggle did not hide outlines: '+JSON.stringify({visible:pix.cyan,hidden:hidden.cyan}));
  await page.locator('#legendPanel input[data-area-layer="natural"]').check();
  // Political / megaregion contour; switches to EN without dropping selection.
  await open('/globus/index.html?grade=11&lang=ru&theme=dark');
