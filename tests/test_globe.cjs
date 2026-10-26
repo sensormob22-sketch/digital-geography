@@ -1,0 +1,32 @@
+/* Regression checks for the globe catalogue and three-language names. */
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'../public/globus'),window={};
+const context=vm.createContext({window});
+for(const file of ['objects.js','translations.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
+const catalog=window.GLOBE_CATALOG,translations=window.GLOBE_TRANSLATIONS;
+assert(catalog&&translations,'The globe catalogue and translations must load');
+let count=0,names=new Set(),groups=0;
+for(const grade of [6,7,8,9,10,11]){
+ assert(Array.isArray(catalog[grade])&&catalog[grade].length,'Grade '+grade+' must have nomenclature');
+ for(const [label,rows] of catalog[grade]){
+  const [ru,be]=label.split('|');groups++;
+  for(const lang of ['ru','be','en'])assert(translations.group(ru,be,lang).length,'Group translation '+lang+': '+ru);
+  assert(translations.group(ru,be,'en')!==ru||/^(Австралия|Антарктида)$/.test(ru),'Missing English group name: '+ru);
+  for(const row of rows.split(';')){
+   const [name,lat,lon,type]=row.split('|');count++;names.add(name);
+   assert(Number.isFinite(+lat)&&Number.isFinite(+lon),'Invalid coordinates for '+name);
+   assert(+lat>=-90&&+lat<=90&&+lon>=-180&&+lon<=180,'Coordinates out of range for '+name);
+   for(const lang of ['be','en']){
+    assert(Object.hasOwn(translations.names[lang],name),'Missing '+lang+' translation: '+name);
+    assert(translations.name(name,lang).length,'Empty '+lang+' name: '+name);
+    assert(translations.type(type,lang).length,'Missing '+lang+' type: '+type);
+   }
+  }
+ }
+}
+assert(names.size>=170,'Unexpected loss of names in catalogue');
+assert.equal(translations.name('Тихий океан','en'),'Pacific Ocean');
+assert.equal(translations.name('Минск','be'),'Мінск');
+assert.equal(translations.name('Токио','en'),'Tokyo');
+console.log('Globe tests passed:',count,'objects,',names.size,'unique names,',groups,'groups; RU/BE/EN coverage complete');
