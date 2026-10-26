@@ -41,6 +41,8 @@ try{
  async function choose(s){
   const button=page.locator('#groups button.place').filter({hasText:s}).first();
   assert(await button.count(), 'Cannot locate catalogue item: '+s);
+  const group=button.locator('xpath=ancestor::details').first();
+  if(await group.getAttribute('open')===null)await group.locator('summary').click();
   await button.click();
   await page.waitForFunction(n=>document.getElementById('factName').textContent.includes(n),s,{timeout:8000});
   await wait(1350);
