@@ -17,9 +17,9 @@
 .caption{position:absolute;left:19px;top:16px;color:#e1f4ff;pointer-events:none}.caption strong{display:block;font-size:13px;font-weight:900;letter-spacing:.06em}.caption span{display:block;color:#b7d4e7;font-size:11px;margin-top:3px}
 .zoom{position:absolute;top:14px;right:14px;display:grid;gap:7px}
 .map-mode{position:absolute;top:67px;left:18px;padding:6px 10px;border-radius:8px;background:#102d48de;color:#e0f3ff;font-size:11px;font-weight:800;pointer-events:none}
-.map-legend{position:absolute;right:14px;bottom:15px;max-width:240px;background:#0d2944e6;color:#ecfaff;border:1px solid #82c5d455;border-radius:11px;padding:9px 10px;font-size:10px;line-height:1.35;pointer-events:none}
+.map-legend{position:absolute;right:14px;top:166px;bottom:auto;max-width:240px;background:#0d2944e6;color:#ecfaff;border:1px solid #82c5d455;border-radius:11px;padding:9px 10px;font-size:10px;line-height:1.35;pointer-events:none}
 .map-legend-title{font-weight:800;margin-bottom:5px}.map-legend-scale{display:flex;height:9px;overflow:hidden;border-radius:6px;margin:3px 0}.map-legend-scale b{flex:1}.map-legend-axis{display:flex;justify-content:space-between;font-size:9px;opacity:.85;gap:8px}.map-legend-note{display:block;opacity:.8;margin-top:4px}
-@media(max-width:570px){.map-mode{top:46px;left:10px;font-size:9px;padding:4px 7px}.map-legend{bottom:9px;right:9px;padding:6px;max-width:165px;font-size:9px}.map-legend-axis{font-size:8px}}.zoom button{border:1px solid #aecbe755;border-radius:10px;background:#184266c9;color:#fff;width:42px;height:42px;font-size:22px}
+@media(max-width:570px){.map-mode{top:46px;left:10px;font-size:9px;padding:4px 7px}.map-legend{top:141px;bottom:auto;right:9px;padding:6px;max-width:165px;font-size:9px}.map-legend-axis{font-size:8px}}.zoom button{border:1px solid #aecbe755;border-radius:10px;background:#184266c9;color:#fff;width:42px;height:42px;font-size:22px}
 .selected{position:absolute;bottom:16px;left:16px;right:16px;background:#0d2d48ed;border:1px solid #85d6ec6b;border-radius:15px;padding:13px 16px;color:white;max-width:450px;pointer-events:none;box-shadow:0 14px 25px #0003}
 .selected[hidden]{display:none}.selected small{font-size:11px;color:#a3d7e6}.selected strong{display:block;font-size:20px;margin:3px 0}.selected span{display:block;font-size:12px;color:#d9edfa}.selected .selected-detail{display:block;font-size:11.5px;line-height:1.4;margin-top:8px;color:#eaf7ff;overflow-wrap:anywhere}.selected .selected-detail[hidden]{display:none}.selected{max-width:540px}.hint.up{bottom:195px}
 .hint{position:absolute;left:17px;bottom:15px;color:#bbd4e8;font-size:10px;pointer-events:none}.hint.up{bottom:129px}
@@ -80,6 +80,7 @@ en:['Physical globe','Political globe','Elevations and depths · color scale','C
 function isPolitical(o){
  const ty=o.rawType||'',n=o.rawName||'';
  if(grade===9)return /Город|Столица|Областной центр/.test(ty);
+ if(['Дели','Токио','Шанхай','Москва','Мехико','Роттердам','Дубай','Сингапур'].includes(n))return true;
  if(grade===10)return n!=='Панамский канал';
  if(grade===11)return o.group<=5||o.group===8;
  return false;
