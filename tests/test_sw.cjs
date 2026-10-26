@@ -13,6 +13,8 @@ async function message(type){let reply;await event('message',{data:{type},ports:
 const globeHtml=await globe.text();if(!globeHtml.includes('Учебный глобус'))throw Error('Offline globe was not served from PWA cache');
 const globeData=await event('fetch',{request:{method:'GET',url:base+'globus/world-110m.json',mode:'cors'}});
 const topology=JSON.parse(await globeData.text());if(topology.type!=='Topology')throw Error('Offline globe geometry missing');
+const detail=await event('fetch',{request:{method:'GET',url:base+'globus/world-50m.json',mode:'cors'}});
+if(JSON.parse(await detail.text()).type!=='Topology')throw Error('Offline Natural Earth 50m vector geometry missing');
 const objects=await event('fetch',{request:{method:'GET',url:base+'globus/objects.js',mode:'cors'}});
 if(!(await objects.text()).includes('GLOBE_CATALOG'))throw Error('Offline nomenclature catalogue missing');
 const translations=await event('fetch',{request:{method:'GET',url:base+'globus/translations.js',mode:'cors'}});
