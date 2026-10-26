@@ -26,10 +26,10 @@
 .status{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#122f4be8;color:#fff;padding:12px 18px;border-radius:12px;font-size:13px;text-align:center}
 .status[hidden]{display:none}
 .panel{border:1px solid #e5dff4;border-radius:23px;background:white;overflow:hidden;display:flex;flex-direction:column;max-height:670px;box-shadow:0 12px 29px #321e8c12}
-.panel h2{font-size:20px;letter-spacing:-.04em;margin:0}.panel-head{padding:16px 16px 9px}.panel-head p{font-size:12px;color:#756d88;margin:6px 0}
-.search-wrap{padding:8px 14px 11px}.search-wrap input{width:100%;border-radius:12px;border:1px solid #e0d8f0;background:#faf9ff;padding:11px 13px;font-size:13px;outline:0}
+.panel h2{font-size:19px;letter-spacing:-.025em;margin:0;line-height:1.3}.panel-head{padding:15px 16px 6px}
+.search-wrap{padding:7px 14px 10px}.search-wrap input{width:100%;border-radius:12px;border:1px solid #e0d8f0;background:#faf9ff;padding:11px 13px;font-size:13px;outline:0}
 .groups{min-height:0;overflow:auto;flex:1;padding:0 9px 13px;overscroll-behavior:contain}
-.group{border:1px solid #e9e5f1;border-radius:13px;margin-bottom:8px;overflow:hidden}.group summary{list-style:none;cursor:pointer;background:#f7f4ff;color:#403368;font-weight:830;padding:12px;display:flex;align-items:center;gap:10px;font-size:13px}.group summary::-webkit-details-marker{display:none}.group summary .counter{margin-left:auto;background:#ece5ff;color:#6249be;border-radius:100px;padding:3px 7px;font-size:11px}.group summary:after{content:"⌄";color:#7f63d4;font-size:16px}.group[open] summary:after{content:"⌃"}
+.group{border:1px solid #e9e5f1;border-radius:13px;margin-bottom:8px;overflow:hidden}.group summary{list-style:none;cursor:pointer;background:#f7f4ff;color:#403368;font-weight:830;padding:12px;display:flex;align-items:center;gap:10px;font-size:13px}.group summary::-webkit-details-marker{display:none}.group summary:after{content:"⌄";color:#7f63d4;font-size:16px}.group[open] summary:after{content:"⌃"}
 .group ul{list-style:none;padding:5px;margin:0}.place{display:flex;align-items:center;text-align:left;gap:9px;padding:9px;border:0;background:none;border-radius:10px;width:100%;color:#322d4e}.place:hover,.place.active{background:#ede7ff}.dot{width:9px;height:9px;border-radius:50%;background:#14a6a5;flex:none;box-shadow:0 0 0 3px #14a6a51d}
 .place strong{display:block;font-size:13px}.place small{display:block;font-size:11px;margin-top:2px;color:#827693}
 .empty{color:#8b7a9b;padding:20px;text-align:center;font-size:13px}
@@ -50,19 +50,19 @@
 .sidebar-content{display:flex;flex-direction:column;gap:12px;min-width:0}
 .sidebar-content .panel{max-height:375px;min-height:220px;flex:none}
 .fact-card,.feature-legend{background:white;border:1px solid #e5dff4;border-radius:17px;box-shadow:0 9px 24px #321e8c12;overflow:hidden}
-.fact-card[hidden]{display:none}.fact-card{padding:14px 15px}
-.fact-top{display:flex;align-items:flex-start;gap:10px}
+.fact-card[hidden]{display:none}.fact-card{padding:17px 18px}
+.fact-top{display:flex;align-items:flex-start;gap:12px}
 .fact-avatar{width:44px;height:44px;flex:none;border-radius:13px;background:#eee9ff;display:grid;place-items:center;font-size:23px}
 .fact-title{flex:1;min-width:0}.fact-title small{font-size:11px;font-weight:800;color:#7254b9}
-.fact-title h2{font-size:17px;line-height:1.25;margin:3px 0;overflow-wrap:anywhere}
-.fact-title p{font-size:11.5px;color:#7d738f;margin:0}
+.fact-title h2{font-size:19px;line-height:1.28;letter-spacing:-.02em;margin:4px 0 3px;overflow-wrap:anywhere}
+.fact-title p{font-size:12px;color:#756c88;margin:0;line-height:1.4}
 .fact-close{border:0;background:#f3edff;color:#644d95;width:30px;height:30px;flex:none;border-radius:8px;font-size:21px;line-height:1}
-.fact-meta{display:grid;grid-template-columns:100px minmax(0,1fr);gap:7px 9px;margin:12px 0 0;border-block:1px solid #eee9f4;padding:11px 0;font-size:11.5px}
-.fact-meta dt{color:#847792}.fact-meta dd{font-weight:650;margin:0;overflow-wrap:anywhere}
-.fact-description{line-height:1.5;font-size:12px;margin:12px 0 0}
-.fact-extra{font-size:11.5px;line-height:1.45;margin-top:9px;padding:9px 10px;border-radius:9px;background:#f6f1ff;overflow-wrap:anywhere}
+.fact-meta{display:grid;grid-template-columns:minmax(105px,34%) minmax(0,1fr);column-gap:12px;row-gap:10px;margin:14px 0 0;border-block:1px solid #eee9f4;padding:13px 0;font-size:12px;line-height:1.45}
+.fact-meta dt{color:#6f6484;line-height:1.45}.fact-meta dd{font-weight:650;margin:0;line-height:1.45;overflow-wrap:anywhere}
+.fact-description{line-height:1.65;font-size:13px;margin:14px 0 0;overflow-wrap:anywhere}
+.fact-extra{font-size:12px;line-height:1.55;margin-top:12px;padding:11px 12px;border-radius:10px;background:#f6f1ff;overflow-wrap:anywhere}
 .fact-extra[hidden]{display:none}
-.fact-footnote{font-size:10px;color:#847992;line-height:1.5;margin:10px 0 0}
+.fact-footnote{font-size:10.5px;color:#81758c;line-height:1.55;margin:12px 0 0}
 .feature-legend summary{font-size:14px;font-weight:800;cursor:pointer;padding:12px 15px}
 .feature-legend .map-legend{position:static;max-width:none;background:transparent;border:0;border-radius:0;color:#302c4c;padding:0 15px 15px;font-size:11px;pointer-events:auto}
 .feature-legend .map-legend-title{font-size:12px}
@@ -89,7 +89,7 @@
 [data-theme="dark"] .fact-meta{border-color:#4b3e62}
 [data-theme="dark"] .feature-legend .map-legend{color:#f6edff}
 @media(max-width:970px){.sidebar-content .panel{max-height:415px}}
-@media(max-width:570px){.sidebar-content .panel{max-height:360px;min-height:220px}.fact-card{padding:12px}.fact-title h2{font-size:16px}}
+@media(max-width:570px){.sidebar-content .panel{max-height:360px;min-height:210px}.fact-card{padding:14px}.fact-title h2{font-size:17px}.fact-meta{grid-template-columns:minmax(108px,34%) minmax(0,1fr);column-gap:10px;row-gap:9px;font-size:11.5px}.fact-description{font-size:12.5px}}
 </style></head>
 <body>
 <header class="top"><div><h1 id="title">🌍 Учебный глобус</h1><p id="subtitle">Географическая номенклатура · 6–11 классы</p></div><div class="head-right"><div class="languages"><button data-lang="ru">RU</button><button data-lang="be">BE</button><button data-lang="en">EN</button></div><a class="go-site" id="back" href="../#nomenclature">← На сайт</a></div></header>
@@ -101,7 +101,7 @@
 <div class="zoom"><button id="plus" aria-label="Увеличить">+</button><button id="minus" aria-label="Уменьшить">−</button><button id="reset" aria-label="Начальный вид">⌂</button></div>
 <div class="selected" id="selected" hidden><small id="selectedKind"></small><strong id="selectedName"></strong><span id="selectedCoords"></span><span class="selected-detail" id="selectedDetail" hidden></span></div><div class="hint" id="hint">⇄ Вращение · +/− Масштаб</div><div class="status" id="status">Загрузка глобуса…</div>
 </section>
-<aside class="sidebar-content"><section class="panel" aria-label="Список географических объектов"><div class="panel-head"><h2 id="objectsTitle">Объекты на карте</h2><p id="count"></p></div>
+<aside class="sidebar-content"><section class="panel" aria-label="Список географических объектов"><div class="panel-head"><h2 id="objectsTitle">Объекты на карте</h2></div>
 <div class="search-wrap"><input type="search" id="search" placeholder="Поиск географического объекта" aria-label="Поиск географического объекта"></div><div class="groups" id="groups"></div><p class="disclaimer" id="disclaimer"></p></section>
 <section class="fact-card" id="factPanel" aria-label="Справка по объекту" hidden>
 <div class="fact-top"><span class="fact-avatar" id="factIcon" aria-hidden="true">🌍</span>
@@ -177,9 +177,9 @@ function updateLegend(){
  $('mapLegend').innerHTML='<div class="map-legend-title">'+escape(mapMode==='physical'?physicalTitle:politicalTitle)+'</div><div class="map-legend-scale">'+palette.map(c=>'<b style="background:'+c+'"></b>').join('')+'</div><div class="map-legend-axis">'+axis.map(z=>'<span>'+escape(z)+'</span>').join('')+'</div><div class="legend-key">'+symbols.map(([kind,label])=>'<div class="legend-row"><i class="legend-mark '+kind+'"></i><span>'+escape(label)+'</span></div>').join('')+'</div><span class="map-legend-note">'+escape(mapMode==='physical'?labels.colorNote+' '+(reliefImage?credit:offline):labels.placeNote)+'</span>';
 }
 const refStrings={
-ru:{title:'Справка по объекту',legend:'Условные обозначения',topic:'Тематическая группа',type:'Тип объекта',coordinate:'Точка-ориентир',mode:'Карта',contour:'Границы на глобусе',schematic:'Приблизительный учебный контур',marker:'Только точка-ориентир',naturalContour:'Природные объекты — условные контуры',urbanContour:'Мегалополисы / агломерации — условные контуры',showNatural:'Показывать природные контуры',showUrban:'Показывать городские зоны',physical:'Физическая',political:'Политическая',default:'Объект входит в учебную географическую номенклатуру. На глобусе обозначено примерное положение, а не полный географический контур.',note:'Контуры даны для учебной ориентировки, а не для измерения площадей. Там, где контура нет, показан маркер.',extra:'Дополнительная информация',close:'Закрыть справку',height:'Высоты суши',depth:'Глубины океана',sea:'Уровень моря',country:'Страны различаются цветом',bound:'Границы государств',pin:'Местоположение объекта',active:'Выбранный объект',colorNote:'Цвета передают общие особенности рельефа, но не измеряют точную высоту или глубину.',placeNote:'Границы стран взяты из обобщённой геометрии Natural Earth, учебные контуры городских зон — приблизительные.'},
-be:{title:'Даведка пра аб’ект',legend:'Умоўныя абазначэнні',topic:'Тэматычная група',type:'Тып аб’екта',coordinate:'Кропка-арыенцір',mode:'Карта',contour:'Межы на глобусе',schematic:'Прыблізны вучэбны контур',marker:'Толькі кропка-арыенцір',naturalContour:'Прыродныя аб’екты — умоўныя контуры',urbanContour:'Мегалаполісы / агламерацыі — умоўныя контуры',showNatural:'Паказваць прыродныя контуры',showUrban:'Паказваць гарадскія зоны',physical:'Фізічная',political:'Палітычная',default:'Аб’ект уваходзіць у вучэбную геаграфічную наменклатуру. На глобусе паказана прыблізнае становішча, а не поўны геаграфічны контур.',note:'Контуры прызначаны для вучэбнага арыентавання, а не вымярэння плошчаў. Дзе контуру няма, паказаны маркер.',extra:'Дадатковая інфармацыя',close:'Закрыць даведку',height:'Вышыні сушы',depth:'Глыбіні акіяна',sea:'Узровень мора',country:'Дзяржавы адрозніваюцца колерам',bound:'Межы дзяржаў',pin:'Месцазнаходжанне аб’екта',active:'Выбраны аб’ект',colorNote:'Колеры перадаюць агульныя асаблівасці рэльефу, але не вымяраюць дакладную вышыню ці глыбіню.',placeNote:'Межы дзяржаў — з абагульненай геаметрыі Natural Earth; вучэбныя контуры гарадскіх зон прыблізныя.'},
-en:{title:'About this location',legend:'Map legend',topic:'Topic group',type:'Object type',coordinate:'Reference point',mode:'Map',contour:'Outline on globe',schematic:'Approximate teaching outline',marker:'Reference point only',naturalContour:'Natural features — schematic outlines',urbanContour:'Megaregions / agglomerations — schematic outlines',showNatural:'Show natural outlines',showUrban:'Show urban regions',physical:'Physical',political:'Political',default:'This is a location from the school geography catalogue. The globe shows an approximate reference position rather than the object’s geographic outline.',note:'Outlines are simplified teaching guides and must not be used for measuring areas. Objects without outlines have markers.',extra:'Additional information',close:'Close information',height:'Land elevations',depth:'Ocean depths',sea:'Sea level',country:'Countries shown in different colors',bound:'Country boundaries',pin:'Location marker',active:'Selected location',colorNote:'These colors indicate general terrain patterns, not an exact measurement of elevation or depth.',placeNote:'Country boundaries are generalized Natural Earth geometry; urban-region outlines are approximate teaching guides.'}
+ru:{title:'Справка по объекту',legend:'Условные обозначения',topic:'Тематическая группа',type:'Тип объекта',coordinate:'Точка-ориентир',schematic:'Приблизительный учебный контур',marker:'Только точка-ориентир',naturalContour:'Природные объекты — условные контуры',urbanContour:'Мегалополисы / агломерации — условные контуры',showNatural:'Показывать природные контуры',showUrban:'Показывать городские зоны',physical:'Физическая',political:'Политическая',default:'Объект входит в учебную географическую номенклатуру. На глобусе обозначено примерное положение, а не полный географический контур.',note:'Контуры даны для учебной ориентировки, а не для измерения площадей. Там, где контура нет, показан маркер.',extra:'Дополнительная информация',close:'Закрыть справку',height:'Высоты суши',depth:'Глубины океана',sea:'Уровень моря',country:'Страны различаются цветом',bound:'Границы государств',pin:'Местоположение объекта',active:'Выбранный объект',colorNote:'Цвета передают общие особенности рельефа, но не измеряют точную высоту или глубину.',placeNote:'Границы стран взяты из обобщённой геометрии Natural Earth, учебные контуры городских зон — приблизительные.'},
+be:{title:'Даведка пра аб’ект',legend:'Умоўныя абазначэнні',topic:'Тэматычная група',type:'Тып аб’екта',coordinate:'Кропка-арыенцір',schematic:'Прыблізны вучэбны контур',marker:'Толькі кропка-арыенцір',naturalContour:'Прыродныя аб’екты — умоўныя контуры',urbanContour:'Мегалаполісы / агламерацыі — умоўныя контуры',showNatural:'Паказваць прыродныя контуры',showUrban:'Паказваць гарадскія зоны',physical:'Фізічная',political:'Палітычная',default:'Аб’ект уваходзіць у вучэбную геаграфічную наменклатуру. На глобусе паказана прыблізнае становішча, а не поўны геаграфічны контур.',note:'Контуры прызначаны для вучэбнага арыентавання, а не вымярэння плошчаў. Дзе контуру няма, паказаны маркер.',extra:'Дадатковая інфармацыя',close:'Закрыць даведку',height:'Вышыні сушы',depth:'Глыбіні акіяна',sea:'Узровень мора',country:'Дзяржавы адрозніваюцца колерам',bound:'Межы дзяржаў',pin:'Месцазнаходжанне аб’екта',active:'Выбраны аб’ект',colorNote:'Колеры перадаюць агульныя асаблівасці рэльефу, але не вымяраюць дакладную вышыню ці глыбіню.',placeNote:'Межы дзяржаў — з абагульненай геаметрыі Natural Earth; вучэбныя контуры гарадскіх зон прыблізныя.'},
+en:{title:'About this location',legend:'Map legend',topic:'Topic group',type:'Object type',coordinate:'Reference point',schematic:'Approximate teaching outline',marker:'Reference point only',naturalContour:'Natural features — schematic outlines',urbanContour:'Megaregions / agglomerations — schematic outlines',showNatural:'Show natural outlines',showUrban:'Show urban regions',physical:'Physical',political:'Political',default:'This is a location from the school geography catalogue. The globe shows an approximate reference position rather than the object’s geographic outline.',note:'Outlines are simplified teaching guides and must not be used for measuring areas. Objects without outlines have markers.',extra:'Additional information',close:'Close information',height:'Land elevations',depth:'Ocean depths',sea:'Sea level',country:'Countries shown in different colors',bound:'Country boundaries',pin:'Location marker',active:'Selected location',colorNote:'These colors indicate general terrain patterns, not an exact measurement of elevation or depth.',placeNote:'Country boundaries are generalized Natural Earth geometry; urban-region outlines are approximate teaching guides.'}
 };
 function renderFact(){
  const panel=$('factPanel');panel.hidden=!chosen;
@@ -189,8 +189,7 @@ function renderFact(){
  $('factHeading').textContent=d.title;$('factName').textContent=chosen.name;$('factKind').textContent=chosen.type;
  $('factIcon').textContent=isPolitical(chosen)?'🏙️':/Океан|Море|Река|Озеро|Пролив|Залив|Водохранилище/.test(chosen.rawType)?'🌊':/Гор|Горы|Вершин|Вулкан|Нагор|Возвыш/.test(chosen.rawType)?'🏔️':'🌐';
  $('factClose').setAttribute('aria-label',d.close);$('factClose').title=d.close;
- const shape=AREAS.get?.(chosen.rawName);
- const rows=[[d.type,chosen.type],[d.topic,group],[d.coordinate,coords],[d.contour,shape?d.schematic:d.marker],[d.mode,mapMode==='political'?d.political:d.physical]];
+ const rows=[[d.type,chosen.type],[d.topic,group],[d.coordinate,coords]];
  $('factMeta').innerHTML=rows.map(([key,value])=>'<dt>'+escape(key)+'</dt><dd>'+escape(value)+'</dd>').join('');
  $('factDescription').textContent=FACTS.get?.(chosen.rawName,lang)||d.default;
  $('factExtra').hidden=!chosen.info;$('factExtra').textContent=chosen.info?d.extra+': '+chosen.info:'';
@@ -242,10 +241,10 @@ function selectedLabel(){
  $('selectedCoords').textContent=Math.abs(chosen.lat).toFixed(2)+'° '+(chosen.lat>=0?'N':'S')+' · '+Math.abs(chosen.lon).toFixed(2)+'° '+(chosen.lon>=0?'E':'W');
 }
 function renderList(){
- const hits=visible();$('count').textContent=hits.length+' '+t(8)+' · '+groups.length+' '+t(9);
+ const hits=visible();
  const shown=groups.map(g=>({...g,objects:g.objects.filter(o=>hits.includes(o))})).filter(g=>g.objects.length);
  if(!shown.length){$('groups').innerHTML='<p class="empty">'+t(10)+'</p>';return}
- $('groups').innerHTML=shown.map(g=>'<details class="group" data-id="'+g.id+'" '+(filter||g.id===openGroup?'open':'')+'><summary>'+escape(g.name)+'<span class="counter">'+g.objects.length+'</span></summary><ul>'+g.objects.map(o=>'<li><button class="place '+(chosen?.id===o.id?'active':'')+(AREAS.get?.(o.rawName)?' has-contour '+AREAS.get(o.rawName).kind+'-contour':'')+'" data-obj="'+o.id+'"><span class="dot"></span><span><strong>'+escape(o.name)+'</strong><small>'+escape(o.type)+'</small></span></button></li>').join('')+'</ul></details>').join('');
+ $('groups').innerHTML=shown.map(g=>'<details class="group" data-id="'+g.id+'" '+(filter||g.id===openGroup?'open':'')+'><summary>'+escape(g.name)+'</summary><ul>'+g.objects.map(o=>'<li><button class="place '+(chosen?.id===o.id?'active':'')+(AREAS.get?.(o.rawName)?' has-contour '+AREAS.get(o.rawName).kind+'-contour':'')+'" data-obj="'+o.id+'"><span class="dot"></span><span><strong>'+escape(o.name)+'</strong><small>'+escape(o.type)+'</small></span></button></li>').join('')+'</ul></details>').join('');
 }
 const wrap=n=>Math.atan2(Math.sin(n),Math.cos(n));
 const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
