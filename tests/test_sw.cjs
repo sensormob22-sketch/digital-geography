@@ -13,9 +13,17 @@ async function message(type){let reply;await event('message',{data:{type},ports:
 const globeHtml=await globe.text();if(!globeHtml.includes('Учебный глобус'))throw Error('Offline globe was not served from PWA cache');
 const globeData=await event('fetch',{request:{method:'GET',url:base+'globus/world-110m.json',mode:'cors'}});
 const topology=JSON.parse(await globeData.text());if(topology.type!=='Topology')throw Error('Offline globe geometry missing');
+const detail=await event('fetch',{request:{method:'GET',url:base+'globus/world-50m.json',mode:'cors'}});
+if(JSON.parse(await detail.text()).type!=='Topology')throw Error('Offline Natural Earth 50m vector geometry missing');
 const objects=await event('fetch',{request:{method:'GET',url:base+'globus/objects.js',mode:'cors'}});
 if(!(await objects.text()).includes('GLOBE_CATALOG'))throw Error('Offline nomenclature catalogue missing');
 const translations=await event('fetch',{request:{method:'GET',url:base+'globus/translations.js',mode:'cors'}});
 if(!(await translations.text()).includes('GLOBE_TRANSLATIONS'))throw Error('Offline three-language names missing');
-console.log('offline globe, geometry, grade catalogue and translations: ok');
+const facts=await event('fetch',{request:{method:'GET',url:base+'globus/facts.js',mode:'cors'}});
+if(!(await facts.text()).includes('GLOBE_FACTS'))throw Error('Offline globe object reference descriptions missing');
+for(const file of ['areas.js','area-renderer.js','vector-map.js']){
+ const response=await event('fetch',{request:{method:'GET',url:base+'globus/'+file,mode:'cors'}});
+ if(!response||(await response.text()).length<1000)throw Error('Offline contour layer missing '+file);
+}
+console.log('offline globe, geometry, grade catalogue, translations, reference notes and contour layers: ok');
 offline=false;console.log('remove',await message('REMOVE_WORK'));console.log('final',await message('CHECK_WORK'));})().catch(e=>{console.error(e);process.exit(1)});

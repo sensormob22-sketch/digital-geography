@@ -26,10 +26,10 @@
 .status{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#122f4be8;color:#fff;padding:12px 18px;border-radius:12px;font-size:13px;text-align:center}
 .status[hidden]{display:none}
 .panel{border:1px solid #e5dff4;border-radius:23px;background:white;overflow:hidden;display:flex;flex-direction:column;max-height:670px;box-shadow:0 12px 29px #321e8c12}
-.panel h2{font-size:20px;letter-spacing:-.04em;margin:0}.panel-head{padding:16px 16px 9px}.panel-head p{font-size:12px;color:#756d88;margin:6px 0}
-.search-wrap{padding:8px 14px 11px}.search-wrap input{width:100%;border-radius:12px;border:1px solid #e0d8f0;background:#faf9ff;padding:11px 13px;font-size:13px;outline:0}
+.panel h2{font-size:19px;letter-spacing:-.025em;margin:0;line-height:1.3}.panel-head{padding:15px 16px 6px}
+.search-wrap{padding:7px 14px 10px}.search-wrap input{width:100%;border-radius:12px;border:1px solid #e0d8f0;background:#faf9ff;padding:11px 13px;font-size:13px;outline:0}
 .groups{min-height:0;overflow:auto;flex:1;padding:0 9px 13px;overscroll-behavior:contain}
-.group{border:1px solid #e9e5f1;border-radius:13px;margin-bottom:8px;overflow:hidden}.group summary{list-style:none;cursor:pointer;background:#f7f4ff;color:#403368;font-weight:830;padding:12px;display:flex;align-items:center;gap:10px;font-size:13px}.group summary::-webkit-details-marker{display:none}.group summary .counter{margin-left:auto;background:#ece5ff;color:#6249be;border-radius:100px;padding:3px 7px;font-size:11px}.group summary:after{content:"⌄";color:#7f63d4;font-size:16px}.group[open] summary:after{content:"⌃"}
+.group{border:1px solid #e9e5f1;border-radius:13px;margin-bottom:8px;overflow:hidden}.group summary{list-style:none;cursor:pointer;background:#f7f4ff;color:#403368;font-weight:830;padding:12px;display:flex;align-items:center;gap:10px;font-size:13px}.group summary::-webkit-details-marker{display:none}.group summary:after{content:"⌄";color:#7f63d4;font-size:16px}.group[open] summary:after{content:"⌃"}
 .group ul{list-style:none;padding:5px;margin:0}.place{display:flex;align-items:center;text-align:left;gap:9px;padding:9px;border:0;background:none;border-radius:10px;width:100%;color:#322d4e}.place:hover,.place.active{background:#ede7ff}.dot{width:9px;height:9px;border-radius:50%;background:#14a6a5;flex:none;box-shadow:0 0 0 3px #14a6a51d}
 .place strong{display:block;font-size:13px}.place small{display:block;font-size:11px;margin-top:2px;color:#827693}
 .empty{color:#8b7a9b;padding:20px;text-align:center;font-size:13px}
@@ -46,6 +46,50 @@
 .stage{height:400px;min-height:0;border-radius:17px}.zoom{top:10px;right:9px}.zoom button{width:37px;height:37px}
 .caption{top:12px;left:12px}.caption span{display:none}.hint{left:12px}.selected{left:9px;right:9px;bottom:9px;padding:10px 12px}.selected strong{font-size:16px}.selected small,.selected span{font-size:10px}
 .panel{border-radius:17px;max-height:525px}}
+
+.sidebar-content{display:flex;flex-direction:column;gap:12px;min-width:0}
+.sidebar-content .panel{max-height:375px;min-height:220px;flex:none}
+.fact-card,.feature-legend{background:white;border:1px solid #e5dff4;border-radius:17px;box-shadow:0 9px 24px #321e8c12;overflow:hidden}
+.fact-card[hidden]{display:none}.fact-card{padding:17px 18px}
+.fact-top{display:flex;align-items:flex-start;gap:12px}
+.fact-avatar{width:44px;height:44px;flex:none;border-radius:13px;background:#eee9ff;display:grid;place-items:center;font-size:23px}
+.fact-title{flex:1;min-width:0}.fact-title small{font-size:11px;font-weight:800;color:#7254b9}
+.fact-title h2{font-size:19px;line-height:1.28;letter-spacing:-.02em;margin:4px 0 3px;overflow-wrap:anywhere}
+.fact-title p{font-size:12px;color:#756c88;margin:0;line-height:1.4}
+.fact-close{border:0;background:#f3edff;color:#644d95;width:30px;height:30px;flex:none;border-radius:8px;font-size:21px;line-height:1}
+.fact-meta{display:grid;grid-template-columns:minmax(105px,34%) minmax(0,1fr);column-gap:12px;row-gap:10px;margin:14px 0 0;border-block:1px solid #eee9f4;padding:13px 0;font-size:12px;line-height:1.45}
+.fact-meta dt{color:#6f6484;line-height:1.45}.fact-meta dd{font-weight:650;margin:0;line-height:1.45;overflow-wrap:anywhere}
+.fact-description{line-height:1.65;font-size:13px;margin:14px 0 0;overflow-wrap:anywhere}
+.fact-extra{font-size:12px;line-height:1.55;margin-top:12px;padding:11px 12px;border-radius:10px;background:#f6f1ff;overflow-wrap:anywhere}
+.fact-extra[hidden]{display:none}
+.fact-footnote{font-size:10.5px;color:#81758c;line-height:1.55;margin:12px 0 0}
+.feature-legend summary{font-size:14px;font-weight:800;cursor:pointer;padding:12px 15px}
+.feature-legend .map-legend{position:static;max-width:none;background:transparent;border:0;border-radius:0;color:#302c4c;padding:0 15px 15px;font-size:11px;pointer-events:auto}
+.feature-legend .map-legend-title{font-size:12px}
+.feature-legend .map-legend-axis{font-size:10px}
+.feature-legend .map-legend-note{font-size:10.5px;margin-top:9px}
+.legend-key{display:grid;gap:7px;margin-top:11px}
+.legend-row{display:flex;align-items:center;gap:10px;line-height:1.4}
+.legend-mark{width:24px;height:12px;display:inline-block;flex:none;border-radius:3px}
+.legend-mark.pin,.legend-mark.active{width:11px;height:11px;border-radius:50%;border:2px solid #07364e;margin:0 6px;background:#63e8d4}
+.legend-mark.active{background:#ffd38a;box-shadow:0 0 0 2px #e4ac50a3}
+.legend-mark.country{background:linear-gradient(90deg,#83add5 0 33%,#f1c27d 33% 66%,#91cbac 66%)}
+.legend-mark.border{height:0;border-top:3px solid #293e57}
+.legend-mark.natural-outline{height:0;border-top:3px dashed #18b1c3}
+.legend-mark.urban-outline{height:0;border-top:3px solid #ed489f}
+
+.place.has-contour .dot{border-radius:3px;transform:rotate(45deg)}
+.place.urban-contour .dot{background:#ed489f;box-shadow:0 0 0 3px #ed489f24}
+.place.natural-contour .dot{background:#18b1c3;box-shadow:0 0 0 3px #18b1c324}
+
+[data-theme="dark"] .fact-card,[data-theme="dark"] .feature-legend{background:#221a35;color:#f8f2ff;border-color:#4b3e62}
+[data-theme="dark"] .fact-title p,[data-theme="dark"] .fact-meta dt,[data-theme="dark"] .fact-footnote{color:#c9bcd9}
+[data-theme="dark"] .fact-title small{color:#c8afff}
+[data-theme="dark"] .fact-avatar,[data-theme="dark"] .fact-close,[data-theme="dark"] .fact-extra{background:#382b54;color:#f5edff}
+[data-theme="dark"] .fact-meta{border-color:#4b3e62}
+[data-theme="dark"] .feature-legend .map-legend{color:#f6edff}
+@media(max-width:970px){.sidebar-content .panel{max-height:415px}}
+@media(max-width:570px){.sidebar-content .panel{max-height:360px;min-height:210px}.fact-card{padding:14px}.fact-title h2{font-size:17px}.fact-meta{grid-template-columns:minmax(108px,34%) minmax(0,1fr);column-gap:10px;row-gap:9px;font-size:11.5px}.fact-description{font-size:12.5px}}
 </style></head>
 <body>
 <header class="top"><div><h1 id="title">🌍 Учебный глобус</h1><p id="subtitle">Географическая номенклатура · 6–11 классы</p></div><div class="head-right"><div class="languages"><button data-lang="ru">RU</button><button data-lang="be">BE</button><button data-lang="en">EN</button></div><a class="go-site" id="back" href="../#nomenclature">← На сайт</a></div></header>
@@ -53,39 +97,57 @@
 <main class="layout">
 <section class="stage" id="stage" aria-label="Интерактивный глобус">
 <canvas id="canvas"></canvas><canvas id="points"></canvas><div class="gesture" id="gesture" role="application" tabindex="0" aria-label="Глобус: перетаскивание для вращения, стрелки клавиатуры"></div>
-<div class="caption"><strong id="caption">ИССЛЕДУЙ ЗЕМЛЮ</strong><span id="captionSub">Выберите объект в списке</span></div><div class="map-mode" id="mapMode"></div><div class="map-legend" id="mapLegend" aria-live="polite"></div>
+<div class="caption"><strong id="caption">ИССЛЕДУЙ ЗЕМЛЮ</strong><span id="captionSub">Выберите объект в списке</span></div><div class="map-mode" id="mapMode"></div>
 <div class="zoom"><button id="plus" aria-label="Увеличить">+</button><button id="minus" aria-label="Уменьшить">−</button><button id="reset" aria-label="Начальный вид">⌂</button></div>
 <div class="selected" id="selected" hidden><small id="selectedKind"></small><strong id="selectedName"></strong><span id="selectedCoords"></span><span class="selected-detail" id="selectedDetail" hidden></span></div><div class="hint" id="hint">⇄ Вращение · +/− Масштаб</div><div class="status" id="status">Загрузка глобуса…</div>
 </section>
-<section class="panel" aria-label="Список географических объектов"><div class="panel-head"><h2 id="objectsTitle">Объекты на карте</h2><p id="count"></p></div>
+<aside class="sidebar-content"><section class="panel" aria-label="Список географических объектов"><div class="panel-head"><h2 id="objectsTitle">Объекты на карте</h2></div>
 <div class="search-wrap"><input type="search" id="search" placeholder="Поиск географического объекта" aria-label="Поиск географического объекта"></div><div class="groups" id="groups"></div><p class="disclaimer" id="disclaimer"></p></section>
+<section class="fact-card" id="factPanel" aria-label="Справка по объекту" hidden>
+<div class="fact-top"><span class="fact-avatar" id="factIcon" aria-hidden="true">🌍</span>
+<div class="fact-title"><small id="factHeading">Справка по объекту</small><h2 id="factName"></h2><p id="factKind"></p></div><button type="button" class="fact-close" id="factClose" aria-label="Закрыть справку">×</button></div>
+<dl class="fact-meta" id="factMeta"></dl><p class="fact-description" id="factDescription"></p><div class="fact-extra" id="factExtra" hidden></div><p class="fact-footnote" id="factFootnote"></p>
+</section>
+<details class="feature-legend" id="legendPanel" open><summary id="legendTitle">Условные обозначения</summary><div class="map-legend" id="mapLegend" aria-live="polite"></div></details>
+</aside>
 </main>
-<script src="./objects.js"></script><script src="./translations.js"></script>
+<script src="./objects.js"></script><script src="./translations.js"></script><script src="./facts.js"></script><script src="./areas.js"></script><script src="./area-renderer.js"></script><script src="./vector-map.js"></script>
 <script>
 (function(){'use strict';
-const $=id=>document.getElementById(id),pars=new URLSearchParams(location.search),RAW=window.GLOBE_CATALOG||{},TR=window.GLOBE_TRANSLATIONS||{},RAD=Math.PI/180;
+const $=id=>document.getElementById(id),pars=new URLSearchParams(location.search),RAW=window.GLOBE_CATALOG||{},TR=window.GLOBE_TRANSLATIONS||{},FACTS=window.GLOBE_FACTS||{},AREAS=window.GLOBE_AREAS||{},AREA_RENDER=window.GLOBE_AREA_RENDERER||{},VECTOR_MAP=window.GLOBE_VECTOR_MAP||{},RAD=Math.PI/180;
 let grade=+pars.get('grade')||7,lang=pars.get('lang')||'ru',theme=pars.get('theme')||'light';
 if(!RAW[grade])grade=7;if(!['ru','be','en'].includes(lang))lang='ru';if(!['dark','light'].includes(theme))theme='light';
 const i18n={
-ru:['Учебный глобус','Географическая номенклатура · 6–11 классы','На сайт','класс','ИССЛЕДУЙ ЗЕМЛЮ','Выберите объект в списке','Объекты на карте','Поиск географического объекта','объектов','тематических групп','Не найдено','Учебная программа Беларуси 2025 г.','Учебная программа Беларуси 2026 г.','Точки обозначают ориентировочное положение, не границы географических объектов. Это начальная учебная подборка по программе.','Для 10–11 классов указаны учебные примеры: динамические рейтинги и тематические территории необходимо обновлять.'],
-be:['Вучэбны глобус','Геаграфічная наменклатура · 6–11 класы','На сайт','клас','ДАСЛЕДУЙ ЗЯМЛЮ','Выберы аб’ект са спіса','Аб’екты на карце','Пошук геаграфічнага аб’екта','аб’ектаў','тэматычных груп','Не знойдзена','Праграма Беларусі 2025 г.','Праграма Беларусі 2026 г.','Кропкі паказваюць прыблізны арыенцір, а не межы аб’ектаў. Гэта пачатковы спіс для навучання.','Для 10–11 класаў паказаны вучэбныя прыклады: рэйтынгі трэба абнаўляць.'],
-en:['Learning globe','Geographic names · Grades 6–11','Back to site','grade','EXPLORE EARTH','Pick an object from the list','Objects on the globe','Search locations','places','topic groups','No matching places','Belarus curriculum 2025','Belarus curriculum 2026','Pins mark approximate reference points, not boundaries. This is a starting curriculum-based set.','Grades 10–11 include illustrative examples; changing rankings need to be kept up to date.']};
+ru:['Учебный глобус','Географическая номенклатура · 6–11 классы','На сайт','класс','ИССЛЕДУЙ ЗЕМЛЮ','Выберите объект в списке','Объекты на карте','Поиск географического объекта','объектов','тематических групп','Не найдено','Учебная программа Беларуси 2025 г.','Учебная программа Беларуси 2026 г.','Контуры природных регионов и агломераций схематические, их границы приблизительные. Для остальных объектов показаны точки-ориентиры.','Для 10–11 классов указаны учебные примеры: динамические рейтинги и тематические территории необходимо обновлять.'],
+be:['Вучэбны глобус','Геаграфічная наменклатура · 6–11 класы','На сайт','клас','ДАСЛЕДУЙ ЗЯМЛЮ','Выберы аб’ект са спіса','Аб’екты на карце','Пошук геаграфічнага аб’екта','аб’ектаў','тэматычных груп','Не знойдзена','Праграма Беларусі 2025 г.','Праграма Беларусі 2026 г.','Контуры прыродных рэгіёнаў і агламерацый схематычныя, іх межы прыблізныя. Для астатніх аб’ектаў паказаны кропкі-арыенціры.','Для 10–11 класаў паказаны вучэбныя прыклады: рэйтынгі трэба абнаўляць.'],
+en:['Learning globe','Geographic names · Grades 6–11','Back to site','grade','EXPLORE EARTH','Pick an object from the list','Objects on the globe','Search locations','places','topic groups','No matching places','Belarus curriculum 2025','Belarus curriculum 2026','Contours of natural regions and urban agglomerations are schematic, not surveyed boundaries. Other objects remain reference points.','Grades 10–11 include illustrative examples; changing rankings need to be kept up to date.']};
 const t=n=>i18n[lang][n],escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let groups=[],chosen=null,filter='',openGroup=0,longitude=27*RAD,latitude=30*RAD,zoom=1,target=null,geo=null,gl=null,program=null,texture=null,over=$('points').getContext('2d'),w=0,h=0,dpr=1,queued=false;
-let mapMode='physical',reliefImage=null,textureCanvas=null;
+let mapMode='physical',reliefImage=null,textureCanvas=null,vectorGeo=null;
+
 const RELIEF_URL='https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Elevation.jpg/1280px-Elevation.jpg';
 const modeStrings={ru:['Физический глобус','Политический глобус','Высоты и глубины · цветовая шкала','Государства · условные цвета','Рельеф: NOAA / Wikimedia Commons','Офлайн: упрощённый рельеф'],
 be:['Фізічны глобус','Палітычны глобус','Вышыні і глыбіні · колеравая шкала','Дзяржавы · умоўныя колеры','Рэльеф: NOAA / Wikimedia Commons','Афлайн: спрошчаны рэльеф'],
 en:['Physical globe','Political globe','Elevations and depths · color scale','Countries · distinct colors','Relief: NOAA / Wikimedia Commons','Offline: simplified terrain']};
-function isPolitical(o){
- const ty=o.rawType||'',n=o.rawName||'';
- if(grade===9)return /Город|Столица|Областной центр/.test(ty);
- if(['Дели','Токио','Шанхай','Москва','Мехико','Роттердам','Дубай','Сингапур'].includes(n))return true;
- if(grade===10)return n!=='Панамский канал';
- if(grade===11)return o.group<=5||o.group===8;
- return false;
+/* Explicit classification of geographical nomenclature for the two globes. */
+function mapFor(o){
+ const ty=o.rawType||'';
+ const natural=/^(Материк|Часть света|Океан|Горы|Горная система|Горная вершина|Вершина|Высшая точка|Низменность|Равнина|Плоскогорье|Нагорье|Море|Море-озеро|Залив|Пролив|Река|Приток|Озеро|Группа озёр|Впадина|Пустыня|Вулкан|Водопад|Остров|Мыс|Полуостров|Гряда|Возвышенность|Водохранилище|Национальный парк|Биосферный заповедник)/.test(ty);
+ return natural?'physical':'political';
 }
+function isPolitical(o){return mapFor(o)==='political'}
+function visibleMap(){return visible().filter(o=>mapFor(o)===mapMode)}
 function adaptiveZoom(o){
+ const shape=AREAS.get?.(o.rawName);
+ if(shape){
+  // Keep the whole selected region within a useful part of the screen.
+  // Zoom is computed from angular footprint, not an arbitrary city label.
+  const farthest=Math.max(1,...shape.rings.flat().map(([lat,lon])=>{
+   const dx=(((lon-o.lon+540)%360)-180)*Math.cos((lat+o.lat)*.5*RAD);
+   return Math.hypot(lat-o.lat,dx);
+  }));
+  return clamp(44/farthest,1.1,26);
+ }
  const ty=o.rawType||'';
  if(isPolitical(o)){
   if(grade===10&&/Площадь|Население|плотность|урбанизация|Производство|Сельское|Нефть|Промышленность/i.test(ty))return 3.3;
@@ -105,31 +167,71 @@ function setMapMode(next){
  updateLegend();
 }
 function updateLegend(){
- const [physical,political,physicalTitle,politicalTitle,credit,offline]=modeStrings[lang];
+ const [physical,political,physicalTitle,politicalTitle,credit,offline]=modeStrings[lang],labels=refStrings[lang];
+ $('legendTitle').textContent=labels.legend;
  $('mapMode').textContent=mapMode==='physical'?physical:political;
  const palette=mapMode==='physical'?['#142e85','#214fbf','#218ddc','#51c9eb','#42ca86','#93d845','#f5d23b','#d87931','#c43e24','#fbf0e6']:['#e1f0f8','#8aa4de','#adca78','#e7bd6a','#a9a1df','#d896a9','#88ccc2'];
- const axis=mapMode==='physical'?['−11 000 м','0','8 849 м']:['','', ''];
- $('mapLegend').innerHTML='<div class="map-legend-title">'+escape(mapMode==='physical'?physicalTitle:politicalTitle)+'</div><div class="map-legend-scale">'+palette.map(c=>'<b style="background:'+c+'"></b>').join('')+'</div><div class="map-legend-axis">'+axis.map(z=>'<span>'+z+'</span>').join('')+'</div>'+(mapMode==='physical'?'<span class="map-legend-note">'+escape(reliefImage?credit:offline)+'</span>':'');
+ const axis=mapMode==='physical'?[labels.depth,labels.sea,labels.height]:['','',''];
+ const symbols=mapMode==='political'?[['country',labels.country],['border',labels.bound],['urban-outline',labels.urbanContour]]:[['natural-outline',labels.naturalContour]];
+ symbols.push(['pin',labels.pin],['active',labels.active]);
+ $('mapLegend').innerHTML='<div class="map-legend-title">'+escape(mapMode==='physical'?physicalTitle:politicalTitle)+'</div><div class="map-legend-scale">'+palette.map(c=>'<b style="background:'+c+'"></b>').join('')+'</div><div class="map-legend-axis">'+axis.map(z=>'<span>'+escape(z)+'</span>').join('')+'</div><div class="legend-key">'+symbols.map(([kind,label])=>'<div class="legend-row"><i class="legend-mark '+kind+'"></i><span>'+escape(label)+'</span></div>').join('')+'</div><span class="map-legend-note">'+escape(mapMode==='physical'?labels.colorNote+' '+(reliefImage?credit:offline):labels.placeNote)+'</span>';
+}
+const refStrings={
+ru:{title:'Справка по объекту',legend:'Условные обозначения',topic:'Тематическая группа',type:'Тип объекта',coordinate:'Точка-ориентир',schematic:'Приблизительный учебный контур',marker:'Только точка-ориентир',naturalContour:'Природные объекты — условные контуры',urbanContour:'Мегалополисы / агломерации — условные контуры',showNatural:'Показывать природные контуры',showUrban:'Показывать городские зоны',physical:'Физическая',political:'Политическая',default:'Объект входит в учебную географическую номенклатуру. На глобусе обозначено примерное положение, а не полный географический контур.',note:'Контуры даны для учебной ориентировки, а не для измерения площадей. Там, где контура нет, показан маркер.',extra:'Дополнительная информация',close:'Закрыть справку',height:'Высоты суши',depth:'Глубины океана',sea:'Уровень моря',country:'Страны различаются цветом',bound:'Границы государств',pin:'Местоположение объекта',active:'Выбранный объект',colorNote:'Цвета передают общие особенности рельефа, но не измеряют точную высоту или глубину.',placeNote:'Границы стран взяты из обобщённой геометрии Natural Earth, учебные контуры городских зон — приблизительные.'},
+be:{title:'Даведка пра аб’ект',legend:'Умоўныя абазначэнні',topic:'Тэматычная група',type:'Тып аб’екта',coordinate:'Кропка-арыенцір',schematic:'Прыблізны вучэбны контур',marker:'Толькі кропка-арыенцір',naturalContour:'Прыродныя аб’екты — умоўныя контуры',urbanContour:'Мегалаполісы / агламерацыі — умоўныя контуры',showNatural:'Паказваць прыродныя контуры',showUrban:'Паказваць гарадскія зоны',physical:'Фізічная',political:'Палітычная',default:'Аб’ект уваходзіць у вучэбную геаграфічную наменклатуру. На глобусе паказана прыблізнае становішча, а не поўны геаграфічны контур.',note:'Контуры прызначаны для вучэбнага арыентавання, а не вымярэння плошчаў. Дзе контуру няма, паказаны маркер.',extra:'Дадатковая інфармацыя',close:'Закрыць даведку',height:'Вышыні сушы',depth:'Глыбіні акіяна',sea:'Узровень мора',country:'Дзяржавы адрозніваюцца колерам',bound:'Межы дзяржаў',pin:'Месцазнаходжанне аб’екта',active:'Выбраны аб’ект',colorNote:'Колеры перадаюць агульныя асаблівасці рэльефу, але не вымяраюць дакладную вышыню ці глыбіню.',placeNote:'Межы дзяржаў — з абагульненай геаметрыі Natural Earth; вучэбныя контуры гарадскіх зон прыблізныя.'},
+en:{title:'About this location',legend:'Map legend',topic:'Topic group',type:'Object type',coordinate:'Reference point',schematic:'Approximate teaching outline',marker:'Reference point only',naturalContour:'Natural features — schematic outlines',urbanContour:'Megaregions / agglomerations — schematic outlines',showNatural:'Show natural outlines',showUrban:'Show urban regions',physical:'Physical',political:'Political',default:'This is a location from the school geography catalogue. The globe shows an approximate reference position rather than the object’s geographic outline.',note:'Outlines are simplified teaching guides and must not be used for measuring areas. Objects without outlines have markers.',extra:'Additional information',close:'Close information',height:'Land elevations',depth:'Ocean depths',sea:'Sea level',country:'Countries shown in different colors',bound:'Country boundaries',pin:'Location marker',active:'Selected location',colorNote:'These colors indicate general terrain patterns, not an exact measurement of elevation or depth.',placeNote:'Country boundaries are generalized Natural Earth geometry; urban-region outlines are approximate teaching guides.'}
+};
+function renderFact(){
+ const panel=$('factPanel');panel.hidden=!chosen;
+ if(!chosen)return;
+ const d=refStrings[lang],group=groups.find(g=>g.id===chosen.group)?.name||'';
+ const coords=Math.abs(chosen.lat).toFixed(2)+'° '+(chosen.lat>=0?'N':'S')+' · '+Math.abs(chosen.lon).toFixed(2)+'° '+(chosen.lon>=0?'E':'W');
+ $('factHeading').textContent=d.title;$('factName').textContent=chosen.name;$('factKind').textContent=chosen.type;
+ $('factIcon').textContent=isPolitical(chosen)?'🏙️':/Океан|Море|Река|Озеро|Пролив|Залив|Водохранилище/.test(chosen.rawType)?'🌊':/Гор|Горы|Вершин|Вулкан|Нагор|Возвыш/.test(chosen.rawType)?'🏔️':'🌐';
+ $('factClose').setAttribute('aria-label',d.close);$('factClose').title=d.close;
+ const rows=[[d.type,chosen.type],[d.topic,group],[d.coordinate,coords]];
+ $('factMeta').innerHTML=rows.map(([key,value])=>'<dt>'+escape(key)+'</dt><dd>'+escape(value)+'</dd>').join('');
+ $('factDescription').textContent=FACTS.get?.(chosen.rawName,lang)||d.default;
+ $('factExtra').hidden=!chosen.info;$('factExtra').textContent=chosen.info?d.extra+': '+chosen.info:'';
+ $('factFootnote').textContent=d.note;
 }
 function compileGroups(){
  groups=RAW[grade].map((v,i)=>({id:i,name:TR.group(v[0].split('|')[0],v[0].split('|')[1],lang),objects:v[1].split(';').map((s,j)=>{const p=s.split('|');return {id:i+'-'+j,rawName:p[0],rawType:p[3],name:TR.name(p[0],lang),lat:+p[1],lon:+p[2],type:TR.type(p[3],lang),info:TR.detail(p[4]||'',lang),group:i}})}));
 }
 function all(){return groups.flatMap(g=>g.objects)}
 function visible(){return all().filter(o=>o.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase()))}
+const helpText={
+ru:{hint:'⇄ Перетаскивайте для вращения · +/− масштаб',busy:'Загрузка глобуса…',failed:'Картографические контуры недоступны',zoomIn:'Увеличить масштаб',zoomOut:'Уменьшить масштаб',reset:'Вернуть начальный вид',gesture:'Вращайте глобус перетаскиванием. Используйте стрелки клавиатуры и колесо мыши.',stage:'Интерактивный учебный глобус',search:'Поиск географического объекта',fact:'Справка по объекту',title:'Учебный глобус — Цифровая география'},
+be:{hint:'⇄ Перацягвайце для вярчэння · +/− маштаб',busy:'Загрузка глобуса…',failed:'Картографічныя контуры недаступныя',zoomIn:'Павялічыць маштаб',zoomOut:'Паменшыць маштаб',reset:'Вярнуць пачатковы выгляд',gesture:'Круціце глобус перацягваннем. Карыстайцеся стрэлкамі клавіятуры і колам мышы.',stage:'Інтэрактыўны вучэбны глобус',search:'Пошук геаграфічнага аб’екта',fact:'Даведка пра аб’ект',title:'Вучэбны глобус — Лічбавая геаграфія'},
+en:{hint:'⇄ Drag to rotate · +/− to zoom',busy:'Loading globe…',failed:'Map outlines are unavailable',zoomIn:'Zoom in',zoomOut:'Zoom out',reset:'Reset globe view',gesture:'Drag to rotate the globe. Use arrow keys and the mouse wheel.',stage:'Interactive learning globe',search:'Search geographic objects',fact:'About this location',title:'Learning globe — Digital Geography'}
+};
+function updateHelp(){
+ const d=helpText[lang];
+ document.title=d.title;
+ $('hint').textContent=d.hint;
+ $('stage').setAttribute('aria-label',d.stage);
+ $('gesture').setAttribute('aria-label',d.gesture);
+ $('search').setAttribute('aria-label',d.search);
+ $('factPanel').setAttribute('aria-label',d.fact);
+ if(!$('status').hidden)$('status').textContent=d.busy;
+ for(const [id,label] of [['plus',d.zoomIn],['minus',d.zoomOut],['reset',d.reset]]){
+  $(id).setAttribute('aria-label',label);$(id).title=label;
+ }
+}
 function labels(){
  document.documentElement.lang=lang;document.documentElement.dataset.theme=theme;
- $('title').textContent='🌍 '+t(0);$('subtitle').textContent=t(1);$('back').textContent='← '+t(2);$('back').href='../#nomenclature/'+grade;
+ $('title').textContent='🌍 '+t(0);$('subtitle').textContent=t(1);updateHelp();$('back').textContent='← '+t(2);$('back').href='../#nomenclature/'+grade;
  $('caption').textContent=t(4);$('captionSub').textContent=t(5);$('objectsTitle').textContent=t(6);$('search').placeholder=t(7);
  const userLabels={
-  ru:{source:'Списки учителя · население приблизительное',note:'Численность агломераций приводится по предоставленному учебному списку — это не официальный рейтинг ООН 2025 года. В актуальном сопоставимом рейтинге ООН лидируют Джакарта, Дакка и Токио. Мегалополисы отмечены условной центральной точкой.'},
-  be:{source:'Спісы настаўніка · насельніцтва прыблізнае',note:'Лічбы насельніцтва з навучальнага спісу не з’яўляюцца афіцыйным рэйтынгам ААН за 2025 год. У рэйтынгу ААН лідзіруюць Джакарта, Дака і Токіа. Мегалаполісы пазначаны ўмоўнай цэнтральнай кропкай.'},
-  en:{source:'Teacher-provided list · approximate populations',note:'Population figures are from the provided teaching list, not the official UN 2025 ranking. Under the UN methodology Jakarta, Dhaka and Tokyo lead. Megalopolises are marked by an approximate reference point.'}
+  ru:{source:'Списки учителя · население приблизительное',note:'Численность агломераций приводится по предоставленному учебному списку — это не официальный рейтинг ООН 2025 года. В актуальном сопоставимом рейтинге ООН лидируют Джакарта, Дакка и Токио. Мегалополисы выделяются приблизительными учебными контурами.'},
+  be:{source:'Спісы настаўніка · насельніцтва прыблізнае',note:'Лічбы насельніцтва з навучальнага спісу не з’яўляюцца афіцыйным рэйтынгам ААН за 2025 год. У рэйтынгу ААН лідзіруюць Джакарта, Дака і Токіа. Мегалаполісы вылучаюцца прыблізнымі вучэбнымі контурамі.'},
+  en:{source:'Teacher-provided list · approximate populations',note:'Population figures are from the provided teaching list, not the official UN 2025 ranking. Under the UN methodology Jakarta, Dhaka and Tokyo lead. Megalopolises are marked by approximate classroom outlines.'}
  }[lang];
  $('source').textContent=grade===11?userLabels.source:(grade<=9?t(11):t(12))+(grade<=9?' · VI–IX':' · X–XI');
  $('disclaimer').textContent=grade===11?t(13)+' '+userLabels.note:t(13)+(grade>=10?' '+t(14):'');
  $('gradeButtons').innerHTML=[6,7,8,9,10,11].map(n=>'<button data-grade="'+n+'" class="grade '+(n===grade?'active':'')+'" aria-pressed="'+(n===grade)+'">'+n+' '+t(3)+'</button>').join('');
  for(const btn of document.querySelectorAll('[data-lang]')){btn.classList.toggle('active',btn.dataset.lang===lang);btn.setAttribute('aria-pressed',String(btn.dataset.lang===lang))}
- selectedLabel();renderList();updateLegend();
+ selectedLabel();renderList();updateLegend();renderFact();
 }
 function selectedLabel(){
  $('selected').hidden=!chosen;$('hint').classList.toggle('up',!!chosen);
@@ -139,10 +241,10 @@ function selectedLabel(){
  $('selectedCoords').textContent=Math.abs(chosen.lat).toFixed(2)+'° '+(chosen.lat>=0?'N':'S')+' · '+Math.abs(chosen.lon).toFixed(2)+'° '+(chosen.lon>=0?'E':'W');
 }
 function renderList(){
- const hits=visible();$('count').textContent=hits.length+' '+t(8)+' · '+groups.length+' '+t(9);
+ const hits=visible();
  const shown=groups.map(g=>({...g,objects:g.objects.filter(o=>hits.includes(o))})).filter(g=>g.objects.length);
  if(!shown.length){$('groups').innerHTML='<p class="empty">'+t(10)+'</p>';return}
- $('groups').innerHTML=shown.map(g=>'<details class="group" data-id="'+g.id+'" '+(filter||g.id===openGroup?'open':'')+'><summary>'+escape(g.name)+'<span class="counter">'+g.objects.length+'</span></summary><ul>'+g.objects.map(o=>'<li><button class="place '+(chosen?.id===o.id?'active':'')+'" data-obj="'+o.id+'"><span class="dot"></span><span><strong>'+escape(o.name)+'</strong><small>'+escape(o.type)+'</small></span></button></li>').join('')+'</ul></details>').join('');
+ $('groups').innerHTML=shown.map(g=>'<details class="group" data-id="'+g.id+'" '+(filter||g.id===openGroup?'open':'')+'><summary>'+escape(g.name)+'</summary><ul>'+g.objects.map(o=>'<li><button class="place '+(chosen?.id===o.id?'active':'')+(AREAS.get?.(o.rawName)?' has-contour '+AREAS.get(o.rawName).kind+'-contour':'')+'" data-obj="'+o.id+'"><span class="dot"></span><span><strong>'+escape(o.name)+'</strong><small>'+escape(o.type)+'</small></span></button></li>').join('')+'</ul></details>').join('');
 }
 const wrap=n=>Math.atan2(Math.sin(n),Math.cos(n));
 const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
@@ -152,7 +254,7 @@ function project(phi,lambda){
  return {x:w/2+rr*c*Math.sin(d),y:h/2-rr*(Math.cos(latitude)*Math.sin(phi)-Math.sin(latitude)*c*Math.cos(d)),vis};
 }
 function choose(o){
- chosen=o;setMapMode(isPolitical(o)?'political':'physical');selectedLabel();renderList();target={lon:o.lon*RAD,lat:clamp(o.lat*RAD,-1.45,1.45),zoom:adaptiveZoom(o)};animate();
+ chosen=o;openGroup=o.group;setMapMode(isPolitical(o)?'political':'physical');selectedLabel();renderFact();renderList();$('groups').querySelector('.place.active')?.scrollIntoView({block:'nearest'});target={lon:o.lon*RAD,lat:clamp(o.lat*RAD,-1.45,1.45),zoom:adaptiveZoom(o)};animate();
 }
 function animate(){
  if(!target)return;const dx=wrap(target.lon-longitude),dy=target.lat-latitude,dz=Math.log((target.zoom||1)/zoom);
@@ -162,7 +264,9 @@ function animate(){
 }
 function drawPoints(){
  const cv=$('points');over.setTransform(dpr,0,0,dpr,0,0);over.clearRect(0,0,w,h);
- visible().forEach(o=>{const p=project(o.lat*RAD,o.lon*RAD);if(p.vis<.04)return;
+ VECTOR_MAP.draw?.(over,vectorGeo||geo,project,zoom,mapMode,w,h);
+ AREA_RENDER.draw?.(over,visibleMap(),chosen,AREAS,project,zoom,mapMode);
+ visibleMap().forEach(o=>{const p=project(o.lat*RAD,o.lon*RAD);if(p.vis<.04)return;
  const active=chosen?.id===o.id;over.beginPath();over.arc(p.x,p.y,active?8:4.5,0,Math.PI*2);over.fillStyle=active?'#ffd38a':'#63e8d4';over.fill();over.strokeStyle='#07364e';over.lineWidth=1.7;over.stroke();
  if(active){over.beginPath();over.arc(p.x,p.y,15,0,Math.PI*2);over.strokeStyle='#ffe0a3';over.lineWidth=2.2;over.stroke();}
  });
@@ -284,8 +388,20 @@ async function loadGeometry(){
  try{
   const resp=await fetch('./world-110m.json');if(!resp.ok)throw Error('HTTP '+resp.status);
   geo=unpack(await resp.json());updateTexture();
+  document.documentElement.dataset.geodata='110m';
   $('status').hidden=true;redraw();
- }catch(e){console.warn(e);$('status').textContent='Картографические контуры недоступны';setTimeout(()=>$('status').hidden=true,4200)}
+  // Use the bundled 1:50m Natural Earth vectors when available. The original
+  // self-hosted 1:110m data remains a fully functional offline fallback.
+  try{
+   const detail=await fetch('./world-50m.json');
+   if(detail.ok){
+    vectorGeo=unpack(await detail.json());
+    document.documentElement.dataset.geodata='50m';
+    redraw();
+   }
+  }catch(e){console.info('Detailed offline vectors unavailable, using 110m',e)}
+
+ }catch(e){console.warn(e);$('status').textContent=helpText[lang].failed;setTimeout(()=>$('status').hidden=true,4200)}
 }
 let drag=null;const gesture=$('gesture');
 gesture.addEventListener('pointerdown',e=>{if(e.button!==0&&e.pointerType==='mouse')return;gesture.setPointerCapture(e.pointerId);target=null;drag={id:e.pointerId,x:e.clientX,y:e.clientY,lon:longitude,lat:latitude,dist:0}});
@@ -296,7 +412,7 @@ gesture.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)retur
 });
 gesture.addEventListener('pointerup',e=>{if(!drag||drag.id!==e.pointerId)return;
  if(drag.dist<7){const box=gesture.getBoundingClientRect(),x=e.clientX-box.left,y=e.clientY-box.top;
-  const near=visible().map(o=>({o,p:project(o.lat*RAD,o.lon*RAD)})).filter(v=>v.p.vis>.02).map(v=>({...v,d:Math.hypot(v.p.x-x,v.p.y-y)})).sort((a,b)=>a.d-b.d)[0];if(near&&near.d<21)choose(near.o)}
+  const near=visibleMap().map(o=>({o,p:project(o.lat*RAD,o.lon*RAD)})).filter(v=>v.p.vis>.02).map(v=>({...v,d:Math.hypot(v.p.x-x,v.p.y-y)})).sort((a,b)=>a.d-b.d)[0];if(near&&near.d<21)choose(near.o);else{const hit=AREA_RENDER.nearContour?.(x,y,visibleMap(),AREAS,project,zoom,mapMode,chosen);if(hit)choose(hit)}}
  drag=null;
 });
 gesture.addEventListener('pointercancel',()=>drag=null);
@@ -305,13 +421,15 @@ gesture.addEventListener('keydown',e=>{const d=.13;if(e.key==='ArrowLeft')longit
 $('plus').onclick=()=>{target=null;zoom=clamp(zoom*1.35,.55,26);redraw()};
 $('minus').onclick=()=>{target=null;zoom=clamp(zoom/1.35,.55,26);redraw()};
 $('reset').onclick=()=>{target={zoom:1,lon:27*RAD,lat:30*RAD};animate()};
-$('gradeButtons').addEventListener('click',e=>{const b=e.target.closest('[data-grade]');if(!b)return;grade=+b.dataset.grade;compileGroups();chosen=null;zoom=1;setMapMode('physical');openGroup=0;filter='';$('search').value='';labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&lang='+lang+'&theme='+theme);redraw()});
+$('factClose').onclick=()=>{chosen=null;selectedLabel();renderFact();renderList();redraw()};
+
+$('gradeButtons').addEventListener('click',e=>{const b=e.target.closest('[data-grade]');if(!b)return;grade=+b.dataset.grade;compileGroups();chosen=null;zoom=1;setMapMode(grade>=10?'political':'physical');openGroup=0;filter='';$('search').value='';labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&lang='+lang+'&theme='+theme);redraw()});
 document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{lang=b.dataset.lang;const old=chosen?.id;compileGroups();chosen=all().find(o=>o.id===old)||null;labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&lang='+lang+'&theme='+theme)}));
 $('groups').addEventListener('click',e=>{const b=e.target.closest('[data-obj]');if(b){const item=all().find(v=>v.id===b.dataset.obj);if(item)choose(item)}});
 $('groups').addEventListener('toggle',e=>{if(e.target.matches('.group')&&e.target.open&&!filter)openGroup=+e.target.dataset.id},true);
 $('search').addEventListener('input',e=>{filter=e.target.value.trim();renderList();redraw()});
 window.addEventListener('message',e=>{if(e.origin===location.origin&&e.data?.type==='geographyTheme'){theme=e.data.theme==='dark'?'dark':'light';document.documentElement.dataset.theme=theme}});
 window.addEventListener('resize',resize);
-compileGroups();initGL();labels();resize();loadGeometry();loadRelief();redraw();
+compileGroups();mapMode=grade>=10?'political':'physical';initGL();labels();resize();loadGeometry();loadRelief();redraw();
 })();
 </script></body></html>
