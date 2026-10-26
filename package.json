@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "astro preview --host 0.0.0.0",
     "check": "astro check",
-    "test:sw": "node tests/test_sw.cjs"
+    "test:sw": "node tests/test_sw.cjs",
+    "test:globe": "node tests/test_globe.cjs"
   },
   "dependencies": {
     "astro": "^6.0.0"
