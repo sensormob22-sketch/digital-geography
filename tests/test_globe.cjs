@@ -41,7 +41,7 @@ assert(html.includes('function mapFor(o)')&&html.includes('visibleMap()'),'Map-s
 assert(!html.includes('data-area-layer')&&!html.includes('type="checkbox"'),'No manual contour layer toggles');
 assert(html.includes('src="./vector-map.js"'),'Local dynamic vector basemap required');
 assert(!html.includes('id="count"')&&!html.includes('class="counter"'),'Object and topic counters must be absent');
-assert(!html.includes("$('count')")&&!html.includes('g.objects.length+'</span>'),'No hidden count rendering');
+assert(!html.includes("$('count')")&&!html.includes('g.objects.length+'), 'No hidden count rendering');
 assert(html.includes("const rows=[[d.type,chosen.type],[d.topic,group],[d.coordinate,coords]];"),'Reference should have exactly three metadata fields');
 assert(!html.includes('Границы на глобусе'),'Obsolete contour label should be removed from reference');
 
