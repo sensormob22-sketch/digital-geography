@@ -9,7 +9,8 @@
     "preview": "astro preview --host 0.0.0.0",
     "check": "astro check",
     "test:sw": "node tests/test_sw.cjs",
-    "test:globe": "node tests/test_globe.cjs"
+    "test:globe": "node tests/test_globe.cjs",
+    "test:areas": "node tests/test_areas.cjs"
   },
   "dependencies": {
     "astro": "^6.0.0"
