@@ -68,34 +68,27 @@ function uniqueObjects(items,areas,flags){
  }
  return result;
 }
-function draw(ctx,items,selected,areas,project,zoom,flags={natural:true,urban:true}){
- if(!areas?.get)return;
+/* One outline appears only for the selected object, in its matching map. */
+function activeArea(selected,areas,mode){
+ if(!selected||!areas?.get)return null;
+ const shape=areas.get(selected.rawName||selected.name);
+ if(!shape||((shape.kind==='urban'?'political':'physical')!==mode))return null;
+ return shape;
+}
+function draw(ctx,items,selected,areas,project,zoom,mode='physical'){
+ const shape=activeArea(selected,areas,mode);if(!shape)return;
  ctx.save();ctx.lineJoin='round';ctx.lineCap='round';
- const features=uniqueObjects(items,areas,flags);
- // Non-selected regions remain visible yet do not obscure the base map.
- for(const f of features){
-  if(f.object.id===selected?.id||f.object.rawName===selected?.rawName)continue;
-  const done=buildPath(ctx,f.shape,project,zoom);
-  if(!done.valid)continue;
-  ctx.strokeStyle=f.shape.kind==='urban'?palette.urban:palette.natural;
-  ctx.lineWidth=f.shape.kind==='urban'?2.1:1.6;
-  ctx.globalAlpha=.65;ctx.setLineDash(f.shape.kind==='urban'?[6,3]:[4,4]);
-  ctx.stroke();
- }
- const match=features.find(f=>f.object.id===selected?.id||f.object.rawName===selected?.rawName);
- if(match){
-  const done=buildPath(ctx,match.shape,project,zoom);
-  if(done.valid){
-   ctx.globalAlpha=1;ctx.setLineDash([]);
-   const color=match.shape.kind==='urban'?palette.activeUrban:palette.activeNatural;
-   if(done.complete){
-    ctx.fillStyle=match.shape.kind==='urban'?'rgba(255,61,158,.11)':'rgba(41,209,221,.1)';
-    ctx.fill('evenodd');
-   }
-   ctx.strokeStyle='rgba(5,16,37,.94)';ctx.lineWidth=6.5;ctx.stroke();
-   ctx.strokeStyle=color;ctx.lineWidth=3.4;ctx.stroke();
-   ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=.9;ctx.stroke();
+ const done=buildPath(ctx,shape,project,zoom);
+ if(done.valid){
+  ctx.globalAlpha=1;ctx.setLineDash([]);
+  const color=shape.kind==='urban'?palette.activeUrban:palette.activeNatural;
+  if(done.complete){
+   ctx.fillStyle=shape.kind==='urban'?'rgba(255,61,158,.12)':'rgba(41,209,221,.12)';
+   ctx.fill('evenodd');
   }
+  ctx.strokeStyle='rgba(5,16,37,.94)';ctx.lineWidth=6.5;ctx.stroke();
+  ctx.strokeStyle=color;ctx.lineWidth=3.4;ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=.9;ctx.stroke();
  }
  ctx.restore();
 }
@@ -104,26 +97,26 @@ function distanceToSegment(x,y,a,b){
  const t=den===0?0:Math.max(0,Math.min(1,((x-a.x)*dx+(y-a.y)*dy)/den));
  return Math.hypot(x-a.x-t*dx,y-a.y-t*dy);
 }
-function nearContour(x,y,items,areas,project,zoom,flags={natural:true,urban:true}){
- let best=null,bestDistance=13;
- for(const f of uniqueObjects(items,areas,flags)){
-  for(const ring of f.shape.rings){
-   for(let i=0;i<ring.length;i++){
-    const a=ring[i],b=ring[(i+1)%ring.length];
-    const dl=wrappedDiff(a[1],b[1]),n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],dl)/Math.max(.2,Math.min(2,70/zoom))));
-    let prev=projected(a,project);
-    for(let k=1;k<=n;k++){
-     const curr=projected(geoInterpolate(a,b,k/n),project);
-     if(prev.vis>.002&&curr.vis>.002){
-      const d=distanceToSegment(x,y,prev,curr);
-      if(d<bestDistance){bestDistance=d;best=f.object;}
-     }
-     prev=curr;
+function nearContour(x,y,items,areas,project,zoom,mode='physical',selected=null){
+ const shape=activeArea(selected,areas,mode);
+ if(!shape)return null;
+ let distance=13;
+ for(const ring of shape.rings){
+  for(let i=0;i<ring.length;i++){
+   const a=ring[i],b=ring[(i+1)%ring.length],dl=wrappedDiff(a[1],b[1]);
+   const n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],dl)/Math.max(.2,Math.min(2,70/zoom))));
+   let prev=projected(a,project);
+   for(let k=1;k<=n;k++){
+    const curr=projected(geoInterpolate(a,b,k/n),project);
+    if(prev.vis>.002&&curr.vis>.002){
+     const d=distanceToSegment(x,y,prev,curr);
+     if(d<distance)return selected;
     }
+    prev=curr;
    }
   }
  }
- return best;
+ return null;
 }
-window.GLOBE_AREA_RENDERER={draw,nearContour,wrappedDiff,geoInterpolate,buildPath,palette,uniqueObjects};
+window.GLOBE_AREA_RENDERER={draw,nearContour,wrappedDiff,geoInterpolate,buildPath,palette,uniqueObjects,activeArea};
 })();
