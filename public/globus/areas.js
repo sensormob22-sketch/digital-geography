@@ -127,6 +127,9 @@ ellipse('Чунцин','urban',29.56,106.55,.42,.48);
 ellipse('Стамбул','urban',41.01,28.98,.29,.40);
 ellipse('Киншаса','urban',-4.32,15.31,.28,.29);
 ellipse('Москва','urban',55.75,37.62,.36,.58);
+// America is a multipart world region; reuse North and South America outlines.
+shapes['Америка']={name:'Америка',kind:'natural',quality:'schematic',
+ rings:[...shapes['Северная Америка'].rings,...shapes['Южная Америка'].rings]};
 // Alias names that represent the same geographical area across grades.
 shapes['Токио']=shapes['Токио — Иокогама'];
 const counts={natural:0,urban:0};
