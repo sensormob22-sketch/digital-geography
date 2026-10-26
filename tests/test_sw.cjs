@@ -17,5 +17,7 @@ const objects=await event('fetch',{request:{method:'GET',url:base+'globus/object
 if(!(await objects.text()).includes('GLOBE_CATALOG'))throw Error('Offline nomenclature catalogue missing');
 const translations=await event('fetch',{request:{method:'GET',url:base+'globus/translations.js',mode:'cors'}});
 if(!(await translations.text()).includes('GLOBE_TRANSLATIONS'))throw Error('Offline three-language names missing');
-console.log('offline globe, geometry, grade catalogue and translations: ok');
+const facts=await event('fetch',{request:{method:'GET',url:base+'globus/facts.js',mode:'cors'}});
+if(!(await facts.text()).includes('GLOBE_FACTS'))throw Error('Offline globe object reference descriptions missing');
+console.log('offline globe, geometry, grade catalogue, translations and reference notes: ok');
 offline=false;console.log('remove',await message('REMOVE_WORK'));console.log('final',await message('CHECK_WORK'));})().catch(e=>{console.error(e);process.exit(1)});
