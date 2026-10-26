@@ -123,7 +123,7 @@ be:['Вучэбны глобус','Геаграфічная наменклату
 en:['Learning globe','Geographic names · Grades 6–11','Back to site','grade','EXPLORE EARTH','Pick an object from the list','Objects on the globe','Search locations','places','topic groups','No matching places','Belarus curriculum 2025','Belarus curriculum 2026','Contours of natural regions and urban agglomerations are schematic, not surveyed boundaries. Other objects remain reference points.','Grades 10–11 include illustrative examples; changing rankings need to be kept up to date.']};
 const t=n=>i18n[lang][n],escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let groups=[],chosen=null,filter='',openGroup=0,longitude=27*RAD,latitude=30*RAD,zoom=1,target=null,geo=null,gl=null,program=null,texture=null,over=$('points').getContext('2d'),w=0,h=0,dpr=1,queued=false;
-let mapMode='physical',reliefImage=null,textureCanvas=null;
+let mapMode='physical',reliefImage=null,textureCanvas=null,vectorGeo=null;
 
 const RELIEF_URL='https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Elevation.jpg/1280px-Elevation.jpg';
 const modeStrings={ru:['Физический глобус','Политический глобус','Высоты и глубины · цветовая шкала','Государства · условные цвета','Рельеф: NOAA / Wikimedia Commons','Офлайн: упрощённый рельеф'],
@@ -265,7 +265,7 @@ function animate(){
 }
 function drawPoints(){
  const cv=$('points');over.setTransform(dpr,0,0,dpr,0,0);over.clearRect(0,0,w,h);
- VECTOR_MAP.draw?.(over,geo,project,zoom,mapMode,w,h);
+ VECTOR_MAP.draw?.(over,vectorGeo||geo,project,zoom,mapMode,w,h);
  AREA_RENDER.draw?.(over,visibleMap(),chosen,AREAS,project,zoom,mapMode);
  visibleMap().forEach(o=>{const p=project(o.lat*RAD,o.lon*RAD);if(p.vis<.04)return;
  const active=chosen?.id===o.id;over.beginPath();over.arc(p.x,p.y,active?8:4.5,0,Math.PI*2);over.fillStyle=active?'#ffd38a':'#63e8d4';over.fill();over.strokeStyle='#07364e';over.lineWidth=1.7;over.stroke();
@@ -389,7 +389,19 @@ async function loadGeometry(){
  try{
   const resp=await fetch('./world-110m.json');if(!resp.ok)throw Error('HTTP '+resp.status);
   geo=unpack(await resp.json());updateTexture();
+  document.documentElement.dataset.geodata='110m';
   $('status').hidden=true;redraw();
+  // Use the bundled 1:50m Natural Earth vectors when available. The original
+  // self-hosted 1:110m data remains a fully functional offline fallback.
+  try{
+   const detail=await fetch('./world-50m.json');
+   if(detail.ok){
+    vectorGeo=unpack(await detail.json());
+    document.documentElement.dataset.geodata='50m';
+    redraw();
+   }
+  }catch(e){console.info('Detailed offline vectors unavailable, using 110m',e)}
+
  }catch(e){console.warn(e);$('status').textContent=helpText[lang].failed;setTimeout(()=>$('status').hidden=true,4200)}
 }
 let drag=null;const gesture=$('gesture');
