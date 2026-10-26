@@ -64,10 +64,12 @@ try{
  // Physical / natural-feature contour at production desktop size.
  await open('/globus/index.html?grade=6&lang=ru&theme=light');
  assert.match(await page.locator('#mapMode').innerText(),/Физический/);
+ assert(await page.locator('#points').evaluate(c=>!!c.getContext('2d')));
  await choose('Гималаи');
  assert.match(await page.locator('#factName').innerText(),/Гималаи/);
  assert.match(await page.locator('#factMeta').innerText(),/Приблизительный учебный контур/);
- assert(await page.locator('#legendPanel input[data-area-layer="natural"]').isChecked());
+ assert.equal(await page.locator('#legendPanel input[type="checkbox"]').count(),0,'Contour toggles must not be present');
+ assert.match(await page.locator('#hint').innerText(),/Перетаскивайте/);
  let pix=await pixelSummary();
  assert(pix.opaque>200,'Physical globe overlay is blank');
  assert(pix.cyan>30,'Natural feature outlines are not drawn');
@@ -75,13 +77,8 @@ try{
  await page.screenshot({path:physical,quality:70,type:'jpeg',fullPage:true});
  console.log('PHYSICAL_BROWSER_OK',JSON.stringify(pix));
  emit('physical_himalayas_ru',physical);
- // Polygon layer toggle must change visible contour pixels.
- await page.locator('#legendPanel input[data-area-layer="natural"]').uncheck();
- await wait(300);
- const hidden=await pixelSummary();
- console.log('LAYER_TOGGLE_PIXELS',JSON.stringify({visible:pix.cyan,hidden:hidden.cyan}));
- assert(hidden.cyan<pix.cyan-30,'Natural contour layer toggle did not hide outlines: '+JSON.stringify({visible:pix.cyan,hidden:hidden.cyan}));
- await page.locator('#legendPanel input[data-area-layer="natural"]').check();
+ // Selected natural contour is automatic; no layers can be manually toggled.
+ assert(await page.locator('#points').evaluate(c=>!!c.getContext('2d')));
  // Political / megaregion contour; switches to EN without dropping selection.
  await open('/globus/index.html?grade=11&lang=ru&theme=dark');
  await choose('Босваш (Приатлантический)');
@@ -93,6 +90,9 @@ try{
  assert.match(await page.locator('#factHeading').innerText(),/About this location/);
  assert.match(await page.locator('#factName').innerText(),/BosWash/);
  assert.match(await page.locator('#legendTitle').innerText(),/Map legend/);
+ assert.match(await page.locator('#hint').innerText(),/Drag to rotate/);
+ assert.equal(await page.locator('#plus').getAttribute('title'),'Zoom in');
+ assert.equal(await page.locator('#legendPanel input[type="checkbox"]').count(),0);
  assert.match(await page.locator('#factMeta').innerText(),/Approximate teaching outline/);
  const political=path.join(dir,'political_boswash_en.jpg');
  await page.screenshot({path:political,type:'jpeg',quality:70,fullPage:true});
@@ -104,6 +104,8 @@ try{
  await choose('Мінск');
  assert.equal((await page.locator('#factName').innerText()).trim(),'Мінск');
  assert.match(await page.locator('#legendTitle').innerText(),/Умоўныя абазначэнні/);
+ assert.match(await page.locator('#mapMode').innerText(),/Палітычны/);
+ assert.match(await page.locator('#hint').innerText(),/Перацягвайце/);
  const overflow=await page.evaluate(()=>({documentWidth:document.documentElement.scrollWidth,viewportWidth:innerWidth}));
  assert(overflow.documentWidth<=overflow.viewportWidth+4,'Horizontal overflow on mobile '+JSON.stringify(overflow));
  const mobile=path.join(dir,'mobile_minsk_be.jpg');
