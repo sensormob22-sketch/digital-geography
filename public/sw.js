@@ -1,9 +1,9 @@
 /* Платформа «Цифровая география». Service Worker: core shell + opt-in works. */
-const VERSION='geo-core-2026-10-v6';
+const VERSION='geo-core-2026-10-v7';
 const CORE=`${VERSION}-shell`;
 const WORKS='geo-offline-works-v6';
 const BASE=new URL(self.registration.scope);
-const coreFiles=['./','index.html','offline.html','manifest.webmanifest','assets/styles.css','assets/app.js','assets/pwa.js','assets/favicon.svg','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/icon-maskable-512.png'];
+const coreFiles=['./','index.html','offline.html','manifest.webmanifest','assets/styles.css','assets/app.js','assets/pwa.js','assets/favicon.svg','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/icon-maskable-512.png','globus/index.html','globus/objects.js','globus/world-110m.json'];
 const inScope=(url)=>url.origin===self.location.origin && url.pathname.startsWith(BASE.pathname);
 const absolute=path=>new URL(path,BASE).href;
 const workURL=absolute('works/9/3/index.html');
