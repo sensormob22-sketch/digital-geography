@@ -60,7 +60,7 @@ try{
   });
  }
  // Physical / natural-feature contour at production desktop size.
- await open('/globus/index.html?grade=7&lang=ru&theme=light');
+ await open('/globus/index.html?grade=6&lang=ru&theme=light');
  assert.match(await page.locator('#mapMode').innerText(),/Физический/);
  await choose('Гималаи');
  assert.match(await page.locator('#factName').innerText(),/Гималаи/);
