@@ -40,4 +40,22 @@ assert(html.includes('const helpText={')&&html.includes('updateHelp()'),'RU/BE/E
 assert(html.includes('function mapFor(o)')&&html.includes('visibleMap()'),'Map-specific object separation required');
 assert(!html.includes('data-area-layer')&&!html.includes('type="checkbox"'),'No manual contour layer toggles');
 assert(html.includes('src="./vector-map.js"'),'Local dynamic vector basemap required');
+const mapFn=html.match(/function mapFor\(o\)\{[\s\S]*?\n\}/);
+assert(mapFn,'Physical/political classifier not found');
+const mapFor=vm.runInNewContext('('+mapFn[0]+')');
+const physicallyTyped=/^(Материк|Часть света|Океан|Горы|Горная система|Горная вершина|Вершина|Высшая точка|Низменность|Равнина|Плоскогорье|Нагорье|Море|Море-озеро|Залив|Пролив|Река|Приток|Озеро|Группа озёр|Впадина|Пустыня|Вулкан|Водопад|Остров|Мыс|Полуостров|Гряда|Возвышенность|Водохранилище|Национальный парк|Биосферный заповедник)/;
+let physicalCount=0,politicalCount=0;
+for(const grade of [6,7,8,9,10,11])for(const [,rows] of catalog[grade])
+ for(const row of rows.split(';')){
+  const [name,,,type]=row.split('|');
+  const actual=mapFor({rawName:name,rawType:type});
+  const expected=physicallyTyped.test(type)?'physical':'political';
+  assert.equal(actual,expected,'Wrong globe mode for '+name+' ('+type+')');
+  if(actual==='physical')physicalCount++;else politicalCount++;
+ }
+assert.equal(mapFor({rawName:'Гималаи',rawType:'Горная система'}),'physical');
+assert.equal(mapFor({rawName:'Европа',rawType:'Часть света'}),'physical');
+assert.equal(mapFor({rawName:'Минск',rawType:'Столица'}),'political');
+assert.equal(mapFor({rawName:'Босваш (Приатлантический)',rawType:'Мегалополис · США'}),'political');
+console.log('Map partition validated:',physicalCount,'physical and',politicalCount,'political instances');
 console.log('Globe tests passed:',count,'objects,',names.size,'unique names,',groups,'groups; RU/BE/EN coverage complete');
