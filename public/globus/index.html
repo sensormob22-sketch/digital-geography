@@ -201,14 +201,32 @@ function compileGroups(){
 }
 function all(){return groups.flatMap(g=>g.objects)}
 function visible(){return all().filter(o=>o.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase()))}
+const helpText={
+ru:{hint:'⇄ Перетаскивайте для вращения · +/− масштаб',busy:'Загрузка глобуса…',failed:'Картографические контуры недоступны',zoomIn:'Увеличить масштаб',zoomOut:'Уменьшить масштаб',reset:'Вернуть начальный вид',gesture:'Вращайте глобус перетаскиванием. Используйте стрелки клавиатуры и колесо мыши.',stage:'Интерактивный учебный глобус',search:'Поиск географического объекта',fact:'Справка по объекту',title:'Учебный глобус — Цифровая география'},
+be:{hint:'⇄ Перацягвайце для вярчэння · +/− маштаб',busy:'Загрузка глобуса…',failed:'Картографічныя контуры недаступныя',zoomIn:'Павялічыць маштаб',zoomOut:'Паменшыць маштаб',reset:'Вярнуць пачатковы выгляд',gesture:'Круціце глобус перацягваннем. Карыстайцеся стрэлкамі клавіятуры і колам мышы.',stage:'Інтэрактыўны вучэбны глобус',search:'Пошук геаграфічнага аб’екта',fact:'Даведка пра аб’ект',title:'Вучэбны глобус — Лічбавая геаграфія'},
+en:{hint:'⇄ Drag to rotate · +/− to zoom',busy:'Loading globe…',failed:'Map outlines are unavailable',zoomIn:'Zoom in',zoomOut:'Zoom out',reset:'Reset globe view',gesture:'Drag to rotate the globe. Use arrow keys and the mouse wheel.',stage:'Interactive learning globe',search:'Search geographic objects',fact:'About this location',title:'Learning globe — Digital Geography'}
+};
+function updateHelp(){
+ const d=helpText[lang];
+ document.title=d.title;
+ $('hint').textContent=d.hint;
+ $('stage').setAttribute('aria-label',d.stage);
+ $('gesture').setAttribute('aria-label',d.gesture);
+ $('search').setAttribute('aria-label',d.search);
+ $('factPanel').setAttribute('aria-label',d.fact);
+ if(!$('status').hidden)$('status').textContent=d.busy;
+ for(const [id,label] of [['plus',d.zoomIn],['minus',d.zoomOut],['reset',d.reset]]){
+  $(id).setAttribute('aria-label',label);$(id).title=label;
+ }
+}
 function labels(){
  document.documentElement.lang=lang;document.documentElement.dataset.theme=theme;
- $('title').textContent='🌍 '+t(0);$('subtitle').textContent=t(1);$('back').textContent='← '+t(2);$('back').href='../#nomenclature/'+grade;
+ $('title').textContent='🌍 '+t(0);$('subtitle').textContent=t(1);updateHelp();$('back').textContent='← '+t(2);$('back').href='../#nomenclature/'+grade;
  $('caption').textContent=t(4);$('captionSub').textContent=t(5);$('objectsTitle').textContent=t(6);$('search').placeholder=t(7);
  const userLabels={
-  ru:{source:'Списки учителя · население приблизительное',note:'Численность агломераций приводится по предоставленному учебному списку — это не официальный рейтинг ООН 2025 года. В актуальном сопоставимом рейтинге ООН лидируют Джакарта, Дакка и Токио. Мегалополисы отмечены условной центральной точкой.'},
-  be:{source:'Спісы настаўніка · насельніцтва прыблізнае',note:'Лічбы насельніцтва з навучальнага спісу не з’яўляюцца афіцыйным рэйтынгам ААН за 2025 год. У рэйтынгу ААН лідзіруюць Джакарта, Дака і Токіа. Мегалаполісы пазначаны ўмоўнай цэнтральнай кропкай.'},
-  en:{source:'Teacher-provided list · approximate populations',note:'Population figures are from the provided teaching list, not the official UN 2025 ranking. Under the UN methodology Jakarta, Dhaka and Tokyo lead. Megalopolises are marked by an approximate reference point.'}
+  ru:{source:'Списки учителя · население приблизительное',note:'Численность агломераций приводится по предоставленному учебному списку — это не официальный рейтинг ООН 2025 года. В актуальном сопоставимом рейтинге ООН лидируют Джакарта, Дакка и Токио. Мегалополисы выделяются приблизительными учебными контурами.'},
+  be:{source:'Спісы настаўніка · насельніцтва прыблізнае',note:'Лічбы насельніцтва з навучальнага спісу не з’яўляюцца афіцыйным рэйтынгам ААН за 2025 год. У рэйтынгу ААН лідзіруюць Джакарта, Дака і Токіа. Мегалаполісы вылучаюцца прыблізнымі вучэбнымі контурамі.'},
+  en:{source:'Teacher-provided list · approximate populations',note:'Population figures are from the provided teaching list, not the official UN 2025 ranking. Under the UN methodology Jakarta, Dhaka and Tokyo lead. Megalopolises are marked by approximate classroom outlines.'}
  }[lang];
  $('source').textContent=grade===11?userLabels.source:(grade<=9?t(11):t(12))+(grade<=9?' · VI–IX':' · X–XI');
  $('disclaimer').textContent=grade===11?t(13)+' '+userLabels.note:t(13)+(grade>=10?' '+t(14):'');
@@ -372,7 +390,7 @@ async function loadGeometry(){
   const resp=await fetch('./world-110m.json');if(!resp.ok)throw Error('HTTP '+resp.status);
   geo=unpack(await resp.json());updateTexture();
   $('status').hidden=true;redraw();
- }catch(e){console.warn(e);$('status').textContent='Картографические контуры недоступны';setTimeout(()=>$('status').hidden=true,4200)}
+ }catch(e){console.warn(e);$('status').textContent=helpText[lang].failed;setTimeout(()=>$('status').hidden=true,4200)}
 }
 let drag=null;const gesture=$('gesture');
 gesture.addEventListener('pointerdown',e=>{if(e.button!==0&&e.pointerType==='mouse')return;gesture.setPointerCapture(e.pointerId);target=null;drag={id:e.pointerId,x:e.clientX,y:e.clientY,lon:longitude,lat:latitude,dist:0}});
