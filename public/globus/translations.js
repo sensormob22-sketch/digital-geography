@@ -312,11 +312,26 @@ const types=`
 `.trim();
 const typesBe=Object.create(null),typesEn=Object.create(null);
 for(const row of types.split('\n')){const [ru,be,en]=row.split('|');typesBe[ru]=be;typesEn[ru]=en;}
+const detailLines=`
+Данные о населении из предоставленного учебного списка — не актуальный рейтинг ООН|Звесткі пра насельніцтва з навучальнага спіса — не актуальны рэйтынг ААН|Population figures come from the teaching list, not a current UN ranking
+Один из крупнейших городских регионов Европы · Оценка из предоставленного учебного списка|Адзін з найбуйнейшых гарадскіх рэгіёнаў Еўропы · Ацэнка з навучальнага спіса|One of Europe's largest urban regions · Estimate from the teaching list
+От Бостона до Вашингтона · Центры: Бостон, Нью-Йорк, Филадельфия, Балтимор, Вашингтон · Финансовый и политический пояс|Ад Бостана да Вашынгтона · Цэнтры: Бостан, Нью-Ёрк, Філадэльфія, Балтымар, Вашынгтон · Фінансавы і палітычны пояс|Boston to Washington · Centers: Boston, New York, Philadelphia, Baltimore and Washington · Finance and government corridor
+От Чикаго до Питтсбурга · Центры: Чикаго, Детройт, Кливленд, Питтсбург · Исторический индустриальный пояс|Ад Чыкага да Пітсбурга · Цэнтры: Чыкага, Дэтройт, Кліўленд, Пітсбург · Гістарычны індустрыяльны пояс|Chicago to Pittsburgh · Centers: Chicago, Detroit, Cleveland and Pittsburgh · Historic industrial belt
+От Сан-Франциско до Сан-Диего · Центры: Сан-Франциско, Лос-Анджелес, Сан-Диего · Технологии и киноиндустрия|Ад Сан-Францыска да Сан-Дыега · Цэнтры: Сан-Францыска, Лос-Анджэлес, Сан-Дыега · Тэхналогіі і кінаіндустрыя|San Francisco to San Diego · Centers: San Francisco, Los Angeles and San Diego · Technology and film industry
+Дуга от Южной Англии до Северной Италии · Центры: Лондон, Брюссель, Амстердам, Франкфурт-на-Майне, Милан · Экономическая ось Европы|Дуга ад Паўднёвай Англіі да Паўночнай Італіі · Цэнтры: Лондан, Брусель, Амстэрдам, Франкфурт-на-Майне, Мілан · Эканамічная вось Еўропы|Arc from southern England to northern Italy · Centers: London, Brussels, Amsterdam, Frankfurt and Milan · European economic corridor
+Кольцевая полицентричная структура · Центры: Амстердам, Роттердам, Гаага, Утрехт · Вокруг Зелёного сердца|Кальцавая паліцэнтрычная структура · Цэнтры: Амстэрдам, Ратэрдам, Гаага, Утрэхт · Вакол Зялёнага сэрца|Polycentric urban ring · Centers: Amsterdam, Rotterdam, The Hague and Utrecht · Around the Green Heart
+Тихоокеанское побережье · Центры: Токио, Иокогама, Нагоя, Осака, Кобе, Киото · Промышленный и транспортный пояс|Ціхаакіянскае ўзбярэжжа · Цэнтры: Токіа, Ёкагама, Нагоя, Осака, Кобэ, Кіёта · Прамысловы і транспартны пояс|Pacific coast of Japan · Centers: Tokyo, Yokohama, Nagoya, Osaka, Kobe and Kyoto · Industrial and transport belt
+Устье Янцзы · Центры: Шанхай, Нанкин, Ханчжоу · Промышленность и технологии|Вусце Янцзы · Цэнтры: Шанхай, Нанкін, Ханчжоу · Прамысловасць і тэхналогіі|Yangtze estuary · Centers: Shanghai, Nanjing and Hangzhou · Industry and technology
+Центры: Гуанчжоу, Шэньчжэнь, Гонконг, Макао · Электроника, высокие технологии и международная торговля|Цэнтры: Гуанчжоу, Шэньчжэнь, Ганконг, Макаа · Электроніка, высокія тэхналогіі і міжнародны гандаль|Centers: Guangzhou, Shenzhen, Hong Kong and Macau · Electronics, advanced technology and international trade
+Центры: Сан-Паулу, Рио-де-Жанейро, Кампинас · Индустриальный и демографический регион|Цэнтры: Сан-Паўлу, Рыа-дэ-Жанэйра, Кампінас · Індустрыяльны і дэмаграфічны рэгіён|Centers: São Paulo, Rio de Janeiro and Campinas · Industrial and demographic region
+`.trim();
+const details={be:Object.create(null),en:Object.create(null)};
+for(const line of detailLines.split('\n')){const [ru,be,en]=line.split('|');details.be[ru]=be;details.en[ru]=en;}
 const replacements={
 be:[['млн чел.','млн чал.'],['Мегалополис','Мегалаполіс'],['Северо-Восток','Паўночны Усход'],['Западная Европа','Заходняя Еўропа'],['Восточный Китай','Усходні Кітай'],['Южный Китай','Паўднёвы Кітай'],['Япония','Японія'],['Бангладеш','Бангладэш'],['Мексика','Мексіка'],['Египет','Егіпет'],['Пакистан','Пакістан'],['Турция','Турцыя'],['ДР Конго','ДР Конга'],['Нидерланды','Нідэрланды'],['Бразилии','Бразіліі'],['Россия','Расія'],['Китай','Кітай'],['Индия','Індыя'],['США','ЗША'],['Европа','Еўропа'],['остров','востраў'],['Река','Рака'],['район','раён']],
 en:[['млн чел.','million people'],['Мегалополис','Megalopolis'],['Северо-Восток','Northeastern'],['Великие озёра','Great Lakes'],['Западная Европа','Western Europe'],['Восточный Китай','Eastern China'],['Южный Китай','Southern China'],['Юго-Восток Бразилии','Southeastern Brazil'],['Япония','Japan'],['Бангладеш','Bangladesh'],['Мексика','Mexico'],['Египет','Egypt'],['Пакистан','Pakistan'],['Турция','Türkiye'],['ДР Конго','DR Congo'],['Нидерланды','Netherlands'],['Бразилия','Brazil'],['Россия','Russia'],['Китай','China'],['Индия','India'],['США','USA'],['Европа','Europe'],['остров Хонсю','Honshu Island']]
 };
-function translateDescription(s,lang){if(lang==='ru'||!s)return s;let result=s;
+function translateDescription(s,lang){if(lang==='ru'||!s)return s;if(details[lang]?.[s])return details[lang][s];let result=s;
   for(const [a,b] of replacements[lang])result=result.split(a).join(b);
   if(lang==='en')result=result.replace(/(≈\d+),(\d+)/g,'$1.$2');
   return result;
