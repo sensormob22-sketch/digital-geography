@@ -37,6 +37,7 @@ try{
   assert(response?.ok(),'Failed to open '+url);
   await page.waitForSelector('#groups .place',{timeout:15000});
   await page.waitForFunction(()=>document.getElementById('status').hidden,{timeout:20000});
+  await page.waitForFunction(()=>document.documentElement.dataset.geodata==='50m',{timeout:20000});
  }
  async function choose(s){
   const button=page.locator('#groups button.place').filter({has:page.getByText(s,{exact:true})}).first();
@@ -69,6 +70,7 @@ try{
  assert.match(await page.locator('#factName').innerText(),/Гималаи/);
  assert.match(await page.locator('#factMeta').innerText(),/Приблизительный учебный контур/);
  assert.equal(await page.locator('#legendPanel input[type="checkbox"]').count(),0,'Contour toggles must not be present');
+ assert.equal(await page.evaluate(()=>document.documentElement.dataset.geodata),'50m');
  assert.match(await page.locator('#hint').innerText(),/Перетаскивайте/);
  let pix=await pixelSummary();
  assert(pix.opaque>200,'Physical globe overlay is blank');
