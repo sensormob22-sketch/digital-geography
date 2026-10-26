@@ -36,4 +36,8 @@ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert(html.includes('id="factPanel"')&&html.includes('id="legendPanel"'),'Reference and legend panels must exist');
 assert(html.includes('renderFact()')&&html.includes('id="factDescription"'),'Object card must render on selection');
 assert(html.includes('facts.js'),'Fact descriptions need script import');
+assert(html.includes('const helpText={')&&html.includes('updateHelp()'),'RU/BE/EN user guidance required');
+assert(html.includes('function mapFor(o)')&&html.includes('visibleMap()'),'Map-specific object separation required');
+assert(!html.includes('data-area-layer')&&!html.includes('type="checkbox"'),'No manual contour layer toggles');
+assert(html.includes('src="./vector-map.js"'),'Local dynamic vector basemap required');
 console.log('Globe tests passed:',count,'objects,',names.size,'unique names,',groups,'groups; RU/BE/EN coverage complete');
