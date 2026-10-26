@@ -19,5 +19,9 @@ const translations=await event('fetch',{request:{method:'GET',url:base+'globus/t
 if(!(await translations.text()).includes('GLOBE_TRANSLATIONS'))throw Error('Offline three-language names missing');
 const facts=await event('fetch',{request:{method:'GET',url:base+'globus/facts.js',mode:'cors'}});
 if(!(await facts.text()).includes('GLOBE_FACTS'))throw Error('Offline globe object reference descriptions missing');
-console.log('offline globe, geometry, grade catalogue, translations and reference notes: ok');
+for(const file of ['areas.js','area-renderer.js']){
+ const response=await event('fetch',{request:{method:'GET',url:base+'globus/'+file,mode:'cors'}});
+ if(!response||(await response.text()).length<1000)throw Error('Offline contour layer missing '+file);
+}
+console.log('offline globe, geometry, grade catalogue, translations, reference notes and contour layers: ok');
 offline=false;console.log('remove',await message('REMOVE_WORK'));console.log('final',await message('CHECK_WORK'));})().catch(e=>{console.error(e);process.exit(1)});
