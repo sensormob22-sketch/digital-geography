@@ -1,5 +1,5 @@
 /* Платформа «Цифровая география». Service Worker: core shell + opt-in works. */
-const VERSION='geo-core-2026-10-v7';
+const VERSION='geo-core-2026-10-v8';
 const CORE=`${VERSION}-shell`;
 const WORKS='geo-offline-works-v6';
 const BASE=new URL(self.registration.scope);
@@ -48,6 +48,18 @@ self.addEventListener('fetch',event=>{
       const cache=await caches.open(WORKS);
       const hit=await cache.match(workURL);
       if(hit)return hit;
+      try{return await fetch(request)}catch{return (await caches.match(absolute('offline.html'))) || Response.error()}
+    })());
+    return;
+  }
+  // The interactive globe and its self-hosted geometry must open without internet.
+  // Serve those immutable PWA-core files from the active cache, including query-string
+  // variants such as ?grade=9&lang=be, so an installed globe never falls back
+  // to the site's generic home page when offline.
+  if(uri.pathname.startsWith(new URL(absolute('globus/')).pathname)){
+    event.respondWith((async()=>{
+      const cached=await caches.match(request,{ignoreSearch:true});
+      if(cached)return cached;
       try{return await fetch(request)}catch{return (await caches.match(absolute('offline.html'))) || Response.error()}
     })());
     return;
