@@ -25,11 +25,11 @@ function emit(name,file){
  console.log('GLOBE_IMAGE_END:'+name);
 }
 const errors=[];
-let browser;
+let browser,page;
 try{
  await ready();
  browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--enable-webgl','--use-gl=angle','--use-angle=swiftshader']});
- const page=await browser.newPage({viewport:{width:1365,height:900},deviceScaleFactor:1,locale:'ru-RU'});
+ page=await browser.newPage({viewport:{width:1365,height:900},deviceScaleFactor:1,locale:'ru-RU'});
  page.on('pageerror',e=>errors.push(String(e)));
  page.on('console',msg=>{if(msg.type()==='error')console.log('BROWSER_CONSOLE_ERROR:',msg.text().slice(0,300))});
  async function open(url){
@@ -113,5 +113,7 @@ try{
  console.log('VISUAL_BROWSER_TESTS_PASSED — actual built globe screenshots in visual-output/');
 }catch(e){
  console.error('VISUAL_BROWSER_TEST_FAILED',e?.stack||String(e));
+ if(page){try{const p=path.join(dir,'failure_browser_state.jpg');await page.screenshot({path:p,quality:68,type:'jpeg',fullPage:true,timeout:8000});emit('failure_browser_state',p)}catch(err){console.error('Failure screenshot:',String(err))}}
+
  process.exitCode=1;
 }finally{await browser?.close().catch(()=>{});server.kill('SIGTERM')}
