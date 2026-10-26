@@ -240,7 +240,7 @@ function project(phi,lambda){
  return {x:w/2+rr*c*Math.sin(d),y:h/2-rr*(Math.cos(latitude)*Math.sin(phi)-Math.sin(latitude)*c*Math.cos(d)),vis};
 }
 function choose(o){
- chosen=o;setMapMode(isPolitical(o)?'political':'physical');selectedLabel();renderFact();renderList();target={lon:o.lon*RAD,lat:clamp(o.lat*RAD,-1.45,1.45),zoom:adaptiveZoom(o)};animate();
+ chosen=o;openGroup=o.group;setMapMode(isPolitical(o)?'political':'physical');selectedLabel();renderFact();renderList();$('groups').querySelector('.place.active')?.scrollIntoView({block:'nearest'});target={lon:o.lon*RAD,lat:clamp(o.lat*RAD,-1.45,1.45),zoom:adaptiveZoom(o)};animate();
 }
 function animate(){
  if(!target)return;const dx=wrap(target.lon-longitude),dy=target.lat-latitude,dz=Math.log((target.zoom||1)/zoom);
