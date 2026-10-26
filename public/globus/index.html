@@ -56,10 +56,10 @@
 <section class="panel" aria-label="Список географических объектов"><div class="panel-head"><h2 id="objectsTitle">Объекты на карте</h2><p id="count"></p></div>
 <div class="search-wrap"><input type="search" id="search" placeholder="Поиск географического объекта" aria-label="Поиск географического объекта"></div><div class="groups" id="groups"></div><p class="disclaimer" id="disclaimer"></p></section>
 </main>
-<script src="./objects.js"></script>
+<script src="./objects.js"></script><script src="./translations.js"></script>
 <script>
 (function(){'use strict';
-const $=id=>document.getElementById(id),pars=new URLSearchParams(location.search),RAW=window.GLOBE_CATALOG||{},RAD=Math.PI/180;
+const $=id=>document.getElementById(id),pars=new URLSearchParams(location.search),RAW=window.GLOBE_CATALOG||{},TR=window.GLOBE_TRANSLATIONS||{},RAD=Math.PI/180;
 let grade=+pars.get('grade')||7,lang=pars.get('lang')||'ru',theme=pars.get('theme')||'light';
 if(!RAW[grade])grade=7;if(!['ru','be','en'].includes(lang))lang='ru';if(!['dark','light'].includes(theme))theme='light';
 const i18n={
@@ -69,7 +69,7 @@ en:['Learning globe','Geographic names · Grades 6–11','Back to site','grade',
 const t=n=>i18n[lang][n],escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let groups=[],chosen=null,filter='',openGroup=0,longitude=27*RAD,latitude=30*RAD,zoom=1,target=null,geo=null,gl=null,program=null,texture=null,over=$('points').getContext('2d'),w=0,h=0,dpr=1,queued=false;
 function compileGroups(){
- groups=RAW[grade].map((v,i)=>({id:i,name:v[0].split('|')[lang==='be'?1:0]||v[0].split('|')[0],objects:v[1].split(';').map((s,j)=>{const p=s.split('|');return {id:i+'-'+j,name:p[0],lat:+p[1],lon:+p[2],type:p[3],info:p[4]||'',group:i}})}));
+ groups=RAW[grade].map((v,i)=>({id:i,name:TR.group(v[0].split('|')[0],v[0].split('|')[1],lang),objects:v[1].split(';').map((s,j)=>{const p=s.split('|');return {id:i+'-'+j,rawName:p[0],rawType:p[3],name:TR.name(p[0],lang),lat:+p[1],lon:+p[2],type:TR.type(p[3],lang),info:TR.detail(p[4]||'',lang),group:i}})}));
 }
 function all(){return groups.flatMap(g=>g.objects)}
 function visible(){return all().filter(o=>o.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase()))}
@@ -109,13 +109,13 @@ function project(phi,lambda){
  return {x:w/2+rr*c*Math.sin(d),y:h/2-rr*(Math.cos(latitude)*Math.sin(phi)-Math.sin(latitude)*c*Math.cos(d)),vis};
 }
 function choose(o){
- chosen=o;selectedLabel();renderList();target={lon:o.lon*RAD,lat:clamp(o.lat*RAD,-1.45,1.45)};animate();
+ chosen=o;setMapMode(isPolitical(o)?'political':'physical');selectedLabel();renderList();target={lon:o.lon*RAD,lat:clamp(o.lat*RAD,-1.45,1.45),zoom:adaptiveZoom(o)};animate();
 }
 function animate(){
- if(!target)return;const dx=wrap(target.lon-longitude),dy=target.lat-latitude;
- longitude+=dx*.18;latitude+=dy*.18;redraw();
- if(Math.abs(dx)+Math.abs(dy)>.001)requestAnimationFrame(animate);
- else{longitude=target.lon;latitude=target.lat;target=null;redraw()}
+ if(!target)return;const dx=wrap(target.lon-longitude),dy=target.lat-latitude,dz=Math.log((target.zoom||1)/zoom);
+ longitude+=dx*.16;latitude+=dy*.16;zoom*=Math.exp(dz*.17);redraw();
+ if(Math.abs(dx)+Math.abs(dy)+Math.abs(dz)>.002)requestAnimationFrame(animate);
+ else{longitude=target.lon;latitude=target.lat;zoom=target.zoom||zoom;target=null;redraw()}
 }
 function drawPoints(){
  const cv=$('points');over.setTransform(dpr,0,0,dpr,0,0);over.clearRect(0,0,w,h);
@@ -221,13 +221,13 @@ gesture.addEventListener('pointerup',e=>{if(!drag||drag.id!==e.pointerId)return;
  drag=null;
 });
 gesture.addEventListener('pointercancel',()=>drag=null);
-gesture.addEventListener('wheel',e=>{e.preventDefault();zoom=clamp(zoom*Math.exp(-e.deltaY*.001),.65,1.55);redraw()},{passive:false});
+gesture.addEventListener('wheel',e=>{e.preventDefault();target=null;zoom=clamp(zoom*Math.exp(-e.deltaY*.0015),.55,26);redraw()},{passive:false});
 gesture.addEventListener('keydown',e=>{const d=.13;if(e.key==='ArrowLeft')longitude-=d;else if(e.key==='ArrowRight')longitude+=d;else if(e.key==='ArrowUp')latitude=clamp(latitude+d,-1.45,1.45);else if(e.key==='ArrowDown')latitude=clamp(latitude-d,-1.45,1.45);else return;e.preventDefault();target=null;redraw()});
-$('plus').onclick=()=>{zoom=clamp(zoom*1.15,.65,1.55);redraw()};
-$('minus').onclick=()=>{zoom=clamp(zoom/1.15,.65,1.55);redraw()};
-$('reset').onclick=()=>{zoom=1;target={lon:27*RAD,lat:30*RAD};animate()};
-$('gradeButtons').addEventListener('click',e=>{const b=e.target.closest('[data-grade]');if(!b)return;grade=+b.dataset.grade;compileGroups();chosen=null;openGroup=0;filter='';$('search').value='';labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&lang='+lang+'&theme='+theme);redraw()});
-document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{lang=b.dataset.lang;compileGroups();chosen=null;labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&lang='+lang+'&theme='+theme)}));
+$('plus').onclick=()=>{target=null;zoom=clamp(zoom*1.35,.55,26);redraw()};
+$('minus').onclick=()=>{target=null;zoom=clamp(zoom/1.35,.55,26);redraw()};
+$('reset').onclick=()=>{target={zoom:1,lon:27*RAD,lat:30*RAD};animate()};
+$('gradeButtons').addEventListener('click',e=>{const b=e.target.closest('[data-grade]');if(!b)return;grade=+b.dataset.grade;compileGroups();chosen=null;zoom=1;setMapMode('physical');openGroup=0;filter='';$('search').value='';labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&lang='+lang+'&theme='+theme);redraw()});
+document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{lang=b.dataset.lang;const old=chosen?.id;compileGroups();chosen=all().find(o=>o.id===old)||null;labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&lang='+lang+'&theme='+theme)}));
 $('groups').addEventListener('click',e=>{const b=e.target.closest('[data-obj]');if(b){const item=all().find(v=>v.id===b.dataset.obj);if(item)choose(item)}});
 $('groups').addEventListener('toggle',e=>{if(e.target.matches('.group')&&e.target.open&&!filter)openGroup=+e.target.dataset.id},true);
 $('search').addEventListener('input',e=>{filter=e.target.value.trim();renderList();redraw()});
