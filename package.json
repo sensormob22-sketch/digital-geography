@@ -10,10 +10,12 @@
     "check": "astro check",
     "test:sw": "node tests/test_sw.cjs",
     "test:globe": "node tests/test_globe.cjs",
-    "test:areas": "node tests/test_areas.cjs"
+    "test:areas": "node tests/test_areas.cjs",
+    "postinstall": "node scripts/prepare-geodata.mjs"
   },
   "dependencies": {
-    "astro": "^6.0.0"
+    "astro": "^6.0.0",
+    "world-atlas": "2.0.2"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.0",
