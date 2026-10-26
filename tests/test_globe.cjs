@@ -3,8 +3,11 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'../public/globus'),window={};
 const context=vm.createContext({window});
-for(const file of ['objects.js','translations.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
-const catalog=window.GLOBE_CATALOG,translations=window.GLOBE_TRANSLATIONS;
+for(const file of ['objects.js','translations.js','facts.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
+const catalog=window.GLOBE_CATALOG,translations=window.GLOBE_TRANSLATIONS,facts=window.GLOBE_FACTS;
+assert(facts&&facts.get,'Object reference descriptions must load');
+assert(facts.get('Гималаи','en').includes('Himalayas'),'English Himalayas reference missing');
+assert(facts.get('Минск','be').includes('Беларусь'),'Belarusian Minsk reference missing');
 assert(catalog&&translations,'The globe catalogue and translations must load');
 let count=0,names=new Set(),groups=0;
 for(const grade of [6,7,8,9,10,11]){
@@ -29,4 +32,8 @@ assert(names.size>=170,'Unexpected loss of names in catalogue');
 assert.equal(translations.name('Тихий океан','en'),'Pacific Ocean');
 assert.equal(translations.name('Минск','be'),'Мінск');
 assert.equal(translations.name('Токио','en'),'Tokyo');
+const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+assert(html.includes('id="factPanel"')&&html.includes('id="legendPanel"'),'Reference and legend panels must exist');
+assert(html.includes('renderFact()')&&html.includes('id="factDescription"'),'Object card must render on selection');
+assert(html.includes('facts.js'),'Fact descriptions need script import');
 console.log('Globe tests passed:',count,'objects,',names.size,'unique names,',groups,'groups; RU/BE/EN coverage complete');
