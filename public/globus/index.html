@@ -46,6 +46,43 @@
 .stage{height:400px;min-height:0;border-radius:17px}.zoom{top:10px;right:9px}.zoom button{width:37px;height:37px}
 .caption{top:12px;left:12px}.caption span{display:none}.hint{left:12px}.selected{left:9px;right:9px;bottom:9px;padding:10px 12px}.selected strong{font-size:16px}.selected small,.selected span{font-size:10px}
 .panel{border-radius:17px;max-height:525px}}
+
+.sidebar-content{display:flex;flex-direction:column;gap:12px;min-width:0}
+.sidebar-content .panel{max-height:375px;min-height:220px;flex:none}
+.fact-card,.feature-legend{background:white;border:1px solid #e5dff4;border-radius:17px;box-shadow:0 9px 24px #321e8c12;overflow:hidden}
+.fact-card[hidden]{display:none}.fact-card{padding:14px 15px}
+.fact-top{display:flex;align-items:flex-start;gap:10px}
+.fact-avatar{width:44px;height:44px;flex:none;border-radius:13px;background:#eee9ff;display:grid;place-items:center;font-size:23px}
+.fact-title{flex:1;min-width:0}.fact-title small{font-size:11px;font-weight:800;color:#7254b9}
+.fact-title h2{font-size:17px;line-height:1.25;margin:3px 0;overflow-wrap:anywhere}
+.fact-title p{font-size:11.5px;color:#7d738f;margin:0}
+.fact-close{border:0;background:#f3edff;color:#644d95;width:30px;height:30px;flex:none;border-radius:8px;font-size:21px;line-height:1}
+.fact-meta{display:grid;grid-template-columns:100px minmax(0,1fr);gap:7px 9px;margin:12px 0 0;border-block:1px solid #eee9f4;padding:11px 0;font-size:11.5px}
+.fact-meta dt{color:#847792}.fact-meta dd{font-weight:650;margin:0;overflow-wrap:anywhere}
+.fact-description{line-height:1.5;font-size:12px;margin:12px 0 0}
+.fact-extra{font-size:11.5px;line-height:1.45;margin-top:9px;padding:9px 10px;border-radius:9px;background:#f6f1ff;overflow-wrap:anywhere}
+.fact-extra[hidden]{display:none}
+.fact-footnote{font-size:10px;color:#847992;line-height:1.5;margin:10px 0 0}
+.feature-legend summary{font-size:14px;font-weight:800;cursor:pointer;padding:12px 15px}
+.feature-legend .map-legend{position:static;max-width:none;background:transparent;border:0;border-radius:0;color:#302c4c;padding:0 15px 15px;font-size:11px;pointer-events:auto}
+.feature-legend .map-legend-title{font-size:12px}
+.feature-legend .map-legend-axis{font-size:10px}
+.feature-legend .map-legend-note{font-size:10.5px;margin-top:9px}
+.legend-key{display:grid;gap:7px;margin-top:11px}
+.legend-row{display:flex;align-items:center;gap:10px;line-height:1.4}
+.legend-mark{width:24px;height:12px;display:inline-block;flex:none;border-radius:3px}
+.legend-mark.pin,.legend-mark.active{width:11px;height:11px;border-radius:50%;border:2px solid #07364e;margin:0 6px;background:#63e8d4}
+.legend-mark.active{background:#ffd38a;box-shadow:0 0 0 2px #e4ac50a3}
+.legend-mark.country{background:linear-gradient(90deg,#83add5 0 33%,#f1c27d 33% 66%,#91cbac 66%)}
+.legend-mark.border{height:0;border-top:3px solid #293e57}
+[data-theme="dark"] .fact-card,[data-theme="dark"] .feature-legend{background:#221a35;color:#f8f2ff;border-color:#4b3e62}
+[data-theme="dark"] .fact-title p,[data-theme="dark"] .fact-meta dt,[data-theme="dark"] .fact-footnote{color:#c9bcd9}
+[data-theme="dark"] .fact-title small{color:#c8afff}
+[data-theme="dark"] .fact-avatar,[data-theme="dark"] .fact-close,[data-theme="dark"] .fact-extra{background:#382b54;color:#f5edff}
+[data-theme="dark"] .fact-meta{border-color:#4b3e62}
+[data-theme="dark"] .feature-legend .map-legend{color:#f6edff}
+@media(max-width:970px){.sidebar-content .panel{max-height:415px}}
+@media(max-width:570px){.sidebar-content .panel{max-height:360px;min-height:220px}.fact-card{padding:12px}.fact-title h2{font-size:16px}}
 </style></head>
 <body>
 <header class="top"><div><h1 id="title">🌍 Учебный глобус</h1><p id="subtitle">Географическая номенклатура · 6–11 классы</p></div><div class="head-right"><div class="languages"><button data-lang="ru">RU</button><button data-lang="be">BE</button><button data-lang="en">EN</button></div><a class="go-site" id="back" href="../#nomenclature">← На сайт</a></div></header>
@@ -53,17 +90,24 @@
 <main class="layout">
 <section class="stage" id="stage" aria-label="Интерактивный глобус">
 <canvas id="canvas"></canvas><canvas id="points"></canvas><div class="gesture" id="gesture" role="application" tabindex="0" aria-label="Глобус: перетаскивание для вращения, стрелки клавиатуры"></div>
-<div class="caption"><strong id="caption">ИССЛЕДУЙ ЗЕМЛЮ</strong><span id="captionSub">Выберите объект в списке</span></div><div class="map-mode" id="mapMode"></div><div class="map-legend" id="mapLegend" aria-live="polite"></div>
+<div class="caption"><strong id="caption">ИССЛЕДУЙ ЗЕМЛЮ</strong><span id="captionSub">Выберите объект в списке</span></div><div class="map-mode" id="mapMode"></div>
 <div class="zoom"><button id="plus" aria-label="Увеличить">+</button><button id="minus" aria-label="Уменьшить">−</button><button id="reset" aria-label="Начальный вид">⌂</button></div>
 <div class="selected" id="selected" hidden><small id="selectedKind"></small><strong id="selectedName"></strong><span id="selectedCoords"></span><span class="selected-detail" id="selectedDetail" hidden></span></div><div class="hint" id="hint">⇄ Вращение · +/− Масштаб</div><div class="status" id="status">Загрузка глобуса…</div>
 </section>
-<section class="panel" aria-label="Список географических объектов"><div class="panel-head"><h2 id="objectsTitle">Объекты на карте</h2><p id="count"></p></div>
+<aside class="sidebar-content"><section class="panel" aria-label="Список географических объектов"><div class="panel-head"><h2 id="objectsTitle">Объекты на карте</h2><p id="count"></p></div>
 <div class="search-wrap"><input type="search" id="search" placeholder="Поиск географического объекта" aria-label="Поиск географического объекта"></div><div class="groups" id="groups"></div><p class="disclaimer" id="disclaimer"></p></section>
+<section class="fact-card" id="factPanel" aria-label="Справка по объекту" hidden>
+<div class="fact-top"><span class="fact-avatar" id="factIcon" aria-hidden="true">🌍</span>
+<div class="fact-title"><small id="factHeading">Справка по объекту</small><h2 id="factName"></h2><p id="factKind"></p></div><button type="button" class="fact-close" id="factClose" aria-label="Закрыть справку">×</button></div>
+<dl class="fact-meta" id="factMeta"></dl><p class="fact-description" id="factDescription"></p><div class="fact-extra" id="factExtra" hidden></div><p class="fact-footnote" id="factFootnote"></p>
+</section>
+<details class="feature-legend" id="legendPanel" open><summary id="legendTitle">Условные обозначения</summary><div class="map-legend" id="mapLegend" aria-live="polite"></div></details>
+</aside>
 </main>
-<script src="./objects.js"></script><script src="./translations.js"></script>
+<script src="./objects.js"></script><script src="./translations.js"></script><script src="./facts.js"></script>
 <script>
 (function(){'use strict';
-const $=id=>document.getElementById(id),pars=new URLSearchParams(location.search),RAW=window.GLOBE_CATALOG||{},TR=window.GLOBE_TRANSLATIONS||{},RAD=Math.PI/180;
+const $=id=>document.getElementById(id),pars=new URLSearchParams(location.search),RAW=window.GLOBE_CATALOG||{},TR=window.GLOBE_TRANSLATIONS||{},FACTS=window.GLOBE_FACTS||{},RAD=Math.PI/180;
 let grade=+pars.get('grade')||7,lang=pars.get('lang')||'ru',theme=pars.get('theme')||'light';
 if(!RAW[grade])grade=7;if(!['ru','be','en'].includes(lang))lang='ru';if(!['dark','light'].includes(theme))theme='light';
 const i18n={
