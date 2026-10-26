@@ -179,7 +179,18 @@ function draw(){
   const cv=$('canvas'),ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
   const rr=Math.min(w,h)*.445*zoom,g=ctx.createRadialGradient(w/2-rr*.3,h/2-rr*.3,rr*.1,w/2,h/2,rr);
   g.addColorStop(0,'#337b9d');g.addColorStop(1,'#143555');ctx.beginPath();ctx.arc(w/2,h/2,rr,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
-  if(geo){ctx.save();ctx.clip();ctx.strokeStyle='#a7d3b0';ctx.lineWidth=1.2;for(const poly of geo){for(const ring of poly.rings){ctx.beginPath();let on=false;for(const q of ring){const pt=project(q[1]*RAD,q[0]*RAD);if(pt.vis>.01){if(on)ctx.lineTo(pt.x,pt.y);else{ctx.moveTo(pt.x,pt.y);on=true}}else on=false;}ctx.stroke()}}ctx.restore()}
+  if(geo){ctx.save();ctx.clip();
+  for(const poly of geo){
+   ctx.beginPath();for(const ring of poly.rings){let on=false;
+    for(const q of ring){const pt=project(q[1]*RAD,q[0]*RAD);if(pt.vis>.01){if(on)ctx.lineTo(pt.x,pt.y);else{ctx.moveTo(pt.x,pt.y);on=true}}else on=false;}
+    if(on)ctx.closePath();
+   }
+   if(mapMode==='political'){
+    const seed=Array.from(String(poly.id)).reduce((a,c)=>(a*37+c.charCodeAt(0))%9973,73);
+    ctx.fillStyle='hsl('+((seed*137.508)%360).toFixed(0)+',47%,'+(58+(seed%4)*5)+'%)';
+   }else ctx.fillStyle='#78ba7a';
+   ctx.fill('evenodd');ctx.strokeStyle=mapMode==='political'?'#293e57':'#d1dca5';ctx.lineWidth=1.1;ctx.stroke();
+  }ctx.restore()}
  }
  drawPoints();
 }
