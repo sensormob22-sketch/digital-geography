@@ -15,7 +15,11 @@
 #canvas,#points{position:absolute;inset:0;width:100%;height:100%;display:block}#points{pointer-events:none}
 .gesture{position:absolute;inset:0;touch-action:none;cursor:grab}.gesture:active{cursor:grabbing}
 .caption{position:absolute;left:19px;top:16px;color:#e1f4ff;pointer-events:none}.caption strong{display:block;font-size:13px;font-weight:900;letter-spacing:.06em}.caption span{display:block;color:#b7d4e7;font-size:11px;margin-top:3px}
-.zoom{position:absolute;top:14px;right:14px;display:grid;gap:7px}.zoom button{border:1px solid #aecbe755;border-radius:10px;background:#184266c9;color:#fff;width:42px;height:42px;font-size:22px}
+.zoom{position:absolute;top:14px;right:14px;display:grid;gap:7px}
+.map-mode{position:absolute;top:67px;left:18px;padding:6px 10px;border-radius:8px;background:#102d48de;color:#e0f3ff;font-size:11px;font-weight:800;pointer-events:none}
+.map-legend{position:absolute;right:14px;bottom:15px;max-width:240px;background:#0d2944e6;color:#ecfaff;border:1px solid #82c5d455;border-radius:11px;padding:9px 10px;font-size:10px;line-height:1.35;pointer-events:none}
+.map-legend-title{font-weight:800;margin-bottom:5px}.map-legend-scale{display:flex;height:9px;overflow:hidden;border-radius:6px;margin:3px 0}.map-legend-scale b{flex:1}.map-legend-axis{display:flex;justify-content:space-between;font-size:9px;opacity:.85;gap:8px}.map-legend-note{display:block;opacity:.8;margin-top:4px}
+@media(max-width:570px){.map-mode{top:46px;left:10px;font-size:9px;padding:4px 7px}.map-legend{bottom:9px;right:9px;padding:6px;max-width:165px;font-size:9px}.map-legend-axis{font-size:8px}}.zoom button{border:1px solid #aecbe755;border-radius:10px;background:#184266c9;color:#fff;width:42px;height:42px;font-size:22px}
 .selected{position:absolute;bottom:16px;left:16px;right:16px;background:#0d2d48ed;border:1px solid #85d6ec6b;border-radius:15px;padding:13px 16px;color:white;max-width:450px;pointer-events:none;box-shadow:0 14px 25px #0003}
 .selected[hidden]{display:none}.selected small{font-size:11px;color:#a3d7e6}.selected strong{display:block;font-size:20px;margin:3px 0}.selected span{display:block;font-size:12px;color:#d9edfa}.selected .selected-detail{display:block;font-size:11.5px;line-height:1.4;margin-top:8px;color:#eaf7ff;overflow-wrap:anywhere}.selected .selected-detail[hidden]{display:none}.selected{max-width:540px}.hint.up{bottom:195px}
 .hint{position:absolute;left:17px;bottom:15px;color:#bbd4e8;font-size:10px;pointer-events:none}.hint.up{bottom:129px}
@@ -49,7 +53,7 @@
 <main class="layout">
 <section class="stage" id="stage" aria-label="Интерактивный глобус">
 <canvas id="canvas"></canvas><canvas id="points"></canvas><div class="gesture" id="gesture" role="application" tabindex="0" aria-label="Глобус: перетаскивание для вращения, стрелки клавиатуры"></div>
-<div class="caption"><strong id="caption">ИССЛЕДУЙ ЗЕМЛЮ</strong><span id="captionSub">Выберите объект в списке</span></div>
+<div class="caption"><strong id="caption">ИССЛЕДУЙ ЗЕМЛЮ</strong><span id="captionSub">Выберите объект в списке</span></div><div class="map-mode" id="mapMode"></div><div class="map-legend" id="mapLegend" aria-live="polite"></div>
 <div class="zoom"><button id="plus" aria-label="Увеличить">+</button><button id="minus" aria-label="Уменьшить">−</button><button id="reset" aria-label="Начальный вид">⌂</button></div>
 <div class="selected" id="selected" hidden><small id="selectedKind"></small><strong id="selectedName"></strong><span id="selectedCoords"></span><span class="selected-detail" id="selectedDetail" hidden></span></div><div class="hint" id="hint">⇄ Вращение · +/− Масштаб</div><div class="status" id="status">Загрузка глобуса…</div>
 </section>
@@ -68,6 +72,44 @@ be:['Вучэбны глобус','Геаграфічная наменклату
 en:['Learning globe','Geographic names · Grades 6–11','Back to site','grade','EXPLORE EARTH','Pick an object from the list','Objects on the globe','Search locations','places','topic groups','No matching places','Belarus curriculum 2025','Belarus curriculum 2026','Pins mark approximate reference points, not boundaries. This is a starting curriculum-based set.','Grades 10–11 include illustrative examples; changing rankings need to be kept up to date.']};
 const t=n=>i18n[lang][n],escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let groups=[],chosen=null,filter='',openGroup=0,longitude=27*RAD,latitude=30*RAD,zoom=1,target=null,geo=null,gl=null,program=null,texture=null,over=$('points').getContext('2d'),w=0,h=0,dpr=1,queued=false;
+let mapMode='physical',reliefImage=null,textureCanvas=null;
+const RELIEF_URL='https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Elevation.jpg/1280px-Elevation.jpg';
+const modeStrings={ru:['Физический глобус','Политический глобус','Высоты и глубины · цветовая шкала','Государства · условные цвета','Рельеф: NOAA / Wikimedia Commons','Офлайн: упрощённый рельеф'],
+be:['Фізічны глобус','Палітычны глобус','Вышыні і глыбіні · колеравая шкала','Дзяржавы · умоўныя колеры','Рэльеф: NOAA / Wikimedia Commons','Афлайн: спрошчаны рэльеф'],
+en:['Physical globe','Political globe','Elevations and depths · color scale','Countries · distinct colors','Relief: NOAA / Wikimedia Commons','Offline: simplified terrain']};
+function isPolitical(o){
+ const ty=o.rawType||'',n=o.rawName||'';
+ if(grade===9)return /Город|Столица|Областной центр/.test(ty);
+ if(grade===10)return n!=='Панамский канал';
+ if(grade===11)return o.group<=5||o.group===8;
+ return false;
+}
+function adaptiveZoom(o){
+ const ty=o.rawType||'';
+ if(isPolitical(o)){
+  if(grade===10&&/Площадь|Население|плотность|урбанизация|Производство|Сельское|Нефть|Промышленность/i.test(ty))return 3.3;
+  if(grade===11&&o.group===8)return 3.2;
+  if(/Мегалополис/.test(ty)||grade===11&&o.group>=2&&o.group<=5)return 5.5;
+  return 17;
+ }
+ if(/Океан|Материк|Часть света/.test(ty))return 1.2;
+ if(/Море|Залив|Горная система|Горы|Плоскогорье|Равнина|Низменность|Пустыня|Впадина|Нагорье/.test(ty))return 4.6;
+ if(/Река|Приток|Группа озёр|Полуостров|Гряда|Возвышенность/.test(ty))return 7.5;
+ if(/Озеро|Водохранилище|Остров|Пролив|Мыс/.test(ty))return 10;
+ if(/Вулкан|Вершина|Водопад|Высшая точка/.test(ty))return 15;
+ return 8;
+}
+function setMapMode(next){
+ if(next!==mapMode){mapMode=next;updateTexture();}
+ updateLegend();
+}
+function updateLegend(){
+ const [physical,political,physicalTitle,politicalTitle,credit,offline]=modeStrings[lang];
+ $('mapMode').textContent=mapMode==='physical'?physical:political;
+ const palette=mapMode==='physical'?['#142e85','#214fbf','#218ddc','#51c9eb','#42ca86','#93d845','#f5d23b','#d87931','#c43e24','#fbf0e6']:['#e1f0f8','#8aa4de','#adca78','#e7bd6a','#a9a1df','#d896a9','#88ccc2'];
+ const axis=mapMode==='physical'?['−11 000 м','0','8 849 м']:['','', ''];
+ $('mapLegend').innerHTML='<div class="map-legend-title">'+escape(mapMode==='physical'?physicalTitle:politicalTitle)+'</div><div class="map-legend-scale">'+palette.map(c=>'<b style="background:'+c+'"></b>').join('')+'</div><div class="map-legend-axis">'+axis.map(z=>'<span>'+z+'</span>').join('')+'</div>'+(mapMode==='physical'?'<span class="map-legend-note">'+escape(reliefImage?credit:offline)+'</span>':'');
+}
 function compileGroups(){
  groups=RAW[grade].map((v,i)=>({id:i,name:TR.group(v[0].split('|')[0],v[0].split('|')[1],lang),objects:v[1].split(';').map((s,j)=>{const p=s.split('|');return {id:i+'-'+j,rawName:p[0],rawType:p[3],name:TR.name(p[0],lang),lat:+p[1],lon:+p[2],type:TR.type(p[3],lang),info:TR.detail(p[4]||'',lang),group:i}})}));
 }
@@ -86,7 +128,7 @@ function labels(){
  $('disclaimer').textContent=grade===11?t(13)+' '+userLabels.note:t(13)+(grade>=10?' '+t(14):'');
  $('gradeButtons').innerHTML=[6,7,8,9,10,11].map(n=>'<button data-grade="'+n+'" class="grade '+(n===grade?'active':'')+'" aria-pressed="'+(n===grade)+'">'+n+' '+t(3)+'</button>').join('');
  for(const btn of document.querySelectorAll('[data-lang]')){btn.classList.toggle('active',btn.dataset.lang===lang);btn.setAttribute('aria-pressed',String(btn.dataset.lang===lang))}
- selectedLabel();renderList();
+ selectedLabel();renderList();updateLegend();
 }
 function selectedLabel(){
  $('selected').hidden=!chosen;$('hint').classList.toggle('up',!!chosen);
@@ -137,7 +179,7 @@ function draw(){
   const cv=$('canvas'),ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
   const rr=Math.min(w,h)*.445*zoom,g=ctx.createRadialGradient(w/2-rr*.3,h/2-rr*.3,rr*.1,w/2,h/2,rr);
   g.addColorStop(0,'#337b9d');g.addColorStop(1,'#143555');ctx.beginPath();ctx.arc(w/2,h/2,rr,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
-  if(geo){ctx.save();ctx.clip();ctx.strokeStyle='#a7d3b0';ctx.lineWidth=1.2;for(const poly of geo){for(const ring of poly){ctx.beginPath();let on=false;for(const q of ring){const pt=project(q[1]*RAD,q[0]*RAD);if(pt.vis>.01){if(on)ctx.lineTo(pt.x,pt.y);else{ctx.moveTo(pt.x,pt.y);on=true}}else on=false;}ctx.stroke()}}ctx.restore()}
+  if(geo){ctx.save();ctx.clip();ctx.strokeStyle='#a7d3b0';ctx.lineWidth=1.2;for(const poly of geo){for(const ring of poly.rings){ctx.beginPath();let on=false;for(const q of ring){const pt=project(q[1]*RAD,q[0]*RAD);if(pt.vis>.01){if(on)ctx.lineTo(pt.x,pt.y);else{ctx.moveTo(pt.x,pt.y);on=true}}else on=false;}ctx.stroke()}}ctx.restore()}
  }
  drawPoints();
 }
@@ -179,32 +221,57 @@ function initGL(){
  }catch(e){console.warn('Globe fallback',e);gl=null;program=null;const c=document.createElement('canvas');c.id='canvas';$('canvas').replaceWith(c)}
 }
 function unpack(t){
- const memo=[],transform=t.transform;
+ const memo=[],transform=t.transform,polygons=[];
  function arc(id){const rev=id<0,index=rev?~id:id;
   if(!memo[index]){let x=0,y=0;memo[index]=t.arcs[index].map(p=>{x+=p[0];y+=p[1];return [x*transform.scale[0]+transform.translate[0],y*transform.scale[1]+transform.translate[1]]})}
   return rev?memo[index].slice().reverse():memo[index];
  }
  function ring(a){return a.flatMap((id,i)=>{const p=arc(id);return i?p.slice(1):p})}
- let polygons=[];
- for(const g of t.objects.countries.geometries){if(g.type==='Polygon')polygons.push(g.arcs.map(ring));else if(g.type==='MultiPolygon')for(const p of g.arcs)polygons.push(p.map(ring))}
+ t.objects.countries.geometries.forEach((g,i)=>{
+  const polygonsOfCountry=g.type==='Polygon'?[g.arcs]:g.type==='MultiPolygon'?g.arcs:[];
+  polygonsOfCountry.forEach(poly=>polygons.push({id:g.id||String(i),rings:poly.map(ring)}));
+ });
  return polygons;
 }
-function makeTexture(polys){
+function makeTexture(polys,mode){
  const cv=document.createElement('canvas');cv.width=2048;cv.height=1024;const ctx=cv.getContext('2d');
- const bg=ctx.createLinearGradient(0,0,0,1024);bg.addColorStop(0,'#307da0');bg.addColorStop(.5,'#175677');bg.addColorStop(1,'#144766');ctx.fillStyle=bg;ctx.fillRect(0,0,2048,1024);
- for(const poly of polys)for(let n=0;n<poly.length;n++){
-  ctx.beginPath();let last=null;
-  for(const p of poly[n]){const x=(p[0]+180)/360*2048,y=(90-p[1])/180*1024;
-   if(last===null||Math.abs(x-last)>1024)ctx.moveTo(x,y);else ctx.lineTo(x,y);last=x;}
-  ctx.closePath();ctx.fillStyle=n===0?'#83b89b':'#175677';ctx.fill();ctx.strokeStyle='#c0d4a8';ctx.lineWidth=.7;ctx.stroke();
+ if(mode==='physical'&&reliefImage)ctx.drawImage(reliefImage,0,0,cv.width,cv.height);
+ else{
+  const sea=ctx.createLinearGradient(0,0,0,1024);sea.addColorStop(0,'#2f9ec7');sea.addColorStop(.5,'#185782');sea.addColorStop(1,'#0c2d66');ctx.fillStyle=sea;ctx.fillRect(0,0,cv.width,cv.height);
+ }
+ for(let i=0;i<polys.length;i++){
+  const {id,rings}=polys[i];ctx.beginPath();
+  for(const ring of rings){let prev=null;
+   for(let j=0;j<ring.length;j++){const pt=ring[j],x=(pt[0]+180)/360*2048,y=(90-pt[1])/180*1024;
+    if(j===0||prev!==null&&Math.abs(x-prev)>1024)ctx.moveTo(x,y);else ctx.lineTo(x,y);prev=x;
+   }ctx.closePath();
+  }
+  if(mode==='political'){
+   const seed=Array.from(String(id)).reduce((a,c)=>(a*37+c.charCodeAt(0))%9973,73);
+   ctx.fillStyle='hsl('+((seed*137.508)%360).toFixed(0)+',47%,'+(58+(seed%4)*5)+'%)';
+   ctx.fill('evenodd');ctx.strokeStyle='#293e57';ctx.lineWidth=.9;ctx.stroke();
+  }else if(!reliefImage){
+   ctx.fillStyle='#79bf77';ctx.fill('evenodd');ctx.strokeStyle='#b9d3aa';ctx.lineWidth=.5;ctx.stroke();
+  }
  }
  return cv;
+}
+function updateTexture(){
+ if(!geo)return;
+ textureCanvas=makeTexture(geo,mapMode);
+ if(gl&&texture){gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,textureCanvas)}
+ redraw();
+}
+function loadRelief(){
+ const img=new Image();img.crossOrigin='anonymous';img.decoding='async';
+ img.onload=()=>{reliefImage=img;updateTexture();updateLegend()};
+ img.onerror=()=>{reliefImage=null;updateLegend()};
+ img.src=RELIEF_URL;
 }
 async function loadGeometry(){
  try{
   const resp=await fetch('./world-110m.json');if(!resp.ok)throw Error('HTTP '+resp.status);
-  geo=unpack(await resp.json());
-  if(gl){gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,makeTexture(geo))}
+  geo=unpack(await resp.json());updateTexture();
   $('status').hidden=true;redraw();
  }catch(e){console.warn(e);$('status').textContent='Картографические контуры недоступны';setTimeout(()=>$('status').hidden=true,4200)}
 }
@@ -233,6 +300,6 @@ $('groups').addEventListener('toggle',e=>{if(e.target.matches('.group')&&e.targe
 $('search').addEventListener('input',e=>{filter=e.target.value.trim();renderList();redraw()});
 window.addEventListener('message',e=>{if(e.origin===location.origin&&e.data?.type==='geographyTheme'){theme=e.data.theme==='dark'?'dark':'light';document.documentElement.dataset.theme=theme}});
 window.addEventListener('resize',resize);
-compileGroups();initGL();labels();resize();loadGeometry();redraw();
+compileGroups();initGL();labels();resize();loadGeometry();loadRelief();redraw();
 })();
 </script></body></html>
