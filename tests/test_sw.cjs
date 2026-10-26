@@ -15,5 +15,7 @@ const globeData=await event('fetch',{request:{method:'GET',url:base+'globus/worl
 const topology=JSON.parse(await globeData.text());if(topology.type!=='Topology')throw Error('Offline globe geometry missing');
 const objects=await event('fetch',{request:{method:'GET',url:base+'globus/objects.js',mode:'cors'}});
 if(!(await objects.text()).includes('GLOBE_CATALOG'))throw Error('Offline nomenclature catalogue missing');
-console.log('offline globe, geometry, and grade catalogue: ok');
+const translations=await event('fetch',{request:{method:'GET',url:base+'globus/translations.js',mode:'cors'}});
+if(!(await translations.text()).includes('GLOBE_TRANSLATIONS'))throw Error('Offline three-language names missing');
+console.log('offline globe, geometry, grade catalogue and translations: ok');
 offline=false;console.log('remove',await message('REMOVE_WORK'));console.log('final',await message('CHECK_WORK'));})().catch(e=>{console.error(e);process.exit(1)});
