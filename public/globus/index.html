@@ -149,11 +149,33 @@ function setMapMode(next){
  updateLegend();
 }
 function updateLegend(){
- const [physical,political,physicalTitle,politicalTitle,credit,offline]=modeStrings[lang];
+ const [physical,political,physicalTitle,politicalTitle,credit,offline]=modeStrings[lang],labels=refStrings[lang];
+ $('legendTitle').textContent=labels.legend;
  $('mapMode').textContent=mapMode==='physical'?physical:political;
  const palette=mapMode==='physical'?['#142e85','#214fbf','#218ddc','#51c9eb','#42ca86','#93d845','#f5d23b','#d87931','#c43e24','#fbf0e6']:['#e1f0f8','#8aa4de','#adca78','#e7bd6a','#a9a1df','#d896a9','#88ccc2'];
- const axis=mapMode==='physical'?['−11 000 м','0','8 849 м']:['','', ''];
- $('mapLegend').innerHTML='<div class="map-legend-title">'+escape(mapMode==='physical'?physicalTitle:politicalTitle)+'</div><div class="map-legend-scale">'+palette.map(c=>'<b style="background:'+c+'"></b>').join('')+'</div><div class="map-legend-axis">'+axis.map(z=>'<span>'+z+'</span>').join('')+'</div>'+(mapMode==='physical'?'<span class="map-legend-note">'+escape(reliefImage?credit:offline)+'</span>':'');
+ const axis=mapMode==='physical'?[labels.depth,labels.sea,labels.height]:['','',''];
+ const symbols=mapMode==='political'?[['country',labels.country],['border',labels.bound]]:[];
+ symbols.push(['pin',labels.pin],['active',labels.active]);
+ $('mapLegend').innerHTML='<div class="map-legend-title">'+escape(mapMode==='physical'?physicalTitle:politicalTitle)+'</div><div class="map-legend-scale">'+palette.map(c=>'<b style="background:'+c+'"></b>').join('')+'</div><div class="map-legend-axis">'+axis.map(z=>'<span>'+escape(z)+'</span>').join('')+'</div><div class="legend-key">'+symbols.map(([kind,label])=>'<div class="legend-row"><i class="legend-mark '+kind+'"></i><span>'+escape(label)+'</span></div>').join('')+'</div><span class="map-legend-note">'+escape(mapMode==='physical'?labels.colorNote+' '+(reliefImage?credit:offline):labels.placeNote)+'</span>';
+}
+const refStrings={
+ru:{title:'Справка по объекту',legend:'Условные обозначения',topic:'Тематическая группа',type:'Тип объекта',coordinate:'Точка-ориентир',mode:'Карта',physical:'Физическая',political:'Политическая',default:'Объект входит в учебную географическую номенклатуру. На глобусе обозначено примерное положение, а не полный географический контур.',note:'Маркер показывает ориентировочное местоположение, но не точные границы протяжённого объекта.',extra:'Дополнительная информация',close:'Закрыть справку',height:'Высоты суши',depth:'Глубины океана',sea:'Уровень моря',country:'Страны различаются цветом',bound:'Границы государств',pin:'Местоположение объекта',active:'Выбранный объект',colorNote:'Цвета передают общие особенности рельефа, но не измеряют точную высоту или глубину.',placeNote:'Протяжённые объекты пока отмечены точками-ориентирами; точные контуры будут добавляться отдельно.'},
+be:{title:'Даведка пра аб’ект',legend:'Умоўныя абазначэнні',topic:'Тэматычная група',type:'Тып аб’екта',coordinate:'Кропка-арыенцір',mode:'Карта',physical:'Фізічная',political:'Палітычная',default:'Аб’ект уваходзіць у вучэбную геаграфічную наменклатуру. На глобусе паказана прыблізнае становішча, а не поўны геаграфічны контур.',note:'Маркер паказвае прыкладнае месцазнаходжанне, а не дакладныя межы працяглага аб’екта.',extra:'Дадатковая інфармацыя',close:'Закрыць даведку',height:'Вышыні сушы',depth:'Глыбіні акіяна',sea:'Узровень мора',country:'Дзяржавы адрозніваюцца колерам',bound:'Межы дзяржаў',pin:'Месцазнаходжанне аб’екта',active:'Выбраны аб’ект',colorNote:'Колеры перадаюць агульныя асаблівасці рэльефу, але не вымяраюць дакладную вышыню ці глыбіню.',placeNote:'Працяглыя аб’екты пакуль пазначаны кропкамі-арыенцірамі; дакладныя контуры будуць дададзены асобна.'},
+en:{title:'About this location',legend:'Map legend',topic:'Topic group',type:'Object type',coordinate:'Reference point',mode:'Map',physical:'Physical',political:'Political',default:'This is a location from the school geography catalogue. The globe shows an approximate reference position rather than the object’s geographic outline.',note:'The marker is an approximate location, not a verified boundary of an extended object.',extra:'Additional information',close:'Close information',height:'Land elevations',depth:'Ocean depths',sea:'Sea level',country:'Countries shown in different colors',bound:'Country boundaries',pin:'Location marker',active:'Selected location',colorNote:'These colors indicate general terrain patterns, not an exact measurement of elevation or depth.',placeNote:'Extended objects are still marked by reference points; verified outlines will be added separately.'}
+};
+function renderFact(){
+ const panel=$('factPanel');panel.hidden=!chosen;
+ if(!chosen)return;
+ const d=refStrings[lang],group=groups.find(g=>g.id===chosen.group)?.name||'';
+ const coords=Math.abs(chosen.lat).toFixed(2)+'° '+(chosen.lat>=0?'N':'S')+' · '+Math.abs(chosen.lon).toFixed(2)+'° '+(chosen.lon>=0?'E':'W');
+ $('factHeading').textContent=d.title;$('factName').textContent=chosen.name;$('factKind').textContent=chosen.type;
+ $('factIcon').textContent=isPolitical(chosen)?'🏙️':/Океан|Море|Река|Озеро|Пролив|Залив|Водохранилище/.test(chosen.rawType)?'🌊':/Гор|Горы|Вершин|Вулкан|Нагор|Возвыш/.test(chosen.rawType)?'🏔️':'🌐';
+ $('factClose').setAttribute('aria-label',d.close);$('factClose').title=d.close;
+ const rows=[[d.type,chosen.type],[d.topic,group],[d.coordinate,coords],[d.mode,mapMode==='political'?d.political:d.physical]];
+ $('factMeta').innerHTML=rows.map(([key,value])=>'<dt>'+escape(key)+'</dt><dd>'+escape(value)+'</dd>').join('');
+ $('factDescription').textContent=FACTS.get?.(chosen.rawName,lang)||d.default;
+ $('factExtra').hidden=!chosen.info;$('factExtra').textContent=chosen.info?d.extra+': '+chosen.info:'';
+ $('factFootnote').textContent=d.note;
 }
 function compileGroups(){
  groups=RAW[grade].map((v,i)=>({id:i,name:TR.group(v[0].split('|')[0],v[0].split('|')[1],lang),objects:v[1].split(';').map((s,j)=>{const p=s.split('|');return {id:i+'-'+j,rawName:p[0],rawType:p[3],name:TR.name(p[0],lang),lat:+p[1],lon:+p[2],type:TR.type(p[3],lang),info:TR.detail(p[4]||'',lang),group:i}})}));
@@ -173,7 +195,7 @@ function labels(){
  $('disclaimer').textContent=grade===11?t(13)+' '+userLabels.note:t(13)+(grade>=10?' '+t(14):'');
  $('gradeButtons').innerHTML=[6,7,8,9,10,11].map(n=>'<button data-grade="'+n+'" class="grade '+(n===grade?'active':'')+'" aria-pressed="'+(n===grade)+'">'+n+' '+t(3)+'</button>').join('');
  for(const btn of document.querySelectorAll('[data-lang]')){btn.classList.toggle('active',btn.dataset.lang===lang);btn.setAttribute('aria-pressed',String(btn.dataset.lang===lang))}
- selectedLabel();renderList();updateLegend();
+ selectedLabel();renderList();updateLegend();renderFact();
 }
 function selectedLabel(){
  $('selected').hidden=!chosen;$('hint').classList.toggle('up',!!chosen);
@@ -196,7 +218,7 @@ function project(phi,lambda){
  return {x:w/2+rr*c*Math.sin(d),y:h/2-rr*(Math.cos(latitude)*Math.sin(phi)-Math.sin(latitude)*c*Math.cos(d)),vis};
 }
 function choose(o){
- chosen=o;setMapMode(isPolitical(o)?'political':'physical');selectedLabel();renderList();target={lon:o.lon*RAD,lat:clamp(o.lat*RAD,-1.45,1.45),zoom:adaptiveZoom(o)};animate();
+ chosen=o;setMapMode(isPolitical(o)?'political':'physical');selectedLabel();renderFact();renderList();target={lon:o.lon*RAD,lat:clamp(o.lat*RAD,-1.45,1.45),zoom:adaptiveZoom(o)};animate();
 }
 function animate(){
  if(!target)return;const dx=wrap(target.lon-longitude),dy=target.lat-latitude,dz=Math.log((target.zoom||1)/zoom);
@@ -349,6 +371,7 @@ gesture.addEventListener('keydown',e=>{const d=.13;if(e.key==='ArrowLeft')longit
 $('plus').onclick=()=>{target=null;zoom=clamp(zoom*1.35,.55,26);redraw()};
 $('minus').onclick=()=>{target=null;zoom=clamp(zoom/1.35,.55,26);redraw()};
 $('reset').onclick=()=>{target={zoom:1,lon:27*RAD,lat:30*RAD};animate()};
+$('factClose').onclick=()=>{chosen=null;selectedLabel();renderFact();renderList();redraw()};
 $('gradeButtons').addEventListener('click',e=>{const b=e.target.closest('[data-grade]');if(!b)return;grade=+b.dataset.grade;compileGroups();chosen=null;zoom=1;setMapMode('physical');openGroup=0;filter='';$('search').value='';labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&lang='+lang+'&theme='+theme);redraw()});
 document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{lang=b.dataset.lang;const old=chosen?.id;compileGroups();chosen=all().find(o=>o.id===old)||null;labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&lang='+lang+'&theme='+theme)}));
 $('groups').addEventListener('click',e=>{const b=e.target.closest('[data-obj]');if(b){const item=all().find(v=>v.id===b.dataset.obj);if(item)choose(item)}});
