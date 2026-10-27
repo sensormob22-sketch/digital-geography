@@ -20,14 +20,31 @@ function path(ctx,coordinates,project,close=false){
  if(close&&started&&visiblePoint(coordinates[0],project).front)ctx.closePath();
  return any;
 }
-function draw(ctx,data,project,zoom,mode,rankOverride=null){
+const extents=new WeakMap();
+function boxFor(f){
+ if(extents.has(f))return extents.get(f);
+ let west=Infinity,east=-Infinity,south=Infinity,north=-Infinity;
+ for(const line of f.paths||[])for(const p of line){
+  west=Math.min(west,p[0]);east=Math.max(east,p[0]);
+  south=Math.min(south,p[1]);north=Math.max(north,p[1]);
+ }
+ const box={west,east,south,north};extents.set(f,box);return box;
+}
+function inView(f,camera,zoom){
+ if(!camera||zoom<3)return true;
+ const box=boxFor(f),radius=110/zoom;
+ if(camera.lat<box.south-radius||camera.lat>box.north+radius)return false;
+ const margin=radius/Math.max(.22,Math.cos(camera.lat*DEG));
+ return [-360,0,360].some(shift=>camera.lon>=box.west+shift-margin&&camera.lon<=box.east+shift+margin);
+}
+function draw(ctx,data,project,zoom,mode,rankOverride=null,camera=null){
  if(!data)return;
  const rankLimit=rankOverride??(zoom<1.35?1:zoom<2.2?2:zoom<4?3:5);
  ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
  // Lakes appear over colored national polygons and over the natural relief.
  ctx.lineWidth=zoom>=6?1.35:.85;
  for(const lake of data.lakes||[]){
-  if(lake.rank>rankLimit)continue;
+  if(lake.rank>rankLimit||!inView(lake,camera,zoom))continue;
   ctx.beginPath();let drawn=false;
   for(const line of lake.paths)drawn=path(ctx,line,project,true)||drawn;
   if(drawn){
@@ -38,7 +55,7 @@ function draw(ctx,data,project,zoom,mode,rankOverride=null){
  }
  const streamLimit=rankLimit;
  for(const river of data.rivers||[]){
-  if(river.rank>streamLimit)continue;
+  if(river.rank>streamLimit||!inView(river,camera,zoom))continue;
   ctx.beginPath();let drawn=false;
   for(const line of river.paths)drawn=path(ctx,line,project,false)||drawn;
   if(drawn){
@@ -50,5 +67,5 @@ function draw(ctx,data,project,zoom,mode,rankOverride=null){
  }
  ctx.restore();
 }
-window.GLOBE_HYDROLOGY_RENDERER={draw,visiblePoint,path};
+window.GLOBE_HYDROLOGY_RENDERER={draw,visiblePoint,path,inView};
 })();
