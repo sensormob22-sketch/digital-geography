@@ -81,10 +81,13 @@ try{
  assert.equal(await page.locator('#stage').getAttribute('data-marker-label'),'Гималаи');
  // Native accordion: collapsing legend gives the flexible nomenclature list room.
  const beforePanel=await page.locator('.sidebar-content .panel').evaluate(e=>e.getBoundingClientRect().height);
+ assert(!await page.locator('#legendPanel').evaluate(e=>e.open),'Legend should be collapsed initially');
+ await page.locator('#legendPanel summary').click();await wait(450);
+ const expandedPanel=await page.locator('.sidebar-content .panel').evaluate(e=>e.getBoundingClientRect().height);
+ assert(beforePanel>expandedPanel+20,'Nomenclature list did not shrink while opening legend');
  await page.locator('#legendPanel summary').click();await wait(450);
  const afterPanel=await page.locator('.sidebar-content .panel').evaluate(e=>e.getBoundingClientRect().height);
- assert(afterPanel>beforePanel+20,'Nomenclature list did not grow after legend collapsed');
- await page.locator('#legendPanel summary').click();await wait(350);
+ assert(afterPanel>expandedPanel+20,'Nomenclature list did not grow after collapsing legend');
  // Dynamic accordion changes must never stretch canvas image/coordinates.
  await page.locator('#groups details.group').first().locator('summary').click();await wait(350);
  const canvasSize=await page.evaluate(()=>{const st=document.getElementById('stage').getBoundingClientRect(),c=document.getElementById('points');return {stageRatio:st.width/st.height,canvasRatio:c.width/c.height}});
@@ -118,7 +121,9 @@ try{
  assert.match(await page.locator('#hint').innerText(),/Drag to rotate/);
  assert.equal(await page.locator('#plus').getAttribute('title'),'Zoom in');
  assert.equal(await page.locator('#legendPanel input[type="checkbox"]').count(),0);
+ await page.locator('#legendPanel summary').click();
  assert((await page.locator('#legendPanel').innerText()).includes('Rivers')||(await page.locator('#legendPanel').innerText()).includes('Реки'),'Hydrology key missing from political legend');
+ await page.locator('#legendPanel summary').click();
  assert.deepEqual(await page.locator('#factMeta dt').allInnerTexts(),['Object type','Topic group','Reference point']);
  assert.equal(await page.locator('#factMeta dd').count(),3);
  assert.equal(await page.locator('#count,.counter').count(),0);
