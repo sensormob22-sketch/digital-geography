@@ -13,9 +13,22 @@ async function message(type){let reply;await event('message',{data:{type},ports:
 const globeHtml=await globe.text();if(!globeHtml.includes('Учебный глобус'))throw Error('Offline globe was not served from PWA cache');
 const globeData=await event('fetch',{request:{method:'GET',url:base+'globus/world-110m.json',mode:'cors'}});
 const topology=JSON.parse(await globeData.text());if(topology.type!=='Topology')throw Error('Offline globe geometry missing');
+const detail=await event('fetch',{request:{method:'GET',url:base+'globus/world-50m.json',mode:'cors'}});
+if(JSON.parse(await detail.text()).type!=='Topology')throw Error('Offline Natural Earth 50m vector geometry missing');
 const objects=await event('fetch',{request:{method:'GET',url:base+'globus/objects.js',mode:'cors'}});
 if(!(await objects.text()).includes('GLOBE_CATALOG'))throw Error('Offline nomenclature catalogue missing');
 const translations=await event('fetch',{request:{method:'GET',url:base+'globus/translations.js',mode:'cors'}});
 if(!(await translations.text()).includes('GLOBE_TRANSLATIONS'))throw Error('Offline three-language names missing');
-console.log('offline globe, geometry, grade catalogue and translations: ok');
+const facts=await event('fetch',{request:{method:'GET',url:base+'globus/facts.js',mode:'cors'}});
+if(!(await facts.text()).includes('GLOBE_FACTS'))throw Error('Offline globe object reference descriptions missing');
+for(const file of ['areas.js','area-renderer.js','vector-map.js','hydrology-renderer.js']){
+ const response=await event('fetch',{request:{method:'GET',url:base+'globus/'+file,mode:'cors'}});
+ if(!response||(await response.text()).length<1000)throw Error('Offline contour layer missing '+file);
+}
+const rivers=await event('fetch',{request:{method:'GET',url:base+'globus/hydrology-50m.json',mode:'cors'}});
+const riversData=JSON.parse(await rivers.text());if(!riversData.rivers.length||!riversData.lakes.length)throw Error('Offline rivers or lakes missing');
+const image=await event('fetch',{request:{method:'GET',url:base+'globus/relief-nasa-8192.jpg',mode:'cors'}});
+const imageBytes=Buffer.from(await image.arrayBuffer());if(imageBytes.length<1000000||imageBytes[0]!==255||imageBytes[1]!==216)throw Error('Offline NASA 8K relief missing');
+for(const asset of ['disclosures.css','disclosures.js']){const response=await event('fetch',{request:{method:'GET',url:base+'assets/'+asset,mode:'cors'}});if((await response.text()).length<200)throw Error('Project disclosure framework missing '+asset)}
+console.log('offline NASA relief, natural rivers/lakes, globe, translations, reference notes and contours: ok');
 offline=false;console.log('remove',await message('REMOVE_WORK'));console.log('final',await message('CHECK_WORK'));})().catch(e=>{console.error(e);process.exit(1)});
