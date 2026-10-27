@@ -40,6 +40,10 @@ assert(html.includes('const helpText={')&&html.includes('updateHelp()'),'RU/BE/E
 assert(html.includes('function mapFor(o)')&&html.includes('visibleMap()'),'Map-specific object separation required');
 assert(!html.includes('data-area-layer')&&!html.includes('type="checkbox"'),'No manual contour layer toggles');
 assert(html.includes('src="./vector-map.js"'),'Local dynamic vector basemap required');
+assert(!html.includes('data-lang="ru"'),'Standalone globe language buttons must be removed');
+assert(html.includes("localStorage.getItem('geo_site_lang')"),'Globe must inherit global homepage language');
+assert(html.includes("grade===9?7:1"),'Grade 9 should keep Europe zoom rather than the whole world');
+assert(html.includes('belarus-relief-9.png')&&html.includes('belarusOn')&&html.includes('belarusTexture'),'Separate Belarus physical DEM texture missing');
 for(const term of ['relief-nasa-8192.jpg','hydrology-50m.json','HYDRO_RENDER.draw','ResizeObserver','function cancelTravel()','dataset.flight=','drawMarkerLabel','id="fullscreen"','globeLayout','geo-disclosure'])assert(html.includes(term),'Missing requested globe feature: '+term);
 assert(!html.includes('thumb.wikimedia.org'),'Old blurred third-party live relief must be removed');
 assert(html.includes("mapMode==='political'&&isWater(o)"),'Water markers must be visible on political globe');
