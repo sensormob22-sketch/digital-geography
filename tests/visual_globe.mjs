@@ -91,7 +91,10 @@ try{
  await page.waitForFunction(z=>Number(document.getElementById('stage').dataset.zoom)>z*1.1,zoomBefore);
  const zoomPlus=Number(await page.locator('#stage').getAttribute('data-zoom'));
  await page.locator('#minus').click();
- await page.waitForFunction(z=>Number(document.getElementById('stage').dataset.zoom)<z*.93,zoomPlus);
+ await wait(900);
+ const minusResult=Number(await page.locator('#stage').getAttribute('data-zoom'));
+ console.log('MANUAL_ZOOM_DIAGNOSTICS',JSON.stringify({zoomBefore,zoomPlus,minusResult}));
+ assert(minusResult<zoomPlus*.93,'Zoom-out button must reduce zoom: '+JSON.stringify({zoomBefore,zoomPlus,minusResult}));
  assert.match(await page.locator('#factName').innerText(),/Гималаи/);
  // Manual zoom also works with no active object.
  await page.locator('#factClose').click();
