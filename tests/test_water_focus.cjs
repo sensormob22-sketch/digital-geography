@@ -55,6 +55,16 @@ focus.draw(ctx,{kind:'lakes',f:baikal},projection,1,false);
 const second=colors.findLast(x=>x==='#4ffff4'||x==='#ffec69');
 assert(strokes>=6,'Layered outline strokes missing');
 assert(first&&second,'Selection must be visibly accented');
+const lakePoint={rawName:'Червоное',rawType:'Озеро',lat:52.4054,lon:27.9656};
+const lakeNatural={rivers:[],lakes:[
+ {name:'',rank:4,paths:[[[27.89,52.36],[28.03,52.36],[28.03,52.46],[27.89,52.46],[27.89,52.36]]]},
+ {name:'',rank:4,paths:[[[27.60,52.35],[27.7,52.35],[27.7,52.45],[27.6,52.45],[27.60,52.35]]]}
+]};
+const selectedUnlabelled=focus.matching(lakePoint,null,lakeNatural);
+assert(selectedUnlabelled&&selectedUnlabelled.f.paths[0][0][0]===27.89,
+ 'Unnamed Belarus lake must match only the polygon enclosing its verified point');
+assert.equal(focus.matching({...lakePoint,lat:52.55},null,lakeNatural),null,
+ 'Do not select a nearby lake when the given coordinate is outside the lake');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert(!html.includes('id="back"')&&!html.includes("$('back')"),'Nested site backlink must be removed');
 assert(html.includes('src="./water-focus.js"'),'Water focus script must load');
