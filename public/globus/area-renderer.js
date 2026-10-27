@@ -82,13 +82,16 @@ function draw(ctx,items,selected,areas,project,zoom,mode='physical'){
  if(done.valid){
   ctx.globalAlpha=1;ctx.setLineDash([]);
   const color=shape.kind==='urban'?palette.activeUrban:palette.activeNatural;
-  if(done.complete){
-   ctx.fillStyle=shape.kind==='urban'?'rgba(255,61,158,.12)':'rgba(41,209,221,.12)';
+  const terrain=shape.quality==='dem-derived',mapped=shape.quality==='mapped';
+  if(done.complete&&!terrain){
+   ctx.fillStyle=shape.kind==='urban'?'rgba(255,61,158,.12)':'rgba(41,209,221,.10)';
    ctx.fill('evenodd');
   }
-  ctx.strokeStyle='rgba(5,16,37,.94)';ctx.lineWidth=6.5;ctx.stroke();
-  ctx.strokeStyle=color;ctx.lineWidth=3.4;ctx.stroke();
-  ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=.9;ctx.stroke();
+  ctx.strokeStyle=terrain?'rgba(7,35,46,.78)':'rgba(5,16,37,.94)';
+  ctx.lineWidth=terrain?3.1:mapped?4.3:6.5;ctx.stroke();
+  ctx.strokeStyle=terrain?'rgba(116,237,218,.9)':color;
+  ctx.lineWidth=terrain?1.7:mapped?2.6:3.4;ctx.stroke();
+  if(!terrain){ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=.9;ctx.stroke();}
  }
  ctx.restore();
 }
