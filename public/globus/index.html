@@ -98,7 +98,19 @@ body.geo-no-scroll{overflow:hidden}
 /* Embedded globe fills available width, no duplicate desktop grade navigator. */
 .grades{display:none!important}
 .layout{max-width:none;width:100%;margin:0;grid-template-columns:minmax(0,1.6fr) minmax(300px,.85fr);--globe-h:clamp(690px,calc(100dvh - 190px),1090px)}
-@media(max-width:970px){.layout{--globe-h:clamp(450px,65dvh,700px)}}
+/* Mobile and tablet must undo the desktop two-column override above.
+   Keep the globe as the first, full-width row and the independently scrolling
+   nomenclature pane beneath it. */
+@media(max-width:970px){
+ .layout{grid-template-columns:minmax(0,1fr);--globe-h:clamp(360px,55dvh,540px)}
+ .stage{height:var(--globe-h);min-width:0;min-height:0}
+ .sidebar-content{height:clamp(420px,65dvh,670px);min-width:0}
+}
+@media(max-width:570px){
+ .layout{grid-template-columns:minmax(0,1fr);--globe-h:clamp(300px,48dvh,420px)}
+ .stage{height:var(--globe-h);min-height:0}
+ .sidebar-content{height:clamp(390px,60dvh,580px)}
+}
 .top{min-height:49px;padding:10px 18px}
 .top h1{font-size:18px}
 /* Standard responsive fullscreen layout and fixed-proportion globe canvases. */
