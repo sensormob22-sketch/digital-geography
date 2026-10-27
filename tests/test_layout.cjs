@@ -14,6 +14,10 @@ assert(styles.includes('.geography-class-grid'),'Responsive six-grade grid missi
 assert(styles.includes('max-width:none'),'Work area should use screen width');
 assert(globe.includes('Mobile and tablet must undo the desktop two-column override'),'Missing mobile globe layout regression fix');
 assert(globe.includes('.layout{grid-template-columns:minmax(0,1fr);--globe-h:clamp(300px'),'Phone globe must be full-width and stacked above the nomenclature');
+assert(globe.includes('html.in-platform-frame iframe#nl-badge-frame{display:none!important'),'Hide duplicate Netlify badge only inside embedded globe');
+assert(globe.includes('--globe-h:clamp(610px,calc(100dvh - 100px)'),'Desktop globe should use the iframe height');
+assert(styles.includes('height:max(840px,calc(100dvh - 110px))'),'Desktop iframe must use the available screen height');
+assert(sw.includes('country-facts.js'),'Offline catalogue should cache state metadata');
 assert(!globe.includes('id="back"'),'Recursive site button must never return');
 assert(globe.includes('class="grades" hidden'),'Standalone class buttons hidden in embedded UI');
 assert(globe.includes('for(const other of')&&globe.includes('other.open=false'),'Accordion must keep only one list expanded');
