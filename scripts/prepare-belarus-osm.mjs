@@ -14,7 +14,7 @@ const names={
  'Нарочанский':[/нароч|нарач|naroch/i,54.86,26.75],
  'Припятский':[/прыпя|припя|pripyat|prypia/i,52.1,27.85],
  'Березинский биосферный заповедник':[/березин|бярэзін|berezin/i,54.78,28.25],
- 'Червоное':[/червоно|червон|chervon|čyrvon/i,52.4054,27.9656],
+ 'Червоное':[/червоно|червон|чырвон|chervon|čyrvon/i,52.4054,27.9656],
  'Вилейское водохранилище':[/вилей|вілей|viley|vilej/i,54.43,27.08]
 };
 const bbox='51.1,22.7,56.5,33.4';
@@ -69,13 +69,13 @@ for(const server of ['https://overpass.private.coffee/api/interpreter','https://
 const directPolygons={};
 if(!elements.length){
  const queries={
-  'Беловежская пуща':'Belavezhskaya Pushcha National Park, Belarus',
-  'Браславские озёра (нацпарк)':'Braslaw Lakes National Park, Belarus',
-  'Нарочанский':'Narachanski National Park, Belarus',
-  'Припятский':'Pripyatsky National Park, Belarus',
-  'Березинский биосферный заповедник':'Berezinsky Biosphere Reserve, Belarus',
-  'Червоное':'Lake Chervonoye, Belarus',
-  'Вилейское водохранилище':'Vileyskoye Reservoir, Belarus'
+  'Беловежская пуща':['Belavezhskaya Pushcha National Park, Belarus'],
+  'Браславские озёра (нацпарк)':['Braslaw Lakes National Park, Belarus','Браслаўскія азёры нацыянальны парк','Браславские озера национальный парк'],
+  'Нарочанский':['Narachanski National Park, Belarus','Нарачанскі нацыянальны парк','Нарочанский национальный парк'],
+  'Припятский':['Pripyatsky National Park, Belarus','Прыпяцкі нацыянальны парк','Национальный парк Припятский'],
+  'Березинский биосферный заповедник':['Berezinsky Biosphere Reserve, Belarus','Бярэзінскі біясферны запаведнік','Березинский биосферный заповедник'],
+  'Червоное':['Lake Chervonoye, Belarus','Возера Чырвонае','Озеро Червоное'],
+  'Вилейское водохранилище':['Vileyskoye Reservoir, Belarus','Вілейскае вадасховішча','Вилейское водохранилище']
  };
  function polygonRings(g){
   if(!g||!['Polygon','MultiPolygon'].includes(g.type))return [];
@@ -89,7 +89,9 @@ if(!elements.length){
   }
   return result;
  }
- for(const [name,queryName] of Object.entries(queries)){
+ for(const [name,queryNames] of Object.entries(queries)){
+  for(const queryName of queryNames){
+  if(directPolygons[name])break;
   try{
    const url='https://nominatim.openstreetmap.org/search?format=geojson&polygon_geojson=1&limit=3&q='+encodeURIComponent(queryName);
    const response=await fetch(url,{headers:{'User-Agent':'DigitalGeographyEducation/1.0 (GIS data for a school map)','Accept':'application/geo+json'},signal:AbortSignal.timeout(14000)});
@@ -114,6 +116,7 @@ if(!elements.length){
    }else console.warn('No confirmed Nominatim polygon:',name);
   }catch(error){console.warn('Nominatim unavailable:',name,error.message)}
   await new Promise(resolve=>setTimeout(resolve,1250));
+  }
  }
 }
 for(const [name,[rx,lat,lon]] of Object.entries(names)){
