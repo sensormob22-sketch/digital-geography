@@ -89,6 +89,16 @@ try{
  const practiceShot=path.join(dir,'practice_cards_desktop_ru.jpg');
  await page.screenshot({path:practiceShot,type:'jpeg',quality:72,fullPage:true});
  emit('practice_cards_desktop_ru',practiceShot);
+ await page.setViewportSize({width:390,height:844});
+ await page.goto(BASE+'/#practice',{waitUntil:'domcontentloaded'});
+ await page.locator('.animated-class-link').first().waitFor({timeout:12000});
+ assert.equal(await page.locator('.animated-class-link').count(),6,'Six cards must also appear on phones');
+ const widthMobile=await page.evaluate(()=>({doc:document.documentElement.scrollWidth,viewport:innerWidth}));
+ assert(widthMobile.doc<=widthMobile.viewport+4,'Mobile grade cards overflow: '+JSON.stringify(widthMobile));
+ const practiceMobile=path.join(dir,'practice_cards_mobile_ru.jpg');
+ await page.screenshot({path:practiceMobile,type:'jpeg',quality:72,fullPage:true});
+ emit('practice_cards_mobile_ru',practiceMobile);
+ await page.setViewportSize({width:1365,height:900});
  await page.goto(BASE+'/#nomenclature/6',{waitUntil:'domcontentloaded'});
  await page.locator('#geographyGlobe').waitFor({timeout:12000});
  assert.equal(await page.locator('.hero,.globe-area-title,.footer').count(),0,'Duplicate heading/footer must be removed from embedded catalog');
@@ -230,6 +240,14 @@ try{
  const belarusPicture=path.join(dir,'belarus_elevation_grade9_be.jpg');
  await page.screenshot({path:belarusPicture,type:'jpeg',quality:78,fullPage:true});
  emit('belarus_elevation_grade9_be',belarusPicture);
+ // Verified named river routes should highlight their full source courses.
+ for(const raw of ['Днепр','Березина','Неман','Западный Буг']){
+  const name=await page.evaluate(raw=>window.GLOBE_TRANSLATIONS.name(raw,'be'),raw);
+  await choose(name);
+  const route=await page.locator('#stage').getAttribute('data-active-water');
+  assert(route&&route.length>0,'Missing highlighted Belarusian river source: '+raw);
+  console.log('BELARUS_RIVER_ROUTE_OK',raw,route);
+ }
  await choose('Мінск');
  assert.equal((await page.locator('#factName').innerText()).trim(),'Мінск');
  assert.match(await page.locator('#legendTitle').innerText(),/Умоўныя абазначэнні/);
