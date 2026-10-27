@@ -12,7 +12,7 @@
 .layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(295px,.88fr);gap:14px;padding:14px;max-width:1800px;margin:auto;align-items:start;--globe-h:clamp(565px,75dvh,820px)}
 .stage{height:var(--globe-h);min-height:0;align-self:start;position:relative;overflow:hidden;background:radial-gradient(ellipse at center,#1d4b6c,#0f2038 67%,#0a1427);border-radius:23px;box-shadow:0 14px 35px #1a153d33}
 .stage:before{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(#ffffffe0 .8px,transparent 1.4px);background-size:69px 77px;opacity:.18}
-#canvas,#points{position:absolute;inset:0;width:100%;height:100%;display:block}#points{pointer-events:none}
+#canvas,#points,#focusLayer{position:absolute;inset:0;width:100%;height:100%;display:block}#points,#focusLayer{pointer-events:none}
 .gesture{position:absolute;inset:0;touch-action:none;cursor:grab}.gesture:active{cursor:grabbing}
 .caption{position:absolute;left:19px;top:16px;color:#e1f4ff;pointer-events:none}.caption strong{display:block;font-size:13px;font-weight:900;letter-spacing:.06em}.caption span{display:block;color:#b7d4e7;font-size:11px;margin-top:3px}
 .zoom{position:absolute;top:14px;right:14px;display:grid;gap:7px;z-index:6}
@@ -112,7 +112,7 @@ body.geo-no-scroll{overflow:hidden}
 <div class="grades"><div class="grade-buttons" id="gradeButtons"></div><span class="source" id="source"></span></div>
 <main class="layout" id="globeLayout">
 <section class="stage" id="stage" aria-label="Интерактивный глобус">
-<canvas id="canvas"></canvas><canvas id="points"></canvas><div class="gesture" id="gesture" role="application" tabindex="0" aria-label="Глобус: перетаскивание для вращения, стрелки клавиатуры"></div>
+<canvas id="canvas"></canvas><canvas id="focusLayer"></canvas><canvas id="points"></canvas><div class="gesture" id="gesture" role="application" tabindex="0" aria-label="Глобус: перетаскивание для вращения, стрелки клавиатуры"></div>
 <div class="caption"><strong id="caption">ИССЛЕДУЙ ЗЕМЛЮ</strong><span id="captionSub">Выберите объект в списке</span></div><div class="map-mode" id="mapMode"></div>
 <div class="zoom"><button type="button" id="fullscreen" class="fullscreen-btn" aria-label="Развернуть на весь экран" title="Развернуть на весь экран" aria-pressed="false">⛶</button><button id="plus" aria-label="Увеличить">+</button><button id="minus" aria-label="Уменьшить">−</button><button id="reset" aria-label="Начальный вид">⌂</button></div>
 <div class="selected" id="selected" hidden><small id="selectedKind"></small><strong id="selectedName"></strong><span id="selectedCoords"></span><span class="selected-detail" id="selectedDetail" hidden></span></div><div class="hint" id="hint">⇄ Вращение · +/− Масштаб</div><div class="status" id="status">Загрузка глобуса…</div>
@@ -145,7 +145,7 @@ ru:['Учебный глобус','Географическая номенкла
 be:['Вучэбны глобус','Геаграфічная наменклатура · 6–11 класы','На сайт','клас','ДАСЛЕДУЙ ЗЯМЛЮ','Выберы аб’ект са спіса','Аб’екты на карце','Пошук геаграфічнага аб’екта','аб’ектаў','тэматычных груп','Не знойдзена','Праграма Беларусі 2025 г.','Праграма Беларусі 2026 г.','Контуры прыродных рэгіёнаў і агламерацый схематычныя, іх межы прыблізныя. Для астатніх аб’ектаў паказаны кропкі-арыенціры.','Для 10–11 класаў паказаны вучэбныя прыклады: рэйтынгі трэба абнаўляць.'],
 en:['Learning globe','Geographic names · Grades 6–11','Back to site','grade','EXPLORE EARTH','Pick an object from the list','Objects on the globe','Search locations','places','topic groups','No matching places','Belarus curriculum 2025','Belarus curriculum 2026','Contours of natural regions and urban agglomerations are schematic, not surveyed boundaries. Other objects remain reference points.','Grades 10–11 include illustrative examples; changing rankings need to be kept up to date.']};
 const t=n=>i18n[lang][n],escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let groups=[],chosen=null,filter='',openGroup=0,longitude=(grade===9?28:27)*RAD,latitude=(grade===9?53:30)*RAD,zoom=grade===9?7:1,target=null,geo=null,gl=null,program=null,texture=null,over=$('points').getContext('2d'),w=0,h=0,dpr=1,queued=false;
+let groups=[],chosen=null,filter='',openGroup=0,longitude=(grade===9?28:27)*RAD,latitude=(grade===9?53:30)*RAD,zoom=grade===9?7:1,target=null,geo=null,gl=null,program=null,texture=null,over=$('points').getContext('2d'),focusCtx=$('focusLayer').getContext('2d'),w=0,h=0,dpr=1,queued=false;
 let mapMode='physical',reliefImage=null,textureCanvas=null,vectorGeo=null,hydroData=null,belarusHydro=null,flight=null,flightFrame=0,activeWater=null,pulseRAF=0,pulseLast=0,belarusTexture=null,belarusImage=null,belarusMeta=null;
 
 const RELIEF_URL='./relief-nasa-8192.jpg';
@@ -354,19 +354,25 @@ function startPulse(){
  pulseLast=0;
  const tick=now=>{
   if(!activeWater||document.hidden){pulseRAF=0;return}
-  if(now-pulseLast>85){pulseLast=now;redraw()}
+  if(now-pulseLast>85){pulseLast=now;drawFocus()}
   pulseRAF=requestAnimationFrame(tick);
  };
  pulseRAF=requestAnimationFrame(tick);
 }
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPulse();else startPulse()});
+function drawFocus(){
+ if(!w||!h)return;
+ focusCtx.setTransform(dpr,0,0,dpr,0,0);
+ focusCtx.clearRect(0,0,w,h);
+ WATER_FOCUS.draw?.(focusCtx,activeWater,project,performance.now()/1000,matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
 function drawPoints(){
  const cv=$('points');over.setTransform(dpr,0,0,dpr,0,0);over.clearRect(0,0,w,h);
  VECTOR_MAP.draw?.(over,vectorGeo||geo,project,zoom,mapMode,w,h);
  HYDRO_RENDER.draw?.(over,hydroData,project,zoom,mapMode);
  if(grade===9)HYDRO_RENDER.draw?.(over,belarusHydro,project,zoom,mapMode,12);
  AREA_RENDER.draw?.(over,visibleMap(),chosen,AREAS,project,zoom,mapMode);
- WATER_FOCUS.draw?.(over,activeWater,project,performance.now()/1000,window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
  let labelPoint=null;
  visibleMap().forEach(o=>{const p=project(o.lat*RAD,o.lon*RAD);if(p.vis<.04)return;
  const active=chosen?.id===o.id;if(active)labelPoint=p;over.beginPath();over.arc(p.x,p.y,active?8:4.5,0,Math.PI*2);over.fillStyle=active?'#ffd38a':'#63e8d4';over.fill();over.strokeStyle='#07364e';over.lineWidth=1.7;over.stroke();
@@ -407,13 +413,13 @@ function draw(){
    ctx.fill('evenodd');ctx.strokeStyle=mapMode==='political'?'#293e57':'#d1dca5';ctx.lineWidth=1.1;ctx.stroke();
   }ctx.restore()}
  }
- drawPoints();
+ drawPoints();drawFocus();
 }
 function resize(){
  const r=$('stage').getBoundingClientRect();if(!r.width||!r.height)return;
  if(Math.abs(w-r.width)<.5&&Math.abs(h-r.height)<.5)return;
  w=r.width;h=r.height;dpr=Math.min(window.devicePixelRatio||1,2);
- for(const id of ['canvas','points']){$(id).width=Math.max(1,Math.round(w*dpr));$(id).height=Math.max(1,Math.round(h*dpr))}
+ for(const id of ['canvas','focusLayer','points']){$(id).width=Math.max(1,Math.round(w*dpr));$(id).height=Math.max(1,Math.round(h*dpr))}
  redraw();
 }
 function shader(gl,type,src){
