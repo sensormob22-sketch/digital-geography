@@ -25,6 +25,8 @@ jobs:
         run: npm run test:home
       - name: Проверка площадных контуров и агломераций
         run: npm run test:areas
+      - name: Проверка масштабирования и выделения русел и озёр
+        run: npm run test:water
       - name: Сборка статического сайта
         run: npm run build
       - name: Установка браузера для визуального теста глобуса
