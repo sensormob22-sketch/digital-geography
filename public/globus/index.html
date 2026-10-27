@@ -143,7 +143,7 @@ body.embedded-globe .layout .sidebar-content{height:var(--globe-h)}
 <script defer src="../assets/disclosures.js"></script><script src="./hydrology-renderer.js"></script><script src="./water-focus.js"></script><script src="./objects.js"></script><script src="./translations.js"></script><script src="./facts.js"></script><script src="./areas.js"></script><script src="./area-renderer.js"></script><script src="./vector-map.js"></script>
 <script>
 (function(){'use strict';
-sameRAW=window.GLOBE_CATALOG||{},TR=window.GLOBE_TRANSLATIONS||{},FACTS=window.GLOBE_FACTS||{},AREAS=window.GLOBE_AREAS||{},AREA_RENDER=window.GLOBE_AREA_RENDERER||{},VECTOR_MAP=window.GLOBE_VECTOR_MAP||{},HYDRO_RENDER=window.GLOBE_HYDROLOGY_RENDERER||{},WATER_FOCUS=window.GLOBE_WATER_FOCUS||{},RAD=Math.PI/180;
+const $=id=>document.getElementById(id),pars=new URLSearchParams(location.search),embedded=pars.get('embed')==='1',RAW=window.GLOBE_CATALOG||{},TR=window.GLOBE_TRANSLATIONS||{},FACTS=window.GLOBE_FACTS||{},AREAS=window.GLOBE_AREAS||{},AREA_RENDER=window.GLOBE_AREA_RENDERER||{},VECTOR_MAP=window.GLOBE_VECTOR_MAP||{},HYDRO_RENDER=window.GLOBE_HYDROLOGY_RENDERER||{},WATER_FOCUS=window.GLOBE_WATER_FOCUS||{},RAD=Math.PI/180;
 let grade=+pars.get('grade')||7,lang='ru',theme=pars.get('theme')||'light';
 try{
  const saved=localStorage.getItem('geo_site_lang');
