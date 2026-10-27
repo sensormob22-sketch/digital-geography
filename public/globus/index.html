@@ -292,12 +292,15 @@ function choose(o){
   if(!flight)return;
   if(start===null)start=time;
   const t=Math.min(1,(time-start)/duration);
+  // A slow rendering frame can jump over the rotation interval entirely.
+  // Switch the globe mode whenever the out-phase has elapsed, without relying
+  // on observing an intermediate frame.
+  if(!switched&&t>=.27){setMapMode(desiredMode);switched=true}
   if(t<.27){
    $('stage').dataset.flight='out';
    zoom=lerp(from.zoom,1,smooth(t/.27));longitude=from.lon;latitude=from.lat;
   }else if(t<.59){
    $('stage').dataset.flight='rotate';
-   if(!switched){setMapMode(desiredMode);switched=true}
    const k=smooth((t-.27)/.32);
    zoom=1;longitude=from.lon+delta*k;latitude=lerp(from.lat,end.lat,k);
   }else{
