@@ -432,7 +432,8 @@ function initGL(){
   gl=canvas.getContext('webgl',{alpha:true,antialias:true});
   if(!gl)throw Error('No WebGL');
   const vertex='attribute vec2 xy;void main(){gl_Position=vec4(xy,0.,1.);}';
-  const fragment=['precision mediump float;','uniform vec2 center;uniform vec2 resolution;uniform float radius;uniform sampler2D surface;uniform sampler2D belarus;uniform float belarusOn;',
+  const highPrecision=gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER,gl.HIGH_FLOAT)?.precision>0;
+  const fragment=[highPrecision?'precision highp float;':'precision mediump float;','uniform vec2 center;uniform vec2 resolution;uniform float radius;uniform sampler2D surface;uniform sampler2D belarus;uniform float belarusOn;',
   'void main(){vec2 q=(gl_FragCoord.xy-resolution*.5)/radius;float r=dot(q,q);',
   'if(r>1.12){gl_FragColor=vec4(0.,0.,0.,0.);return;}',
   'if(r>1.){gl_FragColor=vec4(.21,.68,.94,pow(max(0.,(1.12-r)/.12),2.)*.14);return;}',
