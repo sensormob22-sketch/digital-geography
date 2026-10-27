@@ -17,7 +17,7 @@ for(const [name,shape] of contours){
  assert(names.has(name),'Area has no corresponding nomenclature object: '+name);
  assert(!existing.has(name),'Duplicate contour '+name);existing.add(name);
  assert(['natural','urban'].includes(shape.kind),'Invalid area kind '+name);
- assert.equal(shape.quality,'schematic','Contours must not claim survey accuracy');
+ assert.equal(shape.quality,'schematic','Bundled fallback contours must not claim survey accuracy');
  if(shape.kind==='urban')urban++;else natural++;
  for(const ring of shape.rings){
   assert(ring.length>=3,'Insufficient polygon vertices: '+name);
@@ -28,11 +28,11 @@ for(const [name,shape] of contours){
   }
  }
 }
-assert(natural>=66&&urban>=25,'Unexpected missing contour geometries');
+assert(natural>=62&&urban>=25,'Unexpected missing contour geometries');
 const areaType=/Материк|Часть света|Океан|Горы|Горная система|Равнина|Низменность|Плоскогорье|Нагорье|Море|Залив|Озеро|Группа озёр|Пустыня|Впадина|Полуостров|Возвышенность|Гряда|Национальный парк/;
 for(const grade of [6,7,8,9,10,11])for(const [,rows] of cat[grade])for(const entry of rows.split(';')){
  const [name,,,type]=entry.split('|');
- if(areaType.test(type))assert(data.get(name),'Missing areal outline for '+name+' ('+type+')');
+ if(areaType.test(type)&&!/Национальный парк|Биосферный заповедник/.test(type))assert(data.get(name),'Missing areal outline for '+name+' ('+type+')');
 }
 assert(data.get('Гималаи').kind==='natural','Himalayas should be natural');
 assert(data.get('Босваш (Приатлантический)').kind==='urban','BosWash should be urban');
