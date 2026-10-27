@@ -62,4 +62,26 @@ assert(html.includes('focusLayer')&&html.includes('function drawFocus()'),'Anima
 assert(html.includes('pointers=new Map()')&&html.includes("dataset.gesture='pinch'"),'Two-finger gestures must work');
 assert(html.includes('MAX_ZOOM=650'),'Manual zoom range not raised');
 assert(!html.includes('touch-action:auto'),'Mobile map should own two-finger gesture');
+
+const realBelarus=JSON.parse(fs.readFileSync(path.join(root,'belarus-hydrology-10m.json'),'utf8'));
+const regionalCases=[
+ ['Днепр','Река',52.4,30.15,'Dnipro'],
+ ['Березина','Приток Днепра',53.4,28.9,'Byarezina'],
+ ['Западный Буг','Река',52.16,23.62,'Bug'],
+ ['Вилия','Приток Немана',54.55,26.05,'Neris'],
+ ['Неман','Река',53.82,25.8,'Neman']
+];
+for(const [rawName,rawType,lat,lon,expected] of regionalCases){
+ const match=focus.matching({rawName,rawType,lat,lon},null,realBelarus);
+ assert(match,'Belarus vector watercourse cannot be matched: '+rawName);
+ assert(match.f.name===expected,'Incorrect vector course for '+rawName+': '+match.f.name);
+}
+for(const [name,lat,lon] of [
+ ['Червоное',52.38,27.75],['Вилейское водохранилище',54.38,27.05],
+ ['Нарочь',54.86,26.73],['Освейское',56.05,28.15]]){
+ const match=focus.matching({rawName:name,rawType:name.includes('водохранилище')?'Водохранилище':'Озеро',lat,lon},null,realBelarus);
+ assert(match,'Natural Earth 10m actual unnamed lake geometry not matched: '+name);
+ assert(match.f.paths.length,'No real shoreline for '+name);
+}
+
 console.log('Water-fit regression: river, lake, highland, 75% viewport, match safety, selection pulse and touch event handlers OK');
