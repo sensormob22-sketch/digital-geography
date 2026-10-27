@@ -11,7 +11,7 @@
     "test:sw": "node tests/test_sw.cjs",
     "test:globe": "node tests/test_globe.cjs",
     "test:areas": "node tests/test_areas.cjs",
-    "postinstall": "node scripts/prepare-geodata.mjs"
+    "postinstall": "node scripts/prepare-geodata.mjs && node scripts/prepare-globe-visuals.mjs"
   },
   "dependencies": {
     "astro": "^6.0.0",
