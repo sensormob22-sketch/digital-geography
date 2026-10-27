@@ -10,10 +10,16 @@ function parse(text){return text.trim().split(/\s+/).map(v=>v.split(',').map(Num
 // Each coordinate is latitude,longitude; stored as geographic radians-free degrees.
 function add(name,kind,ring){const coords=parse(ring);if(coords.length<3)throw Error('Invalid ring '+name);
  shapes[name]={name,kind,quality:'schematic',rings:[coords]};}
-function ellipse(name,kind,lat,lon,rLat,rLon,skew=0){
- const ring=[];for(let i=0;i<32;i++){const t=i*2*Math.PI/32;
-  const dy=rLat*Math.sin(t),dx=rLon*Math.cos(t)+skew*Math.sin(t);
-  ring.push([lat+dy,lon+dx]);}
+function ellipse(name,kind,lat,lon,rLat,rLon,orientationDeg=0){
+ // The ellipse's major/minor axes are defined in local east/north
+ // coordinates and then rotated by the geographical feature's bearing.
+ // Thus a fallback *schematic* ellipse is not arbitrarily axis-aligned.
+ const ring=[],cosLat=Math.max(.24,Math.cos(lat*Math.PI/180)),a=orientationDeg*Math.PI/180;
+ for(let i=0;i<48;i++){
+  const t=i*2*Math.PI/48,east=rLon*Math.cos(t)*cosLat,north=rLat*Math.sin(t);
+  const x=east*Math.cos(a)+north*Math.sin(a),y=north*Math.cos(a)-east*Math.sin(a);
+  ring.push([lat+y,lon+x/cosLat]);
+ }
  shapes[name]={name,kind,quality:'schematic',rings:[ring]};
 }
 // Corridors are traced along selected major centers and buffered to indicate a
@@ -79,9 +85,9 @@ add('Красное море','natural','12.5,43 17,40 24,35 29,33 29,35 21,40 1
 add('Мексиканский залив','natural','19,-98 25,-99 30,-92 30,-84 23,-81 18,-87');
 add('Бенгальский залив','natural','5,80 22,87 22,92 16,95 5,99');
 add('Каспийское море-озеро','natural','36.5,50 41,47 45,47 47.4,51 46,54 41,54 37,54');
-ellipse('Байкал','natural',53.55,108.1,3.1,1.8,-1.0);
+ellipse('Байкал','natural',53.55,108.1,3.1,1.8,32);
 ellipse('Виктория','natural',-1.05,33.0,1.5,1.8);
-ellipse('Озеро Титикака','natural',-15.95,-69.3,.65,.40);
+ellipse('Озеро Титикака','natural',-15.95,-69.3,.65,.40,-27);
 ellipse('Озеро Эйр-Норт','natural',-28.3,137.4,.85,.85);
 ellipse('Верхнее','natural',47.6,-87.7,1.4,3.9);
 ellipse('Мичиган','natural',44,-87,2.4,1.1);
@@ -93,9 +99,9 @@ ellipse('Ладожское озеро','natural',60.85,31.5,.95,1.5);
 ellipse('Женевское озеро','natural',46.45,6.6,.21,.58);
 ellipse('Нарочь','natural',54.87,26.72,.058,.092);
 ellipse('Освейское','natural',56.05,28.15,.085,.135);
-ellipse('Червоное','natural',52.38,27.75,.085,.22);
+ellipse('Червоное','natural',52.38,27.75,.085,.22,35);
 ellipse('Браславские озёра','natural',55.65,27,.5,.7);
-ellipse('Вилейское водохранилище','natural',54.5,26.9,.13,.15);
+ellipse('Вилейское водохранилище','natural',54.38,27.05,.13,.15,38);
 // 5. Nine megaregions: schematic corridors along named urban centers.
 corridor('Босваш (Приатлантический)','38.91,-77.04 39.29,-76.61 39.95,-75.16 40.71,-74.00 41.76,-72.68 42.36,-71.06',42);
 corridor('Чипитс (Приозёрный)','41.88,-87.63 41.68,-86.25 41.65,-83.54 42.33,-83.05 41.50,-81.69 40.44,-79.99',65);
