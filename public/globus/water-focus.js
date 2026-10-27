@@ -56,6 +56,10 @@ function matching(o,global,regional){
  }
  // Natural Earth 1:10m Belarus lakes often have EMPTY names even when their
  // polygons are correctly surveyed. Only use a uniquely near regional lake.
+ // Lake Chervonoye's reference point is not near a confidently identified
+ // Natural Earth polygon; a neighbouring unnamed polygon was wrongly used.
+ // Require a validated named/OSM boundary instead of fabricating this lake.
+ if(kind==='lakes'&&o.rawName==='Червоное'&&!candidates.length)return null;
  if(kind==='lakes'&&!candidates.length&&regional){
   const near=(regional.lakes||[]).filter(f=>f.paths?.length)
    .map(f=>({f,d:featureDistance(f,ref)})).sort((a,b)=>a.d-b.d);
