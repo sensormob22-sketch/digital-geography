@@ -76,7 +76,7 @@
 .legend-mark.country{background:linear-gradient(90deg,#83add5 0 33%,#f1c27d 33% 66%,#91cbac 66%)}
 .legend-mark.border{height:0;border-top:3px solid #293e57}
 .legend-mark.natural-outline{height:0;border-top:3px dashed #18b1c3}
-.legend-mark.urban-outline{height:0;border-top:3px solid #ed489f}
+.legend-mark.urban-outline{height:0;border-top:3px solid #ed489f}.legend-mark.river{height:0;border-top:2px solid #2586c7}.legend-mark.lake{background:#62bae9;border:1px solid #2785b4}
 
 .place.has-contour .dot{border-radius:3px;transform:rotate(45deg)}
 .place.urban-contour .dot{background:#ed489f;box-shadow:0 0 0 3px #ed489f24}
@@ -129,7 +129,7 @@
 <script defer src="../assets/disclosures.js"></script><script src="./hydrology-renderer.js"></script><script src="./objects.js"></script><script src="./translations.js"></script><script src="./facts.js"></script><script src="./areas.js"></script><script src="./area-renderer.js"></script><script src="./vector-map.js"></script>
 <script>
 (function(){'use strict';
-const $=id=>document.getElementById(id),pars=new URLSearchParams(location.search),RAW=window.GLOBE_CATALOG||{},TR=window.GLOBE_TRANSLATIONS||{},FACTS=window.GLOBE_FACTS||{},AREAS=window.GLOBE_AREAS||{},AREA_RENDER=window.GLOBE_AREA_RENDERER||{},VECTOR_MAP=window.GLOBE_VECTOR_MAP||{},RAD=Math.PI/180;
+const $=id=>document.getElementById(id),pars=new URLSearchParams(location.search),RAW=window.GLOBE_CATALOG||{},TR=window.GLOBE_TRANSLATIONS||{},FACTS=window.GLOBE_FACTS||{},AREAS=window.GLOBE_AREAS||{},AREA_RENDER=window.GLOBE_AREA_RENDERER||{},VECTOR_MAP=window.GLOBE_VECTOR_MAP||{},HYDRO_RENDER=window.GLOBE_HYDROLOGY_RENDERER||{},RAD=Math.PI/180;
 let grade=+pars.get('grade')||7,lang=pars.get('lang')||'ru',theme=pars.get('theme')||'light';
 if(!RAW[grade])grade=7;if(!['ru','be','en'].includes(lang))lang='ru';if(!['dark','light'].includes(theme))theme='light';
 const i18n={
@@ -138,12 +138,12 @@ be:['Вучэбны глобус','Геаграфічная наменклату
 en:['Learning globe','Geographic names · Grades 6–11','Back to site','grade','EXPLORE EARTH','Pick an object from the list','Objects on the globe','Search locations','places','topic groups','No matching places','Belarus curriculum 2025','Belarus curriculum 2026','Contours of natural regions and urban agglomerations are schematic, not surveyed boundaries. Other objects remain reference points.','Grades 10–11 include illustrative examples; changing rankings need to be kept up to date.']};
 const t=n=>i18n[lang][n],escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let groups=[],chosen=null,filter='',openGroup=0,longitude=27*RAD,latitude=30*RAD,zoom=1,target=null,geo=null,gl=null,program=null,texture=null,over=$('points').getContext('2d'),w=0,h=0,dpr=1,queued=false;
-let mapMode='physical',reliefImage=null,textureCanvas=null,vectorGeo=null;
+let mapMode='physical',reliefImage=null,textureCanvas=null,vectorGeo=null,hydroData=null,flight=null,flightFrame=0;
 
-const RELIEF_URL='https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Elevation.jpg/1280px-Elevation.jpg';
-const modeStrings={ru:['Физический глобус','Политический глобус','Высоты и глубины · цветовая шкала','Государства · условные цвета','Рельеф: NOAA / Wikimedia Commons','Офлайн: упрощённый рельеф'],
-be:['Фізічны глобус','Палітычны глобус','Вышыні і глыбіні · колеравая шкала','Дзяржавы · умоўныя колеры','Рэльеф: NOAA / Wikimedia Commons','Афлайн: спрошчаны рэльеф'],
-en:['Physical globe','Political globe','Elevations and depths · color scale','Countries · distinct colors','Relief: NOAA / Wikimedia Commons','Offline: simplified terrain']};
+const RELIEF_URL='./relief-nasa-8192.jpg';
+const modeStrings={ru:['Физический глобус','Политический глобус','Рельеф суши и водная сеть','Государства · условные цвета','Рельеф: NASA Blue Marble; реки и озёра: Natural Earth','Офлайн: упрощённый рельеф'],
+be:['Фізічны глобус','Палітычны глобус','Рэльеф сушы і водная сетка','Дзяржавы · умоўныя колеры','Рэльеф: NASA Blue Marble; рэкі і азёры: Natural Earth','Афлайн: спрошчаны рэльеф'],
+en:['Physical globe','Political globe','Land relief and hydrography','Countries · distinct colors','Relief: NASA Blue Marble; rivers and lakes: Natural Earth','Offline: simplified terrain']};
 /* Explicit classification of geographical nomenclature for the two globes. */
 function mapFor(o){
  const ty=o.rawType||'';
@@ -151,7 +151,8 @@ function mapFor(o){
  return natural?'physical':'political';
 }
 function isPolitical(o){return mapFor(o)==='political'}
-function visibleMap(){return visible().filter(o=>mapFor(o)===mapMode)}
+function isWater(o){return /^(Океан|Море|Море-озеро|Залив|Пролив|Река|Приток|Озеро|Группа озёр|Водопад|Водохранилище)/.test(o.rawType||'')}
+function visibleMap(){return visible().filter(o=>mapFor(o)===mapMode||(mapMode==='political'&&isWater(o)))}
 function adaptiveZoom(o){
  const shape=AREAS.get?.(o.rawName);
  if(shape){
@@ -185,16 +186,16 @@ function updateLegend(){
  const [physical,political,physicalTitle,politicalTitle,credit,offline]=modeStrings[lang],labels=refStrings[lang];
  $('legendTitle').textContent=labels.legend;
  $('mapMode').textContent=mapMode==='physical'?physical:political;
- const palette=mapMode==='physical'?['#142e85','#214fbf','#218ddc','#51c9eb','#42ca86','#93d845','#f5d23b','#d87931','#c43e24','#fbf0e6']:['#e1f0f8','#8aa4de','#adca78','#e7bd6a','#a9a1df','#d896a9','#88ccc2'];
- const axis=mapMode==='physical'?[labels.depth,labels.sea,labels.height]:['','',''];
+ const palette=mapMode==='physical'?['#11326c','#315f8b','#408674','#4d7c44','#88955b','#b4a67f','#d6bd97','#f0ebde']:['#e1f0f8','#8aa4de','#adca78','#e7bd6a','#a9a1df','#d896a9','#88ccc2'];
+ const axis=mapMode==='physical'?['','', '']:['','',''];
  const symbols=mapMode==='political'?[['country',labels.country],['border',labels.bound],['urban-outline',labels.urbanContour]]:[['natural-outline',labels.naturalContour]];
- symbols.push(['pin',labels.pin],['active',labels.active]);
+ symbols.push(['river',labels.river],['lake',labels.lake],['pin',labels.pin],['active',labels.active]);
  $('mapLegend').innerHTML='<div class="map-legend-title">'+escape(mapMode==='physical'?physicalTitle:politicalTitle)+'</div><div class="map-legend-scale">'+palette.map(c=>'<b style="background:'+c+'"></b>').join('')+'</div><div class="map-legend-axis">'+axis.map(z=>'<span>'+escape(z)+'</span>').join('')+'</div><div class="legend-key">'+symbols.map(([kind,label])=>'<div class="legend-row"><i class="legend-mark '+kind+'"></i><span>'+escape(label)+'</span></div>').join('')+'</div><span class="map-legend-note">'+escape(mapMode==='physical'?labels.colorNote+' '+(reliefImage?credit:offline):labels.placeNote)+'</span>';
 }
 const refStrings={
-ru:{title:'Справка по объекту',legend:'Условные обозначения',topic:'Тематическая группа',type:'Тип объекта',coordinate:'Точка-ориентир',schematic:'Приблизительный учебный контур',marker:'Только точка-ориентир',naturalContour:'Природные объекты — условные контуры',urbanContour:'Мегалополисы / агломерации — условные контуры',showNatural:'Показывать природные контуры',showUrban:'Показывать городские зоны',physical:'Физическая',political:'Политическая',default:'Объект входит в учебную географическую номенклатуру. На глобусе обозначено примерное положение, а не полный географический контур.',note:'Контуры даны для учебной ориентировки, а не для измерения площадей. Там, где контура нет, показан маркер.',extra:'Дополнительная информация',close:'Закрыть справку',height:'Высоты суши',depth:'Глубины океана',sea:'Уровень моря',country:'Страны различаются цветом',bound:'Границы государств',pin:'Местоположение объекта',active:'Выбранный объект',colorNote:'Цвета передают общие особенности рельефа, но не измеряют точную высоту или глубину.',placeNote:'Границы стран взяты из обобщённой геометрии Natural Earth, учебные контуры городских зон — приблизительные.'},
-be:{title:'Даведка пра аб’ект',legend:'Умоўныя абазначэнні',topic:'Тэматычная група',type:'Тып аб’екта',coordinate:'Кропка-арыенцір',schematic:'Прыблізны вучэбны контур',marker:'Толькі кропка-арыенцір',naturalContour:'Прыродныя аб’екты — умоўныя контуры',urbanContour:'Мегалаполісы / агламерацыі — умоўныя контуры',showNatural:'Паказваць прыродныя контуры',showUrban:'Паказваць гарадскія зоны',physical:'Фізічная',political:'Палітычная',default:'Аб’ект уваходзіць у вучэбную геаграфічную наменклатуру. На глобусе паказана прыблізнае становішча, а не поўны геаграфічны контур.',note:'Контуры прызначаны для вучэбнага арыентавання, а не вымярэння плошчаў. Дзе контуру няма, паказаны маркер.',extra:'Дадатковая інфармацыя',close:'Закрыць даведку',height:'Вышыні сушы',depth:'Глыбіні акіяна',sea:'Узровень мора',country:'Дзяржавы адрозніваюцца колерам',bound:'Межы дзяржаў',pin:'Месцазнаходжанне аб’екта',active:'Выбраны аб’ект',colorNote:'Колеры перадаюць агульныя асаблівасці рэльефу, але не вымяраюць дакладную вышыню ці глыбіню.',placeNote:'Межы дзяржаў — з абагульненай геаметрыі Natural Earth; вучэбныя контуры гарадскіх зон прыблізныя.'},
-en:{title:'About this location',legend:'Map legend',topic:'Topic group',type:'Object type',coordinate:'Reference point',schematic:'Approximate teaching outline',marker:'Reference point only',naturalContour:'Natural features — schematic outlines',urbanContour:'Megaregions / agglomerations — schematic outlines',showNatural:'Show natural outlines',showUrban:'Show urban regions',physical:'Physical',political:'Political',default:'This is a location from the school geography catalogue. The globe shows an approximate reference position rather than the object’s geographic outline.',note:'Outlines are simplified teaching guides and must not be used for measuring areas. Objects without outlines have markers.',extra:'Additional information',close:'Close information',height:'Land elevations',depth:'Ocean depths',sea:'Sea level',country:'Countries shown in different colors',bound:'Country boundaries',pin:'Location marker',active:'Selected location',colorNote:'These colors indicate general terrain patterns, not an exact measurement of elevation or depth.',placeNote:'Country boundaries are generalized Natural Earth geometry; urban-region outlines are approximate teaching guides.'}
+ru:{title:'Справка по объекту',legend:'Условные обозначения',topic:'Тематическая группа',type:'Тип объекта',coordinate:'Точка-ориентир',schematic:'Приблизительный учебный контур',marker:'Только точка-ориентир',river:'Реки',lake:'Озёра и водохранилища',naturalContour:'Природные объекты — условные контуры',urbanContour:'Мегалополисы / агломерации — условные контуры',showNatural:'Показывать природные контуры',showUrban:'Показывать городские зоны',physical:'Физическая',political:'Политическая',default:'Объект входит в учебную географическую номенклатуру. На глобусе обозначено примерное положение, а не полный географический контур.',note:'Контуры даны для учебной ориентировки, а не для измерения площадей. Там, где контура нет, показан маркер.',extra:'Дополнительная информация',close:'Закрыть справку',height:'Высоты суши',depth:'Глубины океана',sea:'Уровень моря',country:'Страны различаются цветом',bound:'Границы государств',pin:'Местоположение объекта',active:'Выбранный объект',colorNote:'Цвета передают общие особенности рельефа, но не измеряют точную высоту или глубину.',placeNote:'Границы стран взяты из обобщённой геометрии Natural Earth, учебные контуры городских зон — приблизительные.'},
+be:{title:'Даведка пра аб’ект',legend:'Умоўныя абазначэнні',topic:'Тэматычная група',type:'Тып аб’екта',coordinate:'Кропка-арыенцір',schematic:'Прыблізны вучэбны контур',marker:'Толькі кропка-арыенцір',river:'Рэкі',lake:'Азёры і вадасховішчы',naturalContour:'Прыродныя аб’екты — умоўныя контуры',urbanContour:'Мегалаполісы / агламерацыі — умоўныя контуры',showNatural:'Паказваць прыродныя контуры',showUrban:'Паказваць гарадскія зоны',physical:'Фізічная',political:'Палітычная',default:'Аб’ект уваходзіць у вучэбную геаграфічную наменклатуру. На глобусе паказана прыблізнае становішча, а не поўны геаграфічны контур.',note:'Контуры прызначаны для вучэбнага арыентавання, а не вымярэння плошчаў. Дзе контуру няма, паказаны маркер.',extra:'Дадатковая інфармацыя',close:'Закрыць даведку',height:'Вышыні сушы',depth:'Глыбіні акіяна',sea:'Узровень мора',country:'Дзяржавы адрозніваюцца колерам',bound:'Межы дзяржаў',pin:'Месцазнаходжанне аб’екта',active:'Выбраны аб’ект',colorNote:'Колеры перадаюць агульныя асаблівасці рэльефу, але не вымяраюць дакладную вышыню ці глыбіню.',placeNote:'Межы дзяржаў — з абагульненай геаметрыі Natural Earth; вучэбныя контуры гарадскіх зон прыблізныя.'},
+en:{title:'About this location',legend:'Map legend',topic:'Topic group',type:'Object type',coordinate:'Reference point',schematic:'Approximate teaching outline',marker:'Reference point only',river:'Rivers',lake:'Lakes and reservoirs',naturalContour:'Natural features — schematic outlines',urbanContour:'Megaregions / agglomerations — schematic outlines',showNatural:'Show natural outlines',showUrban:'Show urban regions',physical:'Physical',political:'Political',default:'This is a location from the school geography catalogue. The globe shows an approximate reference position rather than the object’s geographic outline.',note:'Outlines are simplified teaching guides and must not be used for measuring areas. Objects without outlines have markers.',extra:'Additional information',close:'Close information',height:'Land elevations',depth:'Ocean depths',sea:'Sea level',country:'Countries shown in different colors',bound:'Country boundaries',pin:'Location marker',active:'Selected location',colorNote:'These colors indicate general terrain patterns, not an exact measurement of elevation or depth.',placeNote:'Country boundaries are generalized Natural Earth geometry; urban-region outlines are approximate teaching guides.'}
 };
 function renderFact(){
  const panel=$('factPanel');panel.hidden=!chosen;
@@ -280,6 +281,7 @@ function animate(){
 function drawPoints(){
  const cv=$('points');over.setTransform(dpr,0,0,dpr,0,0);over.clearRect(0,0,w,h);
  VECTOR_MAP.draw?.(over,vectorGeo||geo,project,zoom,mapMode,w,h);
+ HYDRO_RENDER.draw?.(over,hydroData,project,zoom,mapMode);
  AREA_RENDER.draw?.(over,visibleMap(),chosen,AREAS,project,zoom,mapMode);
  visibleMap().forEach(o=>{const p=project(o.lat*RAD,o.lon*RAD);if(p.vis<.04)return;
  const active=chosen?.id===o.id;over.beginPath();over.arc(p.x,p.y,active?8:4.5,0,Math.PI*2);over.fillStyle=active?'#ffd38a':'#63e8d4';over.fill();over.strokeStyle='#07364e';over.lineWidth=1.7;over.stroke();
@@ -365,16 +367,17 @@ function unpack(t){
  return polygons;
 }
 function makeTexture(polys,mode){
- const cv=document.createElement('canvas');cv.width=2048;cv.height=1024;const ctx=cv.getContext('2d');
+ const cv=document.createElement('canvas');const reliefSize=mode==='physical'&&reliefImage?(gl&&gl.getParameter(gl.MAX_TEXTURE_SIZE)>=8192?8192:gl&&gl.getParameter(gl.MAX_TEXTURE_SIZE)>=4096?4096:2048):2048;cv.width=reliefSize;cv.height=reliefSize/2;const ctx=cv.getContext('2d');
  if(mode==='physical'&&reliefImage)ctx.drawImage(reliefImage,0,0,cv.width,cv.height);
  else{
-  const sea=ctx.createLinearGradient(0,0,0,1024);sea.addColorStop(0,'#2f9ec7');sea.addColorStop(.5,'#185782');sea.addColorStop(1,'#0c2d66');ctx.fillStyle=sea;ctx.fillRect(0,0,cv.width,cv.height);
+  const sea=ctx.createLinearGradient(0,0,0,cv.height);sea.addColorStop(0,'#2f9ec7');sea.addColorStop(.5,'#185782');sea.addColorStop(1,'#0c2d66');ctx.fillStyle=sea;ctx.fillRect(0,0,cv.width,cv.height);
  }
+ if(mode!=='political'&&reliefImage)return cv;
  for(let i=0;i<polys.length;i++){
   const {id,rings}=polys[i];ctx.beginPath();
   for(const ring of rings){let prev=null;
-   for(let j=0;j<ring.length;j++){const pt=ring[j],x=(pt[0]+180)/360*2048,y=(90-pt[1])/180*1024;
-    if(j===0||prev!==null&&Math.abs(x-prev)>1024)ctx.moveTo(x,y);else ctx.lineTo(x,y);prev=x;
+   for(let j=0;j<ring.length;j++){const pt=ring[j],x=(pt[0]+180)/360*cv.width,y=(90-pt[1])/180*cv.height;
+    if(j===0||prev!==null&&Math.abs(x-prev)>cv.width/2)ctx.moveTo(x,y);else ctx.lineTo(x,y);prev=x;
    }ctx.closePath();
   }
   if(mode==='political'){
@@ -398,6 +401,13 @@ function loadRelief(){
  img.onload=()=>{reliefImage=img;updateTexture();updateLegend()};
  img.onerror=()=>{reliefImage=null;updateLegend()};
  img.src=RELIEF_URL;
+}
+async function loadHydrology(){
+ try{
+  const res=await fetch('./hydrology-50m.json');
+  if(!res.ok)throw Error('HTTP '+res.status);
+  hydroData=await res.json();document.documentElement.dataset.hydro='ready';redraw();
+ }catch(e){console.warn('Hydrography unavailable',e);document.documentElement.dataset.hydro='unavailable'}
 }
 async function loadGeometry(){
  try{
@@ -445,6 +455,6 @@ $('groups').addEventListener('toggle',e=>{if(e.target.matches('.group')&&e.targe
 $('search').addEventListener('input',e=>{filter=e.target.value.trim();renderList();redraw()});
 window.addEventListener('message',e=>{if(e.origin===location.origin&&e.data?.type==='geographyTheme'){theme=e.data.theme==='dark'?'dark':'light';document.documentElement.dataset.theme=theme}});
 window.addEventListener('resize',resize);
-compileGroups();mapMode=grade>=10?'political':'physical';initGL();labels();resize();loadGeometry();loadRelief();redraw();
+compileGroups();mapMode=grade>=10?'political':'physical';initGL();labels();resize();loadGeometry();loadRelief();loadHydrology();redraw();
 })();
 </script></body></html>
