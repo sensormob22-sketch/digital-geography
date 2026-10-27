@@ -10,7 +10,7 @@ const aliases={
  'Река Парана':'Parana','Река Маккензи':'Mackenzie','Янцзы':'Yangtze',
  'Хуанхэ':'Huang He','Обь':'Ob','Днепр':'Dnieper','Днестр':'Dniester',
  'Березина':'Berezina','Западная Двина':'Daugava','Припять':'Pripyat',
- 'Неман':'Neman','Западный Буг':'Western Bug','Сож':'Sozh',
+ 'Неман':'Neman','Вилия':'Neris','Западный Буг':'Western Bug','Сож':'Sozh',
  'Птичь':'Ptich','Свислочь':'Svisloch','Байкал':'Baikal',
  'Виктория':'Victoria','Верхнее':'Superior','Мичиган':'Michigan',
  'Гурон':'Huron','Эри':'Erie','Онтарио':'Ontario','Великие озёра':'Great Lakes',
@@ -73,8 +73,11 @@ function boundsFromPaths(paths,ref){
   pts.push([ref.lon+shortLon(ref.lon,p[0]),p[1]]);
  }
  if(!pts.length)return null;
- const west=Math.min(...pts.map(p=>p[0])),east=Math.max(...pts.map(p=>p[0]));
- const south=Math.min(...pts.map(p=>p[1])),north=Math.max(...pts.map(p=>p[1]));
+ let west=Infinity,east=-Infinity,south=Infinity,north=-Infinity;
+ for(const [lon,lat] of pts){
+  if(lon<west)west=lon;if(lon>east)east=lon;
+  if(lat<south)south=lat;if(lat>north)north=lat;
+ }
  return {pts,west,east,south,north,lon:(west+east)/2,lat:(south+north)/2};
 }
 function focusFor(o,areas,global,regional,width,height,maxZoom=650){
