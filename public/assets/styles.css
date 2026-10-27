@@ -48,7 +48,8 @@ html[data-theme="dark"] .class-link:hover{background:#453477;color:#fff}
 /* Single content header, full-width globe and responsive tall workplace. */
 .main-area{min-height:100dvh}.page-content{width:100%;max-width:none;margin:0 auto;padding:14px 16px 22px;flex:1;min-height:0}
 .globe-area{margin:0;border-radius:14px}
-.globe-frame{height:max(790px,calc(100dvh - 145px));min-height:670px}
+.globe-frame{height:max(840px,calc(100dvh - 110px));min-height:670px}
+@media(min-width:781px) and (max-width:1300px){.globe-frame{height:1180px}}
 @media(max-width:1040px){.globe-frame{height:1120px}}
 @media(max-width:780px){.page-content{padding:10px 8px 18px}.globe-frame{height:1180px}}
 /* Geography classroom: four evolving scenes per grade. */
