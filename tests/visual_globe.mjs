@@ -46,7 +46,8 @@ try{
   if(await group.getAttribute('open')===null)await group.locator('summary').click();
   await button.click();
   await page.waitForFunction(n=>document.getElementById('factName').textContent.trim()===n,s,{timeout:8000});
-  await wait(1350);
+  await page.waitForFunction(()=>document.getElementById('stage').dataset.flight==='done',{timeout:15000});
+  await wait(200);
  }
  async function pixelSummary(){
   return page.locator('#points').evaluate(canvas=>{
@@ -75,6 +76,24 @@ try{
  assert.equal(await page.locator('#legendPanel input[type="checkbox"]').count(),0,'Contour toggles must not be present');
  assert.equal(await page.evaluate(()=>document.documentElement.dataset.geodata),'50m');
  assert.match(await page.locator('#hint').innerText(),/Перетаскивайте/);
+ assert.equal(await page.evaluate(()=>document.documentElement.dataset.relief),'8192','8K NASA relief failed');
+ assert.equal(await page.evaluate(()=>document.documentElement.dataset.hydro),'ready','Natural Earth rivers/lakes missing');
+ assert.equal(await page.locator('#stage').getAttribute('data-marker-label'),'Гималаи');
+ // Native accordion: collapsing legend gives the flexible nomenclature list room.
+ const beforePanel=await page.locator('.sidebar-content .panel').evaluate(e=>e.getBoundingClientRect().height);
+ await page.locator('#legendPanel summary').click();await wait(450);
+ const afterPanel=await page.locator('.sidebar-content .panel').evaluate(e=>e.getBoundingClientRect().height);
+ assert(afterPanel>beforePanel+20,'Nomenclature list did not grow after legend collapsed');
+ await page.locator('#legendPanel summary').click();await wait(350);
+ // Dynamic accordion changes must never stretch canvas image/coordinates.
+ await page.locator('#groups details.group').first().locator('summary').click();await wait(350);
+ const canvasSize=await page.evaluate(()=>{const st=document.getElementById('stage').getBoundingClientRect(),c=document.getElementById('points');return {stageRatio:st.width/st.height,canvasRatio:c.width/c.height}});
+ assert(Math.abs(canvasSize.stageRatio-canvasSize.canvasRatio)<.01,'Globe aspect changed after nomenclature accordion');
+ // The selected marker label and smooth multi-phase flight are part of real canvas rendering.
+ await choose('Альпы');
+ assert.equal(await page.locator('#stage').getAttribute('data-marker-label'),'Альпы');
+ assert.equal(await page.locator('#stage').getAttribute('data-flight'),'done');
+ await choose('Гималаи');
  let pix=await pixelSummary();
  assert(pix.opaque>200,'Physical globe overlay is blank');
  assert(pix.cyan>30,'Natural feature outlines are not drawn');
@@ -98,6 +117,7 @@ try{
  assert.match(await page.locator('#hint').innerText(),/Drag to rotate/);
  assert.equal(await page.locator('#plus').getAttribute('title'),'Zoom in');
  assert.equal(await page.locator('#legendPanel input[type="checkbox"]').count(),0);
+ assert((await page.locator('#legendPanel').innerText()).includes('Rivers')||(await page.locator('#legendPanel').innerText()).includes('Реки'),'Hydrology key missing from political legend');
  assert.deepEqual(await page.locator('#factMeta dt').allInnerTexts(),['Object type','Topic group','Reference point']);
  assert.equal(await page.locator('#factMeta dd').count(),3);
  assert.equal(await page.locator('#count,.counter').count(),0);
@@ -127,6 +147,11 @@ try{
  assert(overflow.descriptionSize>=12.5&&overflow.metaSize>=11.5,'Mobile card text is too small');
  assert(overflow.cardContentWidth<=overflow.cardWidth,'Mobile reference information exceeds card bounds');
  assert(overflow.documentWidth<=overflow.viewportWidth+4,'Horizontal overflow on mobile '+JSON.stringify(overflow));
+ // Fullscreen control must be operable in a mobile viewport and reversible.
+ await page.locator('#fullscreen').click();await wait(350);
+ assert(await page.evaluate(()=>Boolean(document.fullscreenElement)||document.getElementById('globeLayout').classList.contains('is-fullscreen')),'Mobile fullscreen entry failed');
+ await page.locator('#fullscreen').click();await wait(350);
+ assert(!await page.evaluate(()=>Boolean(document.fullscreenElement)||document.getElementById('globeLayout').classList.contains('is-fullscreen')),'Mobile fullscreen exit failed');
  const mobile=path.join(dir,'mobile_minsk_be.jpg');
  await page.screenshot({path:mobile,type:'jpeg',quality:68,fullPage:true});
  console.log('MOBILE_BROWSER_OK',JSON.stringify(overflow));
