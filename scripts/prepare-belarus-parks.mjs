@@ -62,7 +62,7 @@ for(const [target,aliases] of Object.entries(targets)){
    case, look up a mapped boundary in OSM (ODbL), without fabricating a shape. */
 if(!matched['Нарочанский']){
  const overpass='[out:json][timeout:75];(relation["name"~"Нарочан|Нарачан|Naroch|Narach",i]["boundary"~"national_park|protected_area"](53.6,25.3,55.8,28.7);relation["name"~"Нарочан|Нарачан|Naroch|Narach",i]["leisure"="nature_reserve"](53.6,25.3,55.8,28.7););out geom;';
- const APIs=['https://overpass.kumi.systems/api/interpreter','https://overpass-api.de/api/interpreter'];
+ const APIs=['https://overpass.private.coffee/api/interpreter','https://maps.mail.ru/osm/tools/overpass/api/interpreter','https://overpass-api.de/api/interpreter'];
  function xy(p){return [p.lat,p.lon]}
  function closeWays(ways){
   const list=ways.map(w=>w.geometry.map(xy)).filter(a=>a.length>=2);
