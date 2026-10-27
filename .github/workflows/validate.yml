@@ -23,6 +23,8 @@ jobs:
         run: npm run test:globe
       - name: Проверка стартовой страницы и единого языка
         run: npm run test:home
+      - name: Проверка нового дизайна и анимированных плиток классов
+        run: npm run test:layout
       - name: Проверка площадных контуров и агломераций
         run: npm run test:areas
       - name: Проверка масштабирования и выделения русел и озёр
