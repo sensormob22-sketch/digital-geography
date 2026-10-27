@@ -8,16 +8,16 @@ const aliases={
  'Нил':'Nile','Амазонка':'Amazonas','Миссисипи':'Mississippi','Волга':'Volga',
  'Енисей':'Yenisey','Река Замбези':'Zambezi','Река Муррей':'Murray',
  'Река Парана':'Parana','Река Маккензи':'Mackenzie','Янцзы':'Yangtze',
- 'Хуанхэ':'Huang He','Обь':'Ob','Днепр':'Dnieper','Днестр':'Dniester',
- 'Березина':'Berezina','Западная Двина':'Daugava','Припять':'Pripyat',
- 'Неман':'Nemunas','Вилия':'Neris','Западный Буг':'Western Bug','Сож':'Sozh',
+ 'Хуанхэ':'Huang He','Обь':'Ob','Днепр':'Dnipro|Dnieper|Dnepr','Днестр':'Dniester',
+ 'Березина':'Byarezina|Berezina|Biarezina','Западная Двина':'Daugava','Припять':'Pripyat|Prypyat|Prypiat',
+ 'Неман':'Neman|Nemunas|Niemen|Nyoman','Вилия':'Neris|Vilia|Viliya','Западный Буг':'Bug|Western Bug|Zakhidnyi Buh','Сож':'Sozh',
  'Птичь':'Ptich','Свислочь':'Svisloch','Байкал':'Baikal',
  'Виктория':'Victoria','Верхнее':'Superior','Мичиган':'Michigan',
  'Гурон':'Huron','Эри':'Erie','Онтарио':'Ontario','Великие озёра':'Great Lakes',
  'Ладожское озеро':'Ladoga','Женевское озеро':'Geneva',
  'Озеро Титикака':'Titicaca','Озеро Эйр-Норт':'Eyre',
- 'Нарочь':'Naroch','Освейское':'Osveya','Червоное':'Chervonoye',
- 'Браславские озёра':'Braslav','Вилейское водохранилище':'Vileyka',
+ 'Нарочь':'Naroch','Освейское':'Osveya','Червоное':'Chervonoye|Chyrvonaye|Cervonoje|Chervonoe',
+ 'Браславские озёра':'Braslav','Вилейское водохранилище':'Vileyka|Vileyskoe|Vileyskoye',
  'Каспийское море-озеро':'Caspian Sea'
 };
 function fold(s){
@@ -45,38 +45,38 @@ function matching(o,global,regional){
   /Река|Приток/.test(o.rawType||'')?'rivers':null;
  if(!kind)return null;
  const ref={lat:o.lat,lon:o.lon};
- const name=fold(o.rawName);
- const target=fold(aliases[o.rawName]||o.rawName);
- const pools=[regional,global].filter(Boolean);
- let options=[];
- for(const [index,data] of pools.entries()){
-  for(const f of data[kind]||[]){
-   if(!f.paths?.length)continue;
-   const fn=fold(f.name),aliasEqual=fn===target||fn===name;
-   const aliasPartial=target.length>5&&(fn.startsWith(target+' ')||target.startsWith(fn+' '));
-   if(!aliasEqual&&!aliasPartial)continue;
-   options.push({f,kind,source:index===0&&regional?'regional':'global',distance:featureDistance(f,ref)});
+ const names=[o.rawName,...String(aliases[o.rawName]||'').split('|')].map(fold).filter(Boolean);
+ const pools=[{source:'regional',data:regional},{source:'global',data:global}].filter(x=>x.data);
+ let candidates=[];
+ for(const pool of pools)for(const feature of pool.data[kind]||[]){
+  if(!feature.paths?.length)continue;
+  const fName=fold(feature.name),d=featureDistance(feature,ref);
+  const byName=fName.length>1&&names.some(n=>fName===n||n.length>5&&(fName.startsWith(n+' ')||n.startsWith(fName+' ')));
+  if(byName)candidates.push({f:feature,source:pool.source,d});
+ }
+ // Natural Earth 1:10m Belarus lakes often have EMPTY names even when their
+ // polygons are correctly surveyed. Only use a uniquely near regional lake.
+ if(kind==='lakes'&&!candidates.length&&regional){
+  const near=(regional.lakes||[]).filter(f=>f.paths?.length)
+   .map(f=>({f,d:featureDistance(f,ref)})).sort((a,b)=>a.d-b.d);
+  const first=near[0],second=near[1];
+  if(first&&first.d<.16&&(!second||second.d>first.d*1.65)){
+   return {kind,source:'regional',distance:first.d,f:{...first.f,name:o.rawName}};
   }
  }
- if(!options.length)return null;
- options.sort((a,b)=>a.distance-b.distance);
- const chosen=options[0];
- // Natural Earth often divides a river at tributaries or across states.
- // Highlight the compatible same-name sections, not only the closest fragment.
- // For Belarus keep matching local segments close to the selected river.
- if(kind==='rivers'){
-  const threshold=regional?Math.max(1.8,Math.min(7,chosen.distance+4)):Math.max(5,Math.min(19,chosen.distance+12));
-  const joined=options.filter(x=>x.source===chosen.source&&x.distance<=threshold);
-  if(joined.length>1){
-   const paths=joined.flatMap(x=>x.f.paths);
-   chosen.f={...chosen.f,paths};
-   chosen.parts=joined.length;
-  }
- }
- // For a named river, the object's reference point may be midstream rather
- // than at the geographic centroid. Only reject extreme same-name collisions.
- if(chosen.distance>12&&chosen.source!=='regional')return null;
- return chosen;
+ if(!candidates.length)return null;
+ const region=candidates.filter(c=>c.source==='regional');
+ const list=(region.length?region:candidates.filter(c=>c.source==='global')).sort((a,b)=>a.d-b.d);
+ const nearest=list[0];
+ if(nearest.d>12&&nearest.source!=='regional')return null;
+ if(kind==='lakes')return {f:nearest.f,kind,source:nearest.source,distance:nearest.d};
+ // A named river frequently consists of MANY vector segments. Previously
+ // selecting only the nearest segment highlighted a tiny fragment (e.g. Nile).
+ // Merge all source-identified stretches, never join them with fake lines.
+ const chosen=list.filter(c=>c.d<36);
+ return {kind,source:nearest.source,distance:nearest.d,
+  f:{name:nearest.f.name||o.rawName,rank:Math.min(...chosen.map(c=>c.f.rank??5)),
+   paths:chosen.flatMap(c=>c.f.paths)}};
 }
 function boundsFromPaths(paths,ref){
  const pts=[];
