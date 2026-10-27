@@ -1,0 +1,54 @@
+/* Home: animated contemporary digital geography welcome. Site defaults
+   inherited from styles.css; honors light/dark and reduced-motion. */
+.home-page{display:grid;gap:27px}
+.home-welcome{position:relative;min-height:480px;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:24px;border-radius:30px;overflow:hidden;padding:clamp(25px,5vw,61px);color:#fff;
+ background:radial-gradient(ellipse 500px 300px at 84% 35%,#6559db8c,transparent),linear-gradient(125deg,#20215c 0%,#403088 55%,#7554c6 100%);
+ box-shadow:0 25px 66px #281d7233;isolation:isolate}
+.home-welcome:before{content:"";position:absolute;inset:0;opacity:.28;pointer-events:none;
+ background-image:radial-gradient(#fff 1px,transparent 1.4px),linear-gradient(90deg,#fff2 1px,transparent 1px),linear-gradient(#fff2 1px,transparent 1px);
+ background-size:49px 49px,84px 84px,84px 84px;mask-image:linear-gradient(105deg,transparent 8%,#000 100%)}
+.home-lead{position:relative;z-index:2}
+.home-eyebrow{display:inline-flex;align-items:center;gap:9px;border-radius:50px;padding:8px 13px;background:#fff2;border:1px solid #ffffff44;font-size:11px;letter-spacing:.13em;text-transform:uppercase;font-weight:800}
+.home-eyebrow:before{content:"";height:8px;width:8px;border-radius:100%;background:#71f1d6;box-shadow:0 0 13px #67f8d8}
+.home-welcome h1{font-size:clamp(35px,4.8vw,65px);line-height:1.05;letter-spacing:-.055em;max-width:650px;margin:25px 0 19px}
+.home-welcome .home-accent{color:#b8fded}
+.home-intro{font-size:clamp(15px,1.7vw,19px);max-width:580px;line-height:1.6;color:#f0eeff;min-height:92px;margin:0 0 23px}
+.home-word{font-weight:800;color:#b9ffe8;transition:opacity .25s,transform .25s}
+.home-cta{display:flex;flex-wrap:wrap;gap:12px}
+.home-cta a{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:14px;padding:13px 19px;min-height:50px;font-weight:800;font-size:13px;transition:transform .2s,box-shadow .2s}
+.home-cta a:hover{transform:translateY(-3px)}
+.home-cta .cta-primary{background:#fff;color:#443391;box-shadow:0 10px 25px #130f3247}
+.home-cta .cta-ghost{color:#fff;border:1px solid #ffffff65;background:#ffffff13}
+.home-art{position:relative;z-index:1;min-height:370px;display:grid;place-items:center;perspective:800px;contain:layout style}
+.home-earth{position:relative;width:min(32vw,320px);min-width:210px;aspect-ratio:1;border-radius:50%;overflow:hidden;
+ background:radial-gradient(circle at 36% 29%,#a8eefa45 0%,transparent 35%),url("../globus/relief-nasa-8192.jpg") 5% center / auto 100% repeat-x,#336886;
+ box-shadow:inset -34px -15px 38px #05132ec7,inset 20px 15px 37px #c3f9ff66,0 0 0 10px #ffffff0c,0 0 0 28px #ffffff08,0 24px 70px #080c2f9c;
+ animation:home-spin 43s linear infinite}
+.home-earth:after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 29% 23%,#efffff75,transparent 33%),linear-gradient(110deg,transparent 54%,#050d2688 95%);pointer-events:none}
+.home-orbit{position:absolute;border:1px solid #c2f7ff5c;width:118%;height:70%;border-radius:50%;transform:rotate(-25deg);animation:home-orbit 14s linear infinite;pointer-events:none}
+.home-orbit-b{transform:rotate(36deg);width:115%;height:77%;animation-duration:23s;animation-direction:reverse}
+.home-point{position:absolute;width:10px;height:10px;background:#8cfff3;border-radius:50%;box-shadow:0 0 0 8px #81fff126,0 0 18px #8cfff3}
+.home-point-a{top:15%;right:19%;animation:home-pulse 2.4s ease-in-out infinite}
+.home-point-b{bottom:15%;left:11%;animation:home-pulse 2.9s ease-in-out infinite .4s}
+.home-floating{position:absolute;display:flex;align-items:center;gap:8px;border:1px solid #b1d6ff61;border-radius:13px;background:#1317449c;color:#fff;padding:9px 12px;font-size:11px;font-weight:760;box-shadow:0 10px 25px #0d16444f;backdrop-filter:blur(10px);animation:home-float 5s ease-in-out infinite}
+.home-floating-a{top:14%;left:0}
+.home-floating-b{right:1%;bottom:16%;animation-delay:-2.2s}
+.home-feature-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.home-feature-head h2{margin:0;font-size:clamp(22px,2.5vw,29px);letter-spacing:-.035em}
+.home-feature-head p{margin:8px 0 0;color:var(--muted);max-width:650px}
+.home-features{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.home-feature{display:flex;flex-direction:column;min-height:245px;padding:25px;border-radius:23px;border:1px solid var(--line);background:var(--paper);box-shadow:var(--shadow-soft);transition:transform .2s,border-color .2s}
+.home-feature:hover{transform:translateY(-5px);border-color:var(--accent)}
+.home-feature .icon{display:grid;place-items:center;width:55px;height:55px;border-radius:17px;font-size:26px;background:var(--accent-soft)}
+.home-feature h3{margin:18px 0 8px;font-size:19px}
+.home-feature p{margin:0 0 20px;color:var(--muted);font-size:13px;line-height:1.65}
+.home-feature .action{margin-top:auto;color:var(--accent);font-weight:800;font-size:13px}
+.home-bottom{padding:21px 26px;border:1px solid var(--line);border-radius:20px;background:var(--panel-soft);color:var(--muted);font-size:13px;line-height:1.6}
+@keyframes home-spin{to{background-position:calc(5% + 1024px) center}}
+@keyframes home-orbit{to{transform:rotate(335deg)}}
+@keyframes home-float{50%{translate:0 -10px}}
+@keyframes home-pulse{50%{opacity:.55;scale:.88}}
+@media(max-width:1090px){.home-welcome{grid-template-columns:1fr .8fr}.home-floating{font-size:10px}.home-earth{min-width:195px}}
+@media(max-width:800px){.home-welcome{grid-template-columns:1fr;min-height:0}.home-art{min-height:280px}.home-earth{width:250px}.home-features{grid-template-columns:1fr 1fr}.home-intro{min-height:0}}
+@media(max-width:570px){.home-welcome{padding:26px 21px}.home-art{min-height:260px}.home-earth{min-width:0;width:min(62vw,245px)}.home-floating-a{left:0}.home-floating-b{right:0}.home-features{grid-template-columns:1fr}.home-feature{min-height:0}.home-welcome h1{font-size:38px}.home-cta a{flex:1 1 100%}}
+@media(prefers-reduced-motion:reduce){.home-earth,.home-orbit,.home-point,.home-floating{animation:none!important}.home-feature,.home-cta a{transition:none!important}}
