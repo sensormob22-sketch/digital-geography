@@ -160,6 +160,7 @@ try{
  await open('/globus/index.html?grade=9&lang=ru&theme=dark');
  assert.equal(await page.locator('html').getAttribute('lang'),'be');
  await page.waitForFunction(()=>document.documentElement.dataset.belarusRelief==='ready',{timeout:30000});
+ await page.waitForFunction(()=>document.documentElement.dataset.belarusHydro==='ready',{timeout:30000});
  assert.match(await page.locator('#mapMode').innerText(),/Фізічны/);
  const belarusName=await page.evaluate(()=>window.GLOBE_TRANSLATIONS.name('Белорусская гряда','be'));
  await page.evaluate(()=>{
