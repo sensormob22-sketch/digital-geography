@@ -56,15 +56,73 @@ const output={source:'OpenStreetMap © contributors (ODbL); relation/way geometr
 let elements=[];
 for(const server of ['https://overpass.private.coffee/api/interpreter','https://lz4.overpass-api.de/api/interpreter']){
  try{
-  const response=await fetch(server,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','User-Agent':'DigitalGeographySchool/1.0'},body:new URLSearchParams({data:query}),signal:AbortSignal.timeout(30000)});
+  const response=await fetch(server,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','User-Agent':'DigitalGeographySchool/1.0'},body:new URLSearchParams({data:query}),signal:AbortSignal.timeout(11000)});
   if(!response.ok)throw Error('HTTP '+response.status);
   const data=await response.json();
   if(!Array.isArray(data.elements))throw Error('No elements');
   elements=data.elements;break;
  }catch(e){console.warn('OSM protected areas source unavailable:',e.message)}
 }
+/* OSM APIs are preferred; on a slow/rate-limited Overpass instance
+   request only specific objects from Nominatim, respecting 1 req/sec. We do
+   not draw invented boundaries when a confirmed polygon cannot be found. */
+const directPolygons={};
+if(!elements.length){
+ const queries={
+  'Беловежская пуща':'Belavezhskaya Pushcha National Park, Belarus',
+  'Браславские озёра (нацпарк)':'Braslaw Lakes National Park, Belarus',
+  'Нарочанский':'Narachanski National Park, Belarus',
+  'Припятский':'Pripyatsky National Park, Belarus',
+  'Березинский биосферный заповедник':'Berezinsky Biosphere Reserve, Belarus',
+  'Червоное':'Lake Chervonoye, Belarus',
+  'Вилейское водохранилище':'Vileyskoye Reservoir, Belarus'
+ };
+ function polygonRings(g){
+  if(!g||!['Polygon','MultiPolygon'].includes(g.type))return [];
+  const source=g.type==='Polygon'?[g.coordinates]:g.coordinates;
+  const result=[];
+  for(const poly of source){
+   for(const outer of poly.slice(0,1)){
+    if(!Array.isArray(outer)||outer.length<8)continue;
+    result.push(outer.map(([lon,lat])=>[lat,lon]));
+   }
+  }
+  return result;
+ }
+ for(const [name,queryName] of Object.entries(queries)){
+  try{
+   const url='https://nominatim.openstreetmap.org/search?format=geojson&polygon_geojson=1&limit=3&q='+encodeURIComponent(queryName);
+   const response=await fetch(url,{headers:{'User-Agent':'DigitalGeographyEducation/1.0 (GIS data for a school map)','Accept':'application/geo+json'},signal:AbortSignal.timeout(14000)});
+   if(!response.ok)throw Error('HTTP '+response.status);
+   const json=await response.json();
+   const [pattern,lat,lon]=names[name],candidates=[];
+   for(const feature of json.features||[]){
+    const rings=polygonRings(feature.geometry);
+    if(!rings.length)continue;
+    const c=centroid(rings),bbox=bounds(rings);
+    const distance=Math.hypot(c[0]-lat,(c[1]-lon)*.6);
+    const diameter=Math.max(bbox[1]-bbox[0],(bbox[3]-bbox[2])*.6);
+    if(distance>1||diameter<.05||diameter>1.65)continue;
+    const display=String(feature.properties?.display_name||'');
+    if(!pattern.test(display))continue;
+    candidates.push({rings,distance});
+   }
+   candidates.sort((a,b)=>a.distance-b.distance);
+   if(candidates.length){
+    directPolygons[name]=candidates[0].rings;
+    console.log('Nominatim OSM confirmed closed polygon:',name,candidates[0].rings[0].length);
+   }else console.warn('No confirmed Nominatim polygon:',name);
+  }catch(error){console.warn('Nominatim unavailable:',name,error.message)}
+  await new Promise(resolve=>setTimeout(resolve,1250));
+ }
+}
 for(const [name,[rx,lat,lon]] of Object.entries(names)){
  const candidates=[];
+ if(directPolygons[name]){
+  output.regions[name]={kind:'natural',quality:'osm',rings:directPolygons[name],attribution:output.source};
+  console.log('OSM confirmed',name,'via Nominatim polygon');
+  continue;
+ }
  for(const element of elements){
   const full=[element.tags?.name,element.tags?.['name:ru'],element.tags?.['name:be'],element.tags?.['name:en']].filter(Boolean).join(' ');
   if(!rx.test(full))continue;
