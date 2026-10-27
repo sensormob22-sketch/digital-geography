@@ -21,7 +21,7 @@ const translations=await event('fetch',{request:{method:'GET',url:base+'globus/t
 if(!(await translations.text()).includes('GLOBE_TRANSLATIONS'))throw Error('Offline three-language names missing');
 const facts=await event('fetch',{request:{method:'GET',url:base+'globus/facts.js',mode:'cors'}});
 if(!(await facts.text()).includes('GLOBE_FACTS'))throw Error('Offline globe object reference descriptions missing');
-for(const file of ['areas.js','area-renderer.js','vector-map.js','hydrology-renderer.js']){
+for(const file of ['areas.js','area-renderer.js','vector-map.js','hydrology-renderer.js','water-focus.js']){
  const response=await event('fetch',{request:{method:'GET',url:base+'globus/'+file,mode:'cors'}});
  if(!response||(await response.text()).length<1000)throw Error('Offline contour layer missing '+file);
 }
