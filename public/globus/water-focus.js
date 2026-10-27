@@ -66,7 +66,9 @@ function matching(o,global,regional){
  }
  if(!candidates.length)return null;
  const region=candidates.filter(c=>c.source==='regional');
- const list=(region.length?region:candidates.filter(c=>c.source==='global')).sort((a,b)=>a.d-b.d);
+ // Major rivers frequently cross borders: retain matching segments from
+ // BOTH Natural Earth datasets, including those outside the regional tile.
+ const list=(kind==='rivers'?candidates:(region.length?region:candidates.filter(c=>c.source==='global'))).sort((a,b)=>a.d-b.d);
  const nearest=list[0];
  if(nearest.d>12&&nearest.source!=='regional')return null;
  if(kind==='lakes')return {f:nearest.f,kind,source:nearest.source,distance:nearest.d};
