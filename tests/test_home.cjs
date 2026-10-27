@@ -16,7 +16,7 @@ for(const lang of ['ru','be','en'])assert(app.includes(lang+':{home:'),'Welcome 
 assert(menu.includes('id="navHome"')&&menu.includes('href="#home"'),'All navigation should return to homepage');
 assert(nav.includes('id="globalLanguageSwitch"'),'Single language control required');
 assert(home.includes('prefers-reduced-motion')&&home.includes('home-earth')&&home.includes('home-features'),'Responsive accessible animated home required');
-assert(shell.includes('SiteShell'),'Site shell unexpectedly changed');
+assert(shell.includes('id="pageContent"')&&shell.includes('<TopNav />'),'Site shell missing core navigation');
 assert(!practical.includes('data-language="ru"'),'Meteolab must not display a language picker');
 assert(practical.includes("localStorage.getItem('geo_site_lang')"),'Meteolab must read one global site language');
 assert(!globe.includes('data-lang="ru"'),'Globe must not display independent language picker');
