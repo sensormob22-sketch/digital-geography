@@ -20,9 +20,9 @@ function path(ctx,coordinates,project,close=false){
  if(close&&started&&visiblePoint(coordinates[0],project).front)ctx.closePath();
  return any;
 }
-function draw(ctx,data,project,zoom,mode){
+function draw(ctx,data,project,zoom,mode,rankOverride=null){
  if(!data)return;
- const rankLimit=zoom<1.35?1:zoom<2.2?2:zoom<4?3:5;
+ const rankLimit=rankOverride??(zoom<1.35?1:zoom<2.2?2:zoom<4?3:5);
  ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
  // Lakes appear over colored national polygons and over the natural relief.
  ctx.lineWidth=zoom>=6?1.35:.85;
@@ -36,7 +36,7 @@ function draw(ctx,data,project,zoom,mode){
    ctx.globalAlpha=.93;ctx.fill('evenodd');ctx.stroke();
   }
  }
- const streamLimit=zoom<1.35?1:zoom<2.2?2:zoom<4?3:5;
+ const streamLimit=rankLimit;
  for(const river of data.rivers||[]){
   if(river.rank>streamLimit)continue;
   ctx.beginPath();let drawn=false;
