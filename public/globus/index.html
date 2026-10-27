@@ -531,14 +531,14 @@ async function loadBelarusHydrology(){
  try{
   const r=await fetch('./belarus-hydrology-10m.json');
   if(!r.ok)throw Error('HTTP '+r.status);
-  belarusHydro=await r.json();document.documentElement.dataset.belarusHydro='ready';redraw();
+  belarusHydro=await r.json();document.documentElement.dataset.belarusHydro='ready';if(chosen&&isWater(chosen)){activeWater=WATER_FOCUS.matching?.(chosen,hydroData,belarusHydro)||null;startPulse()}redraw();
  }catch(e){console.warn('Belarus 10m water layer unavailable',e);document.documentElement.dataset.belarusHydro='unavailable'}
 }
 async function loadHydrology(){
  try{
   const res=await fetch('./hydrology-50m.json');
   if(!res.ok)throw Error('HTTP '+res.status);
-  hydroData=await res.json();document.documentElement.dataset.hydro='ready';redraw();
+  hydroData=await res.json();document.documentElement.dataset.hydro='ready';if(chosen&&isWater(chosen)){activeWater=WATER_FOCUS.matching?.(chosen,hydroData,grade===9?belarusHydro:null)||null;startPulse()}redraw();
  }catch(e){console.warn('Hydrography unavailable',e);document.documentElement.dataset.hydro='unavailable'}
 }
 async function loadGeometry(){
@@ -560,19 +560,72 @@ async function loadGeometry(){
 
  }catch(e){console.warn(e);$('status').textContent=helpText[lang].failed;setTimeout(()=>$('status').hidden=true,4200)}
 }
-let drag=null;const gesture=$('gesture');
-gesture.addEventListener('pointerdown',e=>{if(e.button!==0&&e.pointerType==='mouse')return;gesture.setPointerCapture(e.pointerId);cancelTravel();drag={id:e.pointerId,x:e.clientX,y:e.clientY,lon:longitude,lat:latitude,dist:0}});
-gesture.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;
+const gesture=$('gesture'),pointers=new Map();
+let drag=null,pinch=null,pinchUsed=false;
+function pointerPair(){
+ const values=[...pointers.values()];
+ if(values.length<2)return null;
+ return {a:values[0],b:values[1],dist:Math.max(12,Math.hypot(values[0].x-values[1].x,values[0].y-values[1].y))};
+}
+gesture.addEventListener('pointerdown',e=>{
+ if(e.pointerType==='mouse'&&e.button!==0)return;
+ e.preventDefault();cancelTravel();
+ pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ try{gesture.setPointerCapture(e.pointerId)}catch{}
+ if(pointers.size===1){
+  pinchUsed=false;pinch=null;
+  drag={id:e.pointerId,x:e.clientX,y:e.clientY,lon:longitude,lat:latitude,dist:0};
+ }else if(pointers.size>=2){
+  const pair=pointerPair();
+  pinch={distance:pair.dist,zoom,lon:longitude,lat:latitude};
+  pinchUsed=true;drag=null;
+  $('stage').dataset.gesture='pinch';
+ }
+});
+gesture.addEventListener('pointermove',e=>{
+ if(!pointers.has(e.pointerId))return;
+ pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(pointers.size>=2){
+  const pair=pointerPair();
+  if(!pinch){pinch={distance:pair.dist,zoom,lon:longitude,lat:latitude};pinchUsed=true}
+  const next=clamp(pinch.zoom*pair.dist/pinch.distance,.55,MAX_ZOOM);
+  zoom=next;
+  $('stage').dataset.zoomGesture=zoom.toFixed(4);
+  redraw();return;
+ }
+ if(!drag||drag.id!==e.pointerId)return;
  const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.dist=Math.hypot(dx,dy);
  const r=Math.max(90,Math.min(w,h)*.445*zoom);
  longitude=drag.lon-dx/r*.8;latitude=clamp(drag.lat+dy/r*.7,-1.45,1.45);redraw();
 });
-gesture.addEventListener('pointerup',e=>{if(!drag||drag.id!==e.pointerId)return;
- if(drag.dist<7){const box=gesture.getBoundingClientRect(),x=e.clientX-box.left,y=e.clientY-box.top;
-  const near=visibleMap().map(o=>({o,p:project(o.lat*RAD,o.lon*RAD)})).filter(v=>v.p.vis>.02).map(v=>({...v,d:Math.hypot(v.p.x-x,v.p.y-y)})).sort((a,b)=>a.d-b.d)[0];if(near&&near.d<21)choose(near.o);else{const hit=AREA_RENDER.nearContour?.(x,y,visibleMap(),AREAS,project,zoom,mapMode,chosen);if(hit)choose(hit)}}
- drag=null;
-});
-gesture.addEventListener('pointercancel',()=>drag=null);
+function pointerFinish(e,cancel=false){
+ if(!pointers.has(e.pointerId))return;
+ const current=drag&&drag.id===e.pointerId?drag:null;
+ pointers.delete(e.pointerId);
+ try{if(gesture.hasPointerCapture(e.pointerId))gesture.releasePointerCapture(e.pointerId)}catch{}
+ if(pointers.size>=2){
+  const pair=pointerPair();pinch={distance:pair.dist,zoom,lon:longitude,lat:latitude};drag=null;
+ }else if(pointers.size===1){
+  pinch=null;
+  const [id,point]=pointers.entries().next().value;
+  drag={id,x:point.x,y:point.y,lon:longitude,lat:latitude,dist:999};
+ }else{
+  pinch=null;drag=null;$('stage').dataset.gesture='idle';
+ }
+ if(cancel||pinchUsed||!current||current.dist>=7)return;
+ const box=gesture.getBoundingClientRect(),x=e.clientX-box.left,y=e.clientY-box.top;
+ const near=visibleMap().map(o=>({o,p:project(o.lat*RAD,o.lon*RAD)}))
+  .filter(v=>v.p.vis>.02).map(v=>({...v,d:Math.hypot(v.p.x-x,v.p.y-y)}))
+  .sort((a,b)=>a.d-b.d)[0];
+ if(near&&near.d<21)choose(near.o);
+ else{
+  const hit=AREA_RENDER.nearContour?.(x,y,visibleMap(),AREAS,project,zoom,mapMode,chosen);
+  if(hit)choose(hit);
+ }
+}
+gesture.addEventListener('pointerup',e=>pointerFinish(e));
+gesture.addEventListener('pointercancel',e=>pointerFinish(e,true));
+gesture.addEventListener('lostpointercapture',e=>{if(pointers.has(e.pointerId))pointerFinish(e,true)});
 gesture.addEventListener('wheel',e=>{e.preventDefault();cancelTravel();zoom=clamp(zoom*Math.exp(-e.deltaY*.0015),.55,MAX_ZOOM);redraw()},{passive:false});
 gesture.addEventListener('keydown',e=>{const d=.13;if(e.key==='ArrowLeft')longitude-=d;else if(e.key==='ArrowRight')longitude+=d;else if(e.key==='ArrowUp')latitude=clamp(latitude+d,-1.45,1.45);else if(e.key==='ArrowDown')latitude=clamp(latitude-d,-1.45,1.45);else return;e.preventDefault();cancelTravel();redraw()});
 $('plus').onclick=()=>{cancelTravel();zoom=clamp(zoom*1.35,.55,MAX_ZOOM);redraw()};
