@@ -5,7 +5,7 @@
 .top{padding:16px 23px;color:#fff;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:linear-gradient(112deg,#453096,#7455cc)}
 .top h1{font-size:clamp(21px,2.8vw,29px);letter-spacing:-.035em;margin:0}.top p{font-size:11px;margin:3px 0 0;opacity:.85}
 .head-right{display:flex;gap:8px;align-items:center}
-.go-site{border:1px solid #ffffff75;background:#ffffff12;color:white;border-radius:11px;padding:10px 13px;text-decoration:none;font-size:12px;font-weight:800}
+
 .grades{background:white;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px solid #e9e1fa;padding:12px 20px}
 .grade-buttons{display:flex;gap:6px;flex-wrap:wrap}.grade{border:1px solid #e1d8fa;border-radius:11px;background:#f6f1ff;color:#5f47a9;padding:10px 13px;font-weight:800;font-size:12px}.grade.active{background:#684dcd;color:white;border-color:#684dcd}
 .source{color:#847797;font-size:11px;font-weight:680}
@@ -108,7 +108,7 @@ body.geo-no-scroll{overflow:hidden}
 }
 </style></head>
 <body>
-<header class="top"><div><h1 id="title">🌍 Учебный глобус</h1><p id="subtitle">Географическая номенклатура · 6–11 классы</p></div><div class="head-right"><a class="go-site" id="back" href="../#nomenclature">← На сайт</a></div></header>
+<header class="top"><div><h1 id="title">🌍 Учебный глобус</h1><p id="subtitle">Географическая номенклатура · 6–11 классы</p></div></header>
 <div class="grades"><div class="grade-buttons" id="gradeButtons"></div><span class="source" id="source"></span></div>
 <main class="layout" id="globeLayout">
 <section class="stage" id="stage" aria-label="Интерактивный глобус">
@@ -127,10 +127,10 @@ body.geo-no-scroll{overflow:hidden}
 <details class="feature-legend geo-disclosure" id="legendPanel"><summary id="legendTitle">Условные обозначения</summary><div class="map-legend" id="mapLegend" aria-live="polite"></div></details>
 </aside>
 </main>
-<script defer src="../assets/disclosures.js"></script><script src="./hydrology-renderer.js"></script><script src="./objects.js"></script><script src="./translations.js"></script><script src="./facts.js"></script><script src="./areas.js"></script><script src="./area-renderer.js"></script><script src="./vector-map.js"></script>
+<script defer src="../assets/disclosures.js"></script><script src="./hydrology-renderer.js"></script><script src="./water-focus.js"></script><script src="./objects.js"></script><script src="./translations.js"></script><script src="./facts.js"></script><script src="./areas.js"></script><script src="./area-renderer.js"></script><script src="./vector-map.js"></script>
 <script>
 (function(){'use strict';
-const $=id=>document.getElementById(id),pars=new URLSearchParams(location.search),RAW=window.GLOBE_CATALOG||{},TR=window.GLOBE_TRANSLATIONS||{},FACTS=window.GLOBE_FACTS||{},AREAS=window.GLOBE_AREAS||{},AREA_RENDER=window.GLOBE_AREA_RENDERER||{},VECTOR_MAP=window.GLOBE_VECTOR_MAP||{},HYDRO_RENDER=window.GLOBE_HYDROLOGY_RENDERER||{},RAD=Math.PI/180;
+const $=id=>document.getElementById(id),pars=new URLSearchParams(location.search),RAW=window.GLOBE_CATALOG||{},TR=window.GLOBE_TRANSLATIONS||{},FACTS=window.GLOBE_FACTS||{},AREAS=window.GLOBE_AREAS||{},AREA_RENDER=window.GLOBE_AREA_RENDERER||{},VECTOR_MAP=window.GLOBE_VECTOR_MAP||{},HYDRO_RENDER=window.GLOBE_HYDROLOGY_RENDERER||{},WATER_FOCUS=window.GLOBE_WATER_FOCUS||{},RAD=Math.PI/180;
 let grade=+pars.get('grade')||7,lang='ru',theme=pars.get('theme')||'light';
 try{
  const saved=localStorage.getItem('geo_site_lang');
@@ -146,7 +146,7 @@ be:['Вучэбны глобус','Геаграфічная наменклату
 en:['Learning globe','Geographic names · Grades 6–11','Back to site','grade','EXPLORE EARTH','Pick an object from the list','Objects on the globe','Search locations','places','topic groups','No matching places','Belarus curriculum 2025','Belarus curriculum 2026','Contours of natural regions and urban agglomerations are schematic, not surveyed boundaries. Other objects remain reference points.','Grades 10–11 include illustrative examples; changing rankings need to be kept up to date.']};
 const t=n=>i18n[lang][n],escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let groups=[],chosen=null,filter='',openGroup=0,longitude=(grade===9?28:27)*RAD,latitude=(grade===9?53:30)*RAD,zoom=grade===9?7:1,target=null,geo=null,gl=null,program=null,texture=null,over=$('points').getContext('2d'),w=0,h=0,dpr=1,queued=false;
-let mapMode='physical',reliefImage=null,textureCanvas=null,vectorGeo=null,hydroData=null,belarusHydro=null,flight=null,flightFrame=0,belarusTexture=null,belarusImage=null,belarusMeta=null;
+let mapMode='physical',reliefImage=null,textureCanvas=null,vectorGeo=null,hydroData=null,belarusHydro=null,flight=null,flightFrame=0,activeWater=null,pulseRAF=0,pulseLast=0,belarusTexture=null,belarusImage=null,belarusMeta=null;
 
 const RELIEF_URL='./relief-nasa-8192.jpg';
 const modeStrings={ru:['Физический глобус','Политический глобус','Рельеф суши и водная сеть','Государства · условные цвета','Рельеф: NASA Blue Marble; реки и озёра: Natural Earth','Офлайн: упрощённый рельеф'],
@@ -161,30 +161,22 @@ function mapFor(o){
 function isPolitical(o){return mapFor(o)==='political'}
 function isWater(o){return /^(Океан|Море|Море-озеро|Залив|Пролив|Река|Приток|Озеро|Группа озёр|Водопад|Водохранилище)/.test(o.rawType||'')}
 function visibleMap(){return visible().filter(o=>mapFor(o)===mapMode||(mapMode==='political'&&isWater(o)))}
+const MAX_ZOOM=650;
+const isFineFeature=o=>/Река|Приток|Озеро|Группа озёр|Море-озеро|Водохранилище|Возвышенность|Низменность|Равнина|Гряда/.test(o.rawType||'');
+function focusForObject(o){
+ return WATER_FOCUS.focusFor?.(o,AREAS,hydroData,grade===9?belarusHydro:null,w,h,MAX_ZOOM)||null;
+}
 function adaptiveZoom(o){
- const shape=AREAS.get?.(o.rawName);
- if(shape){
-  // Keep the whole selected region within a useful part of the screen.
-  // Zoom is computed from angular footprint, not an arbitrary city label.
-  const farthest=Math.max(1,...shape.rings.flat().map(([lat,lon])=>{
-   const dx=(((lon-o.lon+540)%360)-180)*Math.cos((lat+o.lat)*.5*RAD);
-   return Math.hypot(lat-o.lat,dx);
-  }));
-  return clamp(44/farthest,1.1,26);
- }
+ const focus=focusForObject(o);
+ if(focus)return focus.zoom;
+ // Without mapped geometry, keep a usable neighbourhood around the anchor.
  const ty=o.rawType||'';
- if(isPolitical(o)){
-  if(grade===10&&/Площадь|Население|плотность|урбанизация|Производство|Сельское|Нефть|Промышленность/i.test(ty))return 3.3;
-  if(grade===11&&o.group===8)return 3.2;
-  if(/Мегалополис/.test(ty)||grade===11&&o.group>=2&&o.group<=5)return 5.5;
-  return 17;
- }
+ if(isFineFeature(o))return grade===9?42:33;
  if(/Океан|Материк|Часть света/.test(ty))return 1.2;
- if(/Море|Залив|Горная система|Горы|Плоскогорье|Равнина|Низменность|Пустыня|Впадина|Нагорье/.test(ty))return 4.6;
- if(/Река|Приток|Группа озёр|Полуостров|Гряда|Возвышенность/.test(ty))return 7.5;
- if(/Озеро|Водохранилище|Остров|Пролив|Мыс/.test(ty))return 10;
- if(/Вулкан|Вершина|Водопад|Высшая точка/.test(ty))return 15;
- return 8;
+ if(/Море|Залив|Горная система|Горы|Плоскогорье|Пустыня|Впадина|Нагорье/.test(ty))return 5.5;
+ if(/Мегалополис/.test(ty))return 6;
+ if(/Вулкан|Вершина|Водопад|Мыс/.test(ty))return 17;
+ return 12;
 }
 function setMapMode(next){
  if(next!==mapMode){mapMode=next;updateTexture();}
@@ -247,7 +239,7 @@ function updateHelp(){
 }
 function labels(){
  document.documentElement.lang=lang;document.documentElement.dataset.theme=theme;
- $('title').textContent='🌍 '+t(0);$('subtitle').textContent=t(1);updateHelp();$('back').textContent='← '+t(2);$('back').href='../#nomenclature/'+grade;
+ $('title').textContent='🌍 '+t(0);$('subtitle').textContent=t(1);updateHelp();
  $('caption').textContent=t(4);$('captionSub').textContent=t(5);$('objectsTitle').textContent=t(6);$('search').placeholder=t(7);
  const userLabels={
   ru:{source:'Списки учителя · население приблизительное',note:'Численность агломераций приводится по предоставленному учебному списку — это не официальный рейтинг ООН 2025 года. В актуальном сопоставимом рейтинге ООН лидируют Джакарта, Дакка и Токио. Мегалополисы выделяются приблизительными учебными контурами.'},
@@ -291,7 +283,10 @@ function choose(o){
  chosen=o;openGroup=o.group;
  selectedLabel();renderFact();renderList();
  $('groups').querySelector('.place.active')?.scrollIntoView({block:'nearest'});
- const end={lon:o.lon*RAD,lat:clamp(o.lat*RAD,-1.45,1.45),zoom:adaptiveZoom(o)};
+ const focus=focusForObject(o);
+ const end={lon:focus?.lon??o.lon*RAD,lat:focus?.lat??clamp(o.lat*RAD,-1.45,1.45),zoom:focus?.zoom??adaptiveZoom(o)};
+ activeWater=focus?.hydro||WATER_FOCUS.matching?.(o,hydroData,grade===9?belarusHydro:null)||null;
+ startPulse();
  const desiredMode=isWater(o)&&mapMode==='political'?'political':mapFor(o);
  const delta=wrap(end.lon-from.lon),wide=grade===9?7:1;
  const segments=[
@@ -351,12 +346,27 @@ function drawMarkerLabel(ctx,x,y,value){
  ctx.fillStyle='#fff';ctx.textBaseline='middle';ctx.fillText(label,left+11,top+height/2);
  ctx.restore();
 }
+/* Animate the selected water outline only; throttle redraws to avoid
+   loading slower phones with continuous full-resolution vector work. */
+function stopPulse(){if(pulseRAF)cancelAnimationFrame(pulseRAF);pulseRAF=0}
+function startPulse(){
+ stopPulse();if(!activeWater||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ pulseLast=0;
+ const tick=now=>{
+  if(!activeWater||document.hidden){pulseRAF=0;return}
+  if(now-pulseLast>85){pulseLast=now;redraw()}
+  pulseRAF=requestAnimationFrame(tick);
+ };
+ pulseRAF=requestAnimationFrame(tick);
+}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPulse();else startPulse()});
 function drawPoints(){
  const cv=$('points');over.setTransform(dpr,0,0,dpr,0,0);over.clearRect(0,0,w,h);
  VECTOR_MAP.draw?.(over,vectorGeo||geo,project,zoom,mapMode,w,h);
  HYDRO_RENDER.draw?.(over,hydroData,project,zoom,mapMode);
  if(grade===9)HYDRO_RENDER.draw?.(over,belarusHydro,project,zoom,mapMode,12);
  AREA_RENDER.draw?.(over,visibleMap(),chosen,AREAS,project,zoom,mapMode);
+ WATER_FOCUS.draw?.(over,activeWater,project,performance.now()/1000,window.matchMedia('(prefers-reduced-motion: reduce)').matches);
  let labelPoint=null;
  visibleMap().forEach(o=>{const p=project(o.lat*RAD,o.lon*RAD);if(p.vis<.04)return;
  const active=chosen?.id===o.id;if(active)labelPoint=p;over.beginPath();over.arc(p.x,p.y,active?8:4.5,0,Math.PI*2);over.fillStyle=active?'#ffd38a':'#63e8d4';over.fill();over.strokeStyle='#07364e';over.lineWidth=1.7;over.stroke();
@@ -369,6 +379,8 @@ function drawPoints(){
 function redraw(){if(!queued){queued=true;requestAnimationFrame(draw)}}
 function draw(){
  queued=false;if(!w||!h)return;
+ $('stage').dataset.zoom=zoom.toFixed(4);
+ $('stage').dataset.activeWater=activeWater?.f?.name||'';
  if(gl&&program){
   gl.viewport(0,0,$('canvas').width,$('canvas').height);gl.useProgram(program.p);
   gl.uniform2f(program.center,longitude,latitude);
@@ -561,14 +573,14 @@ gesture.addEventListener('pointerup',e=>{if(!drag||drag.id!==e.pointerId)return;
  drag=null;
 });
 gesture.addEventListener('pointercancel',()=>drag=null);
-gesture.addEventListener('wheel',e=>{e.preventDefault();cancelTravel();zoom=clamp(zoom*Math.exp(-e.deltaY*.0015),.55,26);redraw()},{passive:false});
+gesture.addEventListener('wheel',e=>{e.preventDefault();cancelTravel();zoom=clamp(zoom*Math.exp(-e.deltaY*.0015),.55,MAX_ZOOM);redraw()},{passive:false});
 gesture.addEventListener('keydown',e=>{const d=.13;if(e.key==='ArrowLeft')longitude-=d;else if(e.key==='ArrowRight')longitude+=d;else if(e.key==='ArrowUp')latitude=clamp(latitude+d,-1.45,1.45);else if(e.key==='ArrowDown')latitude=clamp(latitude-d,-1.45,1.45);else return;e.preventDefault();cancelTravel();redraw()});
-$('plus').onclick=()=>{cancelTravel();zoom=clamp(zoom*1.35,.55,26);redraw()};
-$('minus').onclick=()=>{cancelTravel();zoom=clamp(zoom/1.35,.55,26);redraw()};
+$('plus').onclick=()=>{cancelTravel();zoom=clamp(zoom*1.35,.55,MAX_ZOOM);redraw()};
+$('minus').onclick=()=>{cancelTravel();zoom=clamp(zoom/1.35,.55,MAX_ZOOM);redraw()};
 $('reset').onclick=()=>{cancelTravel();target={zoom:grade===9?7:1,lon:(grade===9?28:27)*RAD,lat:(grade===9?53:30)*RAD};animate()};
-$('factClose').onclick=()=>{chosen=null;selectedLabel();renderFact();renderList();redraw()};
+$('factClose').onclick=()=>{chosen=null;activeWater=null;stopPulse();selectedLabel();renderFact();renderList();redraw()};
 
-$('gradeButtons').addEventListener('click',e=>{const b=e.target.closest('[data-grade]');if(!b)return;cancelTravel();grade=+b.dataset.grade;compileGroups();chosen=null;zoom=grade===9?7:1;longitude=(grade===9?28:27)*RAD;latitude=(grade===9?53:30)*RAD;setMapMode(grade>=10?'political':'physical');openGroup=0;filter='';$('search').value='';labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&theme='+theme);redraw()});
+$('gradeButtons').addEventListener('click',e=>{const b=e.target.closest('[data-grade]');if(!b)return;cancelTravel();grade=+b.dataset.grade;compileGroups();chosen=null;activeWater=null;stopPulse();zoom=grade===9?7:1;longitude=(grade===9?28:27)*RAD;latitude=(grade===9?53:30)*RAD;setMapMode(grade>=10?'political':'physical');openGroup=0;filter='';$('search').value='';labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&theme='+theme);redraw()});
 // The homepage is the only place where visitors change the language.
 window.addEventListener('storage',e=>{if(e.key==='geo_site_lang'&&['ru','be','en'].includes(e.newValue)){lang=e.newValue;const old=chosen?.id;compileGroups();chosen=all().find(o=>o.id===old)||null;labels();redraw()}});
 window.addEventListener('pageshow',()=>{try{const saved=localStorage.getItem('geo_site_lang');if(['ru','be','en'].includes(saved)&&saved!==lang){lang=saved;const old=chosen?.id;compileGroups();chosen=all().find(o=>o.id===old)||null;labels();redraw()}}catch(e){}});
