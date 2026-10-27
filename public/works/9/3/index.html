@@ -581,7 +581,7 @@ html[data-mode="light"] body.theme-dashboard .lang-switch button.selected{color:
 </div></div><div class="progress-wrap" role="status"><div class="progress-head"><span data-i18n="progressTitle"></span><span id="progressText" class="progress-info">0 / 100 %</span></div><div class="progress-track"><div id="progressFill" class="progress-fill"></div></div><div id="progressFoot" class="progress-foot"></div></div></header>
 <section class="panel settings" aria-label="Study settings">
 <div class="field city"><label for="citySelect" data-i18n="chooseCity"></label><select id="citySelect"></select></div>
-<div class="field"><label data-i18n="chooseLanguage"></label><div class="lang-switch" role="group" aria-label="Language / Язык / Мова"><button type="button" data-language="ru">RU</button><button type="button" data-language="be">BE</button><button type="button" data-language="en">EN</button></div></div>
+
 <div class="field theme-field"><label id="themeLabel" for="modeToggle"></label><button id="modeToggle" class="theme-switch" type="button" aria-pressed="false"><span class="theme-symbol" id="modeIcon">☾</span><span id="modeText"></span></button></div>
 </section>
 <main class="layout">
@@ -937,7 +937,7 @@ const pY=mm=>B-(mm/pMax)*PT.h,tY=t=>B-(t-tMin)/(tMax-tMin)*PT.h;
 // Each opening is a new pupil attempt: never persist plotted values, answers or scores.
 // Keep only language preference; remove progress left by earlier site versions.
 function clearSavedWork(){try{for(let i=localStorage.length-1;i>=0;i--){const key=localStorage.key(i);if(key&&key.startsWith('meteolab_5cities_'))localStorage.removeItem(key);}}catch(e){}}
-function save(){try{localStorage.setItem('meteolab_ui_v2',JSON.stringify({lang}));}catch(e){}}
+function save(){/* All language preferences are managed on the site homepage. */}
 function load(){state.values=empty();state.month=0;state.checked=false;state.errors=[];state.solved=false;state.hover=null;state.active='rain';state.mobileDraft=null;state.answers={};state.answersChecked=false;state.answerErrors=[];state.answersSolved=false;rescale();}
 function applyLang(){document.documentElement.lang=lang;document.title=lang==='ru'?'Метеолаб — климатограммы десяти городов':lang==='be'?'Метэалаб — кліматаграмы дзесяці гарадоў':'MeteoLab — Climographs for Ten Cities';for(const el of document.querySelectorAll('[data-i18n]'))el.textContent=tr(el.dataset.i18n);for(const btn of document.querySelectorAll('[data-language]')){btn.classList.toggle('selected',btn.dataset.language===lang);btn.setAttribute('aria-pressed',String(btn.dataset.language===lang))}const cityOpts=Object.entries(CITY).map(([k,v])=>`<option value="${k}">${esc(v.name[lang])}</option>`).join('');$('citySelect').innerHTML=cityOpts;$('citySelect').value=city;$('monthSelect').innerHTML=MONTH[lang].map((x,i)=>`<option value="${i}">${x}</option>`).join('');$('prevMonth').setAttribute('aria-label',lang==='ru'?'Предыдущий месяц':lang==='be'?'Папярэдні месяц':'Previous month');$('nextMonth').setAttribute('aria-label',lang==='ru'?'Следующий месяц':lang==='be'?'Наступны месяц':'Next month');refreshAnswerOptions();render();}
 function setCity(next){if(!(next in CITY)||next===city)return;save();city=next;load();state.mobileDraft=null;save();applyLang();renderAnalysis();refreshFeedback();}
@@ -1201,7 +1201,7 @@ $('graph').addEventListener('pointermove',e=>{if(dragged)return;let v=svgEventVa
 $('graph').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();const k=state.active;if(k==='wind'){if(state.values[state.month].rain!==null)setValue(k,ref(state.month).wind);else toast(tr('firstRain'))}else setValue(k,state.values[state.month][k]??ref(state.month)[k]);}else if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();adjust(e.key==='ArrowUp'?1:-1)}});
 function adjust(sign){let k=state.active,v=state.values[state.month][k];if(v===null)return;setValue(k,v+sign*(k==='rain'?1:k==='temp'?.1:1));}
 $('decrease').addEventListener('click',()=>adjust(-1));$('increase').addEventListener('click',()=>adjust(1));$('monthSelect').addEventListener('change',e=>selectMonth(+e.target.value));$('prevMonth').addEventListener('click',()=>selectMonth(state.month-1));$('nextMonth').addEventListener('click',()=>selectMonth(state.month+1));$('overview').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(b)selectMonth(+b.dataset.m)});
-$('citySelect').addEventListener('change',e=>setCity(e.target.value));document.querySelectorAll('[data-language]').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.language)));
+$('citySelect').addEventListener('change',e=>setCity(e.target.value));
 $('mobileToolTabs').addEventListener('click',e=>{const b=e.target.closest('[data-mobile-kind]');if(b)tool(b.dataset.mobileKind||b.dataset.kind);});
 $('mobileControlArea').addEventListener('input',e=>{if(e.target.id==='mobileRange')setMobileDraft(e.target.value);if(e.target.id==='mobileWindSelect')setMobileDraft(e.target.value);});
 $('mobileControlArea').addEventListener('change',e=>{if(e.target.id==='mobileWindSelect')setMobileDraft(e.target.value);});
@@ -1250,11 +1250,11 @@ $('confirmChoose').addEventListener('click',chooseAnotherCity);
 $('exitWork').addEventListener('click',()=>{clearSavedWork();load();window.location.replace('about:blank');});
  // Tasks 2–10 unlock after all 36 plotted values are entered; only the final button evaluates work.
 
-try{const opt=JSON.parse(localStorage.getItem('meteolab_ui_v2')||'null');if(opt&&['ru','en','be'].includes(opt.lang))lang=opt.lang;}catch(e){}
+try{const site=localStorage.getItem('geo_site_lang');if(['ru','be','en'].includes(site))lang=site;}catch(e){}
 clearSavedWork();load();applyLang();renderAnalysis();
 // A Back/Forward-Cache restore must show a blank worksheet too, not the old DOM.
 window.addEventListener('pagehide',()=>{clearSavedWork();load();});
-window.addEventListener('pageshow',e=>{if(!e.persisted)return;clearSavedWork();load();$('completeModal').hidden=true;$('success').hidden=true;$('feedback').hidden=true;$('graphCorrections').hidden=true;applyLang();renderAnalysis();refreshFeedback();});
+window.addEventListener('pageshow',e=>{try{const site=localStorage.getItem('geo_site_lang');if(['ru','be','en'].includes(site))lang=site;}catch(e){}if(!e.persisted)return;clearSavedWork();load();$('completeModal').hidden=true;$('success').hidden=true;$('feedback').hidden=true;$('graphCorrections').hidden=true;applyLang();renderAnalysis();refreshFeedback();});
 window.Meteolab={getState:()=>JSON.parse(JSON.stringify({city,lang,month:state.month,active:state.active,values:state.values,progress:getProgress(),errors:state.errors,solved:state.solved,answers:state.answers,answerErrors:state.answerErrors,answersSolved:state.answersSolved,pMax,tMin,tMax})),cities:Object.keys(CITY),reference:(c=city)=>CITY[c].temp.map((temp,i)=>({temp,rain:CITY[c].rain[i],wind:CITY[c].wind[i]})),chooseCity:setCity,chooseLanguage:setLang,selectMonth,selectTool:tool,expectations,answer:(field,value)=>{if(FIELDS.includes(field)){state.answers[field]=String(value);onAnswerChange({target:{dataset:{answer:field},value:String(value)}})}},checkAnswers,checkWork:checkAnswers,repeat:freshStart,placeExact:(month,kind)=>{selectMonth(month);setValue(kind,ref(month)[kind])},check};
 
 window.Meteolab.getReportData=()=>{
@@ -1331,8 +1331,8 @@ window.MeteolabDesign={name:'04 · Цифровая география',getMode:
       be:['Выберы месяц і прыбор. Паводле паказання на картцы ўсталюй значэнне паўзунком або кнопкамі − і +. Для флюгера выберы напрамак са спіса. Націсні «Дадаць на графік».','Размясці тры паказанні і пераходзь да наступнага месяца. Правільнасць адказаў правяраецца толькі ў канцы ўсёй работы.'],
       en:['Choose a month and an instrument. Match the reading shown on its card using the slider or − / +. For the weather vane, select a direction. Tap “Add to graph”.','Place all three readings, then move on to the next month. Answers are checked only at the end of the entire exercise.']
     };
-    const refreshHelp=()=>{const lang=document.querySelector('[data-language].selected')?.dataset.language||'ru';copy.replaceChildren(...(instructionsMobile[lang]||instructionsMobile.ru).map(t=>{const p=document.createElement('p');p.textContent=t;return p}));};
-    document.querySelectorAll('[data-language]').forEach(btn=>btn.addEventListener('click',refreshHelp));
+    const refreshHelp=()=>{const lang=['ru','be','en'].includes(document.documentElement.lang)?document.documentElement.lang:'ru';copy.replaceChildren(...(instructionsMobile[lang]||instructionsMobile.ru).map(t=>{const p=document.createElement('p');p.textContent=t;return p}));};
+    window.addEventListener('geography:language',refreshHelp);
     refreshHelp();
     let small=false;
     const move=()=>{
