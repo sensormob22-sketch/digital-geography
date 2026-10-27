@@ -19,7 +19,7 @@ const query='[out:json][timeout:55];('+
  ['name','name:ru','name:be','name:en'].map(tag=>'way["waterway"="river"]["'+tag+'"~"'+pattern+'",i]'+bbox+';').join('')+
  ');out geom;';
 let raw=null;
-for(const endpoint of ['https://overpass.kumi.systems/api/interpreter','https://overpass-api.de/api/interpreter']){
+for(const endpoint of ['https://overpass.private.coffee/api/interpreter','https://maps.mail.ru/osm/tools/overpass/api/interpreter','https://overpass-api.de/api/interpreter']){
  try{
   const response=await fetch(endpoint,{method:'POST',body:new URLSearchParams({data:query}),
    headers:{'Content-Type':'application/x-www-form-urlencoded'},signal:AbortSignal.timeout(66000)});
