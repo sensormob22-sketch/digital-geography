@@ -378,7 +378,9 @@ function drawPoints(){
  VECTOR_MAP.draw?.(over,vectorGeo||geo,project,zoom,mapMode,w,h,camera);
  HYDRO_RENDER.draw?.(over,hydroData,project,zoom,mapMode,null,camera);
  if(grade===9)HYDRO_RENDER.draw?.(over,belarusHydro,project,zoom,mapMode,12,camera);
- AREA_RENDER.draw?.(over,visibleMap(),chosen,AREAS,project,zoom,mapMode);
+ // Prefer confirmed real lake borders to schematic ellipses.
+ // Never superimpose a second outline over a matched watercourse/lake.
+ if(!(chosen&&activeWater))AREA_RENDER.draw?.(over,visibleMap(),chosen,AREAS,project,zoom,mapMode);
 
  let labelPoint=null;
  visibleMap().forEach(o=>{const p=project(o.lat*RAD,o.lon*RAD);if(p.vis<.04)return;
