@@ -1,5 +1,5 @@
 /* Платформа «Цифровая география». Service Worker: core shell + opt-in works. */
-const VERSION='geo-core-2026-10-v20';
+const VERSION='geo-core-2026-10-v21';
 const CORE=`${VERSION}-shell`;
 const WORKS='geo-offline-works-v6';
 const BASE=new URL(self.registration.scope);
