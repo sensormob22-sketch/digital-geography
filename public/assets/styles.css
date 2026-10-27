@@ -44,3 +44,25 @@ html[data-theme="dark"] .class-link:hover{background:#453477;color:#fff}
 
 /* Only the welcome page exposes the one global language selector. */
 .language-switch[hidden]{display:none!important}
+
+/* Single content header, full-width globe and responsive tall workplace. */
+.main-area{min-height:100dvh}.page-content{width:100%;max-width:none;margin:0 auto;padding:14px 16px 22px;flex:1;min-height:0}
+.globe-area{margin:0;border-radius:14px}
+.globe-frame{height:max(790px,calc(100dvh - 145px));min-height:670px}
+@media(max-width:1040px){.globe-frame{height:1120px}}
+@media(max-width:780px){.page-content{padding:10px 8px 18px}.globe-frame{height:1180px}}
+/* Geography classroom: four evolving scenes per grade. */
+.geography-class-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:20px}
+.animated-class-link{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:18px;min-height:228px;padding:18px;border-radius:21px;overflow:hidden;text-decoration:none;transition:transform .2s,border-color .2s}
+.animated-class-link:hover{transform:translateY(-5px)}
+.animated-class-link>strong{position:relative;z-index:2;font-size:17px}
+.class-scene{position:relative;display:grid;place-items:center;min-height:145px;flex:1;isolation:isolate;border-radius:15px;overflow:hidden;background:radial-gradient(circle at 70% 22%,#d4f1ff66,transparent 42%),linear-gradient(165deg,#36418d,#86b7b4)}
+.scene-7{background:linear-gradient(160deg,#e6bb74,#956c4a)}.scene-8{background:linear-gradient(150deg,#72bf9f,#31768d)}
+.scene-9{background:linear-gradient(155deg,#649b73,#25584c)}.scene-10{background:linear-gradient(155deg,#756ac8,#3c5798)}.scene-11{background:linear-gradient(155deg,#275e8a,#418b7d)}
+.scene-frame{position:absolute;z-index:2;font-size:clamp(54px,7vw,100px);line-height:1;opacity:0;filter:drop-shadow(0 10px 12px #0004);animation:scene-reel 12s ease-in-out infinite;animation-delay:calc(var(--scene-i)*3s)}
+.scene-land{position:absolute;bottom:-10%;left:-20%;width:140%;height:38%;border-radius:50% 50% 0 0;background:#164e5773;box-shadow:0 -6px 45px #dfffd622;animation:scene-breathe 5s ease-in-out infinite alternate}
+@keyframes scene-reel{0%,3%{opacity:0;transform:translateY(22px) scale(.82) rotate(-7deg)}7%,23%{opacity:1;transform:translateY(0) scale(1) rotate(0)}27%,100%{opacity:0;transform:translateY(-24px) scale(1.12) rotate(5deg)}}
+@keyframes scene-breathe{to{transform:translateY(-8px) scale(1.04)}}
+@media(max-width:900px){.geography-class-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.geography-class-grid{grid-template-columns:1fr}.animated-class-link{min-height:210px}.class-scene{min-height:146px}.scene-frame{font-size:90px}}
+@media(prefers-reduced-motion:reduce){.scene-frame{animation:none;opacity:0}.scene-frame:first-child{opacity:1}.scene-land{animation:none}}
