@@ -1,15 +1,15 @@
-/* Shared accessible native disclosure for every project section.
-   Apply class="geo-disclosure" to <details>; <summary> is keyboard-accessible.
-   Chrome/Firefox new CSS auto-size transitions enhance native behavior;
-   unsupported browsers simply open/close instantly. */
+/* Shared accessible disclosure component: native <details>/<summary>
+   is the foundation. A closed element has NO content box, so adjacent flex
+   panels reclaim its height immediately. Opening animates gently where
+   motion is allowed; no special experimental ::details-content overrides. */
 .geo-disclosure{min-width:0}
 .geo-disclosure>summary{cursor:pointer}
 .geo-disclosure>summary:focus-visible{outline:3px solid #efaa68;outline-offset:-3px}
-@supports (interpolate-size:allow-keywords){
- .geo-disclosure{interpolate-size:allow-keywords}
- .geo-disclosure::details-content{height:0;overflow:hidden;transition:height .23s ease,content-visibility .23s allow-discrete}
- .geo-disclosure[open]::details-content{height:auto}
-}
-@media(prefers-reduced-motion:reduce){
- .geo-disclosure::details-content{transition:none!important}
+.geo-disclosure:not([open])>:not(summary){display:none!important}
+@media(prefers-reduced-motion:no-preference){
+ .geo-disclosure[open]>:not(summary){animation:geo-disclose-in .2s ease-out}
+ @keyframes geo-disclose-in{
+  from{opacity:.25;transform:translateY(-7px)}
+  to{opacity:1;transform:translateY(0)}
+ }
 }
