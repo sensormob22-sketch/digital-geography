@@ -96,10 +96,6 @@ ellipse('Освейское','natural',56.05,28.15,.085,.135);
 ellipse('Червоное','natural',52.38,27.75,.085,.22);
 ellipse('Браславские озёра','natural',55.65,27,.5,.7);
 ellipse('Вилейское водохранилище','natural',54.5,26.9,.13,.15);
-add('Беловежская пуща','natural','52.45,23.35 52.9,23.5 52.85,24.2 52.4,24.1');
-ellipse('Браславские озёра (нацпарк)','natural',55.66,27.05,.38,.55);
-ellipse('Припятский','natural',52.05,27.95,.33,.83);
-ellipse('Нарочанский','natural',54.83,26.83,.50,.65);
 // 5. Nine megaregions: schematic corridors along named urban centers.
 corridor('Босваш (Приатлантический)','38.91,-77.04 39.29,-76.61 39.95,-75.16 40.71,-74.00 41.76,-72.68 42.36,-71.06',42);
 corridor('Чипитс (Приозёрный)','41.88,-87.63 41.68,-86.25 41.65,-83.54 42.33,-83.05 41.50,-81.69 40.44,-79.99',65);
@@ -134,12 +130,19 @@ shapes['Америка']={name:'Америка',kind:'natural',quality:'schemati
 shapes['Токио']=shapes['Токио — Иокогама'];
 const counts={natural:0,urban:0};
 for(const [name,obj] of Object.entries(shapes)){if(name!=='Токио')counts[obj.kind]++;}
+function installMapped(name,item){
+ if(!item||item.quality!=='mapped'||!Array.isArray(item.rings)||!item.rings.some(r=>r.length>=4))return false;
+ const clean=item.rings.filter(r=>r.length>=4&&r.every(p=>Array.isArray(p)&&p.length===2&&Number.isFinite(p[0])&&Number.isFinite(p[1])));
+ if(!clean.length)return false;
+ shapes[name]={name,kind:'natural',quality:'mapped',source:item.source||'WDPCA GIS',rings:clean};
+ return true;
+}
 window.GLOBE_AREAS={
- shapes,
+ shapes,installMapped,
  get:(name)=>shapes[name]||null,
  entries:()=>Object.entries(shapes).filter(([name])=>name!=='Токио'),
  counts,
- credits:'Curated schematic classroom geometry. Countries: Natural Earth / local world-110m TopoJSON.',
+ credits:'Elevation: Mapzen DEM; national park polygons: WDPCA GIS (UNEP-WCMC / IUCN); teaching regions: schematic; countries: Natural Earth.',
  warning:'Illustrative regions. Boundaries are not measured, official or suitable for location decisions.'
 };
 })();
