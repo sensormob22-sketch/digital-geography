@@ -386,7 +386,7 @@ function drawPoints(){
  VECTOR_MAP.draw?.(over,vectorGeo||geo,project,zoom,mapMode,w,h,camera);
  HYDRO_RENDER.draw?.(over,hydroData,project,zoom,mapMode,null,camera);
  if(grade===9)HYDRO_RENDER.draw?.(over,belarusHydro,project,zoom,mapMode,12,camera);
- AREA_RENDER.draw?.(over,visibleMap(),chosen,AREAS,project,zoom,mapMode);
+ if(!(chosen&&activeWater?.kind==='lakes'))AREA_RENDER.draw?.(over,visibleMap(),chosen,AREAS,project,zoom,mapMode);
 
  let labelPoint=null;
  visibleMap().forEach(o=>{const p=project(o.lat*RAD,o.lon*RAD);if(p.vis<.04)return;
@@ -553,7 +553,18 @@ async function loadBelarusHydrology(){
  try{
   const r=await fetch('./belarus-hydrology-10m.json');
   if(!r.ok)throw Error('HTTP '+r.status);
-  belarusHydro=await r.json();document.documentElement.dataset.belarusHydro='ready';if(chosen&&isWater(chosen)){activeWater=WATER_FOCUS.matching?.(chosen,hydroData,belarusHydro)||null;startPulse()}redraw();
+  belarusHydro=await r.json();document.documentElement.dataset.belarusHydro='ready';
+  // Prefer actual Natural Earth polygon rings over the old artificial ellipses.
+  for(const [name,lat,lon,type] of [
+   ['Нарочь',54.86,26.73,'Озеро'],['Освейское',56.05,28.15,'Озеро'],
+   ['Червоное',52.38,27.75,'Озеро'],['Вилейское водохранилище',54.38,27.05,'Водохранилище']]){
+   const candidate=WATER_FOCUS.matching?.({rawName:name,lat,lon,rawType:type},hydroData,belarusHydro);
+   if(candidate?.kind==='lakes'&&candidate?.f?.paths?.length){
+    AREAS.installMapped?.(name,{quality:'hydrography',source:'Natural Earth 1:10m',
+     rings:candidate.f.paths.filter(p=>p.length>=4).map(p=>p.map(([x,y])=>[y,x]))});
+   }
+  }
+if(chosen&&isWater(chosen)){activeWater=WATER_FOCUS.matching?.(chosen,hydroData,belarusHydro)||null;startPulse()}redraw();
  }catch(e){console.warn('Belarus 10m water layer unavailable',e);document.documentElement.dataset.belarusHydro='unavailable'}
 }
 async function loadTerrainRegions(){
