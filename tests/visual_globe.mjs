@@ -95,6 +95,45 @@ try{
  assert.equal(await page.locator('.animated-class-link').count(),6,'Six cards must also appear on phones');
  const widthMobile=await page.evaluate(()=>({doc:document.documentElement.scrollWidth,viewport:innerWidth}));
  assert(widthMobile.doc<=widthMobile.viewport+4,'Mobile grade cards overflow: '+JSON.stringify(widthMobile));
+// Check the actual embedded globe, not just a standalone page. The previous
+// regression left a 300px-wide sidebar column and squeezed the globe into
+// the few pixels remaining on small screens.
+ for(const w of [320,390,768]){
+  await page.setViewportSize({width:w,height:844});
+  await page.goto(BASE+'/#nomenclature/9',{waitUntil:'domcontentloaded'});
+  await page.locator('#geographyGlobe').waitFor({timeout:12000});
+  await page.waitForFunction(()=>{
+   const f=document.getElementById('geographyGlobe');
+   return f?.contentDocument?.getElementById('stage')?.getBoundingClientRect().width>50;
+  },{timeout:15000});
+  const mobileLayout=await page.locator('#geographyGlobe').evaluate(frame=>{
+   const doc=frame.contentDocument;
+   const stage=doc.getElementById('stage').getBoundingClientRect();
+   const sidebar=doc.getElementById('globeSidebar').getBoundingClientRect();
+   const container=doc.getElementById('globeLayout').getBoundingClientRect();
+   return {frame:frame.getBoundingClientRect().width,stageWidth:stage.width,
+    sidebarWidth:sidebar.width,stageBottom:stage.bottom,
+    sidebarTop:sidebar.top,layoutWidth:container.width,
+    scrollWidth:doc.documentElement.scrollWidth,viewportWidth:doc.defaultView.innerWidth};
+  });
+  assert(mobileLayout.stageWidth/mobileLayout.frame>.87,
+   'Mobile globe squeezed to a narrow strip: '+w+' '+JSON.stringify(mobileLayout));
+  assert(Math.abs(mobileLayout.stageWidth-mobileLayout.sidebarWidth)<5,
+   'Globe and nomenclature should occupy the same full-width column: '+JSON.stringify(mobileLayout));
+  assert(mobileLayout.sidebarTop>=mobileLayout.stageBottom-2,
+   'Nomenclature must be below the globe on '+w+'px: '+JSON.stringify(mobileLayout));
+  assert(mobileLayout.scrollWidth<=mobileLayout.viewportWidth+4,
+   'Embedded globe overflows horizontally: '+JSON.stringify(mobileLayout));
+  console.log('EMBEDDED_MOBILE_GLOBE_LAYOUT_OK',w,JSON.stringify(mobileLayout));
+  if(w===390){
+   const mobileGlobeShot=path.join(dir,'embedded_globe_mobile_390_ru.jpg');
+   await page.screenshot({path:mobileGlobeShot,type:'jpeg',quality:76,fullPage:false});
+   emit('embedded_globe_mobile_390_ru',mobileGlobeShot);
+  }
+ }
+ await page.setViewportSize({width:390,height:844});
+ await page.goto(BASE+'/#practice',{waitUntil:'domcontentloaded'});
+ await page.locator('.animated-class-link').first().waitFor({timeout:12000});
  const practiceMobile=path.join(dir,'practice_cards_mobile_ru.jpg');
  await page.screenshot({path:practiceMobile,type:'jpeg',quality:72,fullPage:true});
  emit('practice_cards_mobile_ru',practiceMobile);
