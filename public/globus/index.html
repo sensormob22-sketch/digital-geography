@@ -368,9 +368,10 @@ function drawFocus(){
 }
 function drawPoints(){
  const cv=$('points');over.setTransform(dpr,0,0,dpr,0,0);over.clearRect(0,0,w,h);
- VECTOR_MAP.draw?.(over,vectorGeo||geo,project,zoom,mapMode,w,h);
- HYDRO_RENDER.draw?.(over,hydroData,project,zoom,mapMode);
- if(grade===9)HYDRO_RENDER.draw?.(over,belarusHydro,project,zoom,mapMode,12);
+ const camera={lon:longitude/RAD,lat:latitude/RAD};
+ VECTOR_MAP.draw?.(over,vectorGeo||geo,project,zoom,mapMode,w,h,camera);
+ HYDRO_RENDER.draw?.(over,hydroData,project,zoom,mapMode,null,camera);
+ if(grade===9)HYDRO_RENDER.draw?.(over,belarusHydro,project,zoom,mapMode,12,camera);
  AREA_RENDER.draw?.(over,visibleMap(),chosen,AREAS,project,zoom,mapMode);
 
  let labelPoint=null;
@@ -597,6 +598,7 @@ gesture.addEventListener('pointermove',e=>{
   if(!pinch){pinch={distance:pair.dist,zoom,lon:longitude,lat:latitude};pinchUsed=true}
   const next=clamp(pinch.zoom*pair.dist/pinch.distance,.55,MAX_ZOOM);
   zoom=next;
+  $('stage').dataset.zoom=zoom.toFixed(4);
   $('stage').dataset.zoomGesture=zoom.toFixed(4);
   redraw();return;
  }
@@ -633,10 +635,15 @@ function pointerFinish(e,cancel=false){
 gesture.addEventListener('pointerup',e=>pointerFinish(e));
 gesture.addEventListener('pointercancel',e=>pointerFinish(e,true));
 gesture.addEventListener('lostpointercapture',e=>{if(pointers.has(e.pointerId))pointerFinish(e,true)});
-gesture.addEventListener('wheel',e=>{e.preventDefault();cancelTravel();zoom=clamp(zoom*Math.exp(-e.deltaY*.0015),.55,MAX_ZOOM);redraw()},{passive:false});
+function applyManualZoom(value){
+ cancelTravel();zoom=clamp(value,.55,MAX_ZOOM);
+ $('stage').dataset.zoom=zoom.toFixed(4);
+ redraw();
+}
+gesture.addEventListener('wheel',e=>{e.preventDefault();applyManualZoom(zoom*Math.exp(-e.deltaY*.0015))},{passive:false});
 gesture.addEventListener('keydown',e=>{const d=.13;if(e.key==='ArrowLeft')longitude-=d;else if(e.key==='ArrowRight')longitude+=d;else if(e.key==='ArrowUp')latitude=clamp(latitude+d,-1.45,1.45);else if(e.key==='ArrowDown')latitude=clamp(latitude-d,-1.45,1.45);else return;e.preventDefault();cancelTravel();redraw()});
-$('plus').onclick=()=>{cancelTravel();zoom=clamp(zoom*1.35,.55,MAX_ZOOM);redraw()};
-$('minus').onclick=()=>{cancelTravel();zoom=clamp(zoom/1.35,.55,MAX_ZOOM);redraw()};
+$('plus').onclick=()=>applyManualZoom(zoom*1.35);
+$('minus').onclick=()=>applyManualZoom(zoom/1.35);
 $('reset').onclick=()=>{cancelTravel();target={zoom:grade===9?7:1,lon:(grade===9?28:27)*RAD,lat:(grade===9?53:30)*RAD};animate()};
 $('factClose').onclick=()=>{chosen=null;activeWater=null;stopPulse();selectedLabel();renderFact();renderList();redraw()};
 
