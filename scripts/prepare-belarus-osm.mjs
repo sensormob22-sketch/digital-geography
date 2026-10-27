@@ -54,7 +54,7 @@ function bounds(rings){
 }
 const output={source:'OpenStreetMap © contributors (ODbL); relation/way geometries downloaded during site build',regions:{}};
 let elements=[];
-for(const server of ['https://overpass.kumi.systems/api/interpreter','https://overpass-api.de/api/interpreter']){
+for(const server of ['https://overpass.private.coffee/api/interpreter','https://lz4.overpass-api.de/api/interpreter']){
  try{
   const response=await fetch(server,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','User-Agent':'DigitalGeographySchool/1.0'},body:new URLSearchParams({data:query}),signal:AbortSignal.timeout(30000)});
   if(!response.ok)throw Error('HTTP '+response.status);
