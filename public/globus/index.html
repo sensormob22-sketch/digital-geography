@@ -151,6 +151,9 @@ ru:['Учебный глобус','Географическая номенкла
 be:['Вучэбны глобус','Геаграфічная наменклатура · 6–11 класы','На сайт','клас','ДАСЛЕДУЙ ЗЯМЛЮ','Выберы аб’ект са спіса','Аб’екты на карце','Пошук геаграфічнага аб’екта','аб’ектаў','тэматычных груп','Не знойдзена','Праграма Беларусі 2025 г.','Праграма Беларусі 2026 г.','Контуры прыродных рэгіёнаў і агламерацый схематычныя, іх межы прыблізныя. Для астатніх аб’ектаў паказаны кропкі-арыенціры.','Для 10–11 класаў паказаны вучэбныя прыклады: рэйтынгі трэба абнаўляць.'],
 en:['Learning globe','Geographic names · Grades 6–11','Back to site','grade','EXPLORE EARTH','Pick an object from the list','Objects on the globe','Search locations','places','topic groups','No matching places','Belarus curriculum 2025','Belarus curriculum 2026','Contours of natural regions and urban agglomerations are schematic, not surveyed boundaries. Other objects remain reference points.','Grades 10–11 include illustrative examples; changing rankings need to be kept up to date.']};
 const t=n=>i18n[lang][n],escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// OSM-only protected area outlines replace inaccurate classroom ellipses.
+const authoritativeOnly=['Беловежская пуща','Браславские озёра (нацпарк)','Припятский','Нарочанский','Березинский биосферный заповедник','Червоное','Вилейское водохранилище'];
+for(const name of authoritativeOnly)if(AREAS.shapes)delete AREAS.shapes[name];
 let groups=[],chosen=null,filter='',openGroup=0,longitude=(grade===9?28:27)*RAD,latitude=(grade===9?53:30)*RAD,zoom=grade===9?7:1,target=null,geo=null,gl=null,program=null,texture=null,over=$('points').getContext('2d'),focusCtx=$('focusLayer').getContext('2d'),w=0,h=0,dpr=1,queued=false;
 let mapMode='physical',reliefImage=null,textureCanvas=null,vectorGeo=null,hydroData=null,belarusHydro=null,flight=null,flightFrame=0,activeWater=null,pulseRAF=0,pulseLast=0,belarusTexture=null,belarusImage=null,belarusMeta=null;
 
@@ -550,6 +553,23 @@ async function loadBelarusHydrology(){
   belarusHydro=await r.json();document.documentElement.dataset.belarusHydro='ready';if(chosen&&isWater(chosen)){activeWater=WATER_FOCUS.matching?.(chosen,hydroData,belarusHydro)||null;startPulse()}redraw();
  }catch(e){console.warn('Belarus 10m water layer unavailable',e);document.documentElement.dataset.belarusHydro='unavailable'}
 }
+async function loadBelarusProtected(){
+ try{
+  const response=await fetch('./protected-belarus-osm.json');
+  if(!response.ok)throw Error('HTTP '+response.status);
+  const data=await response.json(),regions=data.regions||{};
+  let total=0;
+  for(const [name,shape] of Object.entries(regions)){
+   if(!authoritativeOnly.includes(name)||shape.quality!=='osm')continue;
+   if(shape.rings?.some(r=>r.length>=8)){AREAS.shapes[name]=shape;total++}
+  }
+  document.documentElement.dataset.protectedContours=String(total);
+  if(chosen)redraw();
+ }catch(error){
+  console.warn('OSM protected region contours unavailable',error);
+  document.documentElement.dataset.protectedContours='0';
+ }
+}
 async function loadHydrology(){
  try{
   const res=await fetch('./hydrology-50m.json');
@@ -691,6 +711,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('globeLayout').cl
 new ResizeObserver(resize).observe($('stage'));
 $('legendPanel').addEventListener('toggle',()=>requestAnimationFrame(resize));
 window.addEventListener('resize',resize);
-compileGroups();mapMode=grade>=10?'political':'physical';initGL();labels();resize();loadGeometry();loadRelief();loadHydrology();loadBelarusHydrology();loadBelarusRelief();redraw();
+compileGroups();mapMode=grade>=10?'political':'physical';initGL();labels();resize();loadGeometry();loadRelief();loadHydrology();loadBelarusProtected();loadBelarusHydrology();loadBelarusRelief();redraw();
 })();
 </script></body></html>
