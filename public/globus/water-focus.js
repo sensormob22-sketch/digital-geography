@@ -10,7 +10,7 @@ const aliases={
  'Река Парана':'Parana','Река Маккензи':'Mackenzie','Янцзы':'Yangtze',
  'Хуанхэ':'Huang He','Обь':'Ob','Днепр':'Dnieper','Днестр':'Dniester',
  'Березина':'Berezina','Западная Двина':'Daugava','Припять':'Pripyat',
- 'Неман':'Neman','Вилия':'Neris','Западный Буг':'Western Bug','Сож':'Sozh',
+ 'Неман':'Nemunas','Вилия':'Neris','Западный Буг':'Western Bug','Сож':'Sozh',
  'Птичь':'Ptich','Свислочь':'Svisloch','Байкал':'Baikal',
  'Виктория':'Victoria','Верхнее':'Superior','Мичиган':'Michigan',
  'Гурон':'Huron','Эри':'Erie','Онтарио':'Ontario','Великие озёра':'Great Lakes',
@@ -61,6 +61,18 @@ function matching(o,global,regional){
  if(!options.length)return null;
  options.sort((a,b)=>a.distance-b.distance);
  const chosen=options[0];
+ // Natural Earth often divides a river at tributaries or across states.
+ // Highlight the compatible same-name sections, not only the closest fragment.
+ // For Belarus keep matching local segments close to the selected river.
+ if(kind==='rivers'){
+  const threshold=regional?Math.max(1.8,Math.min(7,chosen.distance+4)):Math.max(5,Math.min(19,chosen.distance+12));
+  const joined=options.filter(x=>x.source===chosen.source&&x.distance<=threshold);
+  if(joined.length>1){
+   const paths=joined.flatMap(x=>x.f.paths);
+   chosen.f={...chosen.f,paths};
+   chosen.parts=joined.length;
+  }
+ }
  // For a named river, the object's reference point may be midstream rather
  // than at the geographic centroid. Only reject extreme same-name collisions.
  if(chosen.distance>12&&chosen.source!=='regional')return null;
