@@ -23,4 +23,15 @@ assert(!globe.includes('data-lang="ru"'),'Globe must not display independent lan
 assert(globe.includes("localStorage.getItem('geo_site_lang')"),'Globe must read one global site language');
 assert(globe.includes('belarus-relief-9.png')&&globe.includes('belarusTexture'),'Grade-9 DEM must be a separate regional texture');
 assert(globe.includes('grade===9?7:1'),'Grade-9 globe camera must not zoom back to whole Earth');
-console.log('Homepage, theme, accessibility, centralized RU/BE/EN, 9th-grade DEM and camera checks passed');
+assert(!shell.includes('<PageFooter />'),'No redundant bottom footer should remain');
+assert(app.includes('globe-area--immersive'),'Full-width globe page should use single unified layout');
+assert(app.includes("+'&embed=1'"),'Embedded globe must hide duplicate header and grade switch');
+assert(app.includes('class-link-illustrated'),'Grade tiles require animated geography scenes');
+for(const grade of [6,7,8,9,10,11])assert(app.includes(" "+grade+":{")||app.includes(" "+grade+":{tone:"),'Missing grade '+grade+' theme');
+const globeCSS=fs.readFileSync(path.join(root,'public/globus/index.html'),'utf8');
+assert(globeCSS.includes('embedded-globe .top')&&globeCSS.includes('embedded-globe .grades'),'Embedded duplicate toolbar must be hidden');
+assert(globeCSS.includes('for(const other of'),'Nomenclature group accordion must close others');
+const style=fs.readFileSync(path.join(root,'public/assets/styles.css'),'utf8');
+assert(style.includes('grade-scenes')&&style.includes('prefers-reduced-motion'),'Looping responsive tiles must respect reduced motion');
+assert(style.includes('globe-frame{height:max('),'Globe must fill freed vertical area');
+console.log('Homepage, unified globe layout, animated class tiles, shared language and removed footer checks passed');
