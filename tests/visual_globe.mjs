@@ -93,6 +93,7 @@ try{
  await choose('Альпы');
  assert.equal(await page.locator('#stage').getAttribute('data-marker-label'),'Альпы');
  assert.equal(await page.locator('#stage').getAttribute('data-flight'),'done');
+ assert.equal(await page.locator('#stage').getAttribute('data-flight-history'),'out→rotate→in→done','Flight must visit every phase');
  await choose('Гималаи');
  let pix=await pixelSummary();
  assert(pix.opaque>200,'Physical globe overlay is blank');
