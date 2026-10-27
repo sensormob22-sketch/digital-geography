@@ -29,6 +29,14 @@ const rivers=await event('fetch',{request:{method:'GET',url:base+'globus/hydrolo
 const riversData=JSON.parse(await rivers.text());if(!riversData.rivers.length||!riversData.lakes.length)throw Error('Offline rivers or lakes missing');
 const image=await event('fetch',{request:{method:'GET',url:base+'globus/relief-nasa-8192.jpg',mode:'cors'}});
 const imageBytes=Buffer.from(await image.arrayBuffer());if(imageBytes.length<1000000||imageBytes[0]!==255||imageBytes[1]!==216)throw Error('Offline NASA 8K relief missing');
+const belarusPNG=await event('fetch',{request:{method:'GET',url:base+'globus/belarus-relief-9.png',mode:'cors'}});
+const pic=Buffer.from(await belarusPNG.arrayBuffer());
+if(pic.length<100000||pic[0]!==137||pic[1]!==80||pic[2]!==78||pic[3]!==71)throw Error('Offline Belarus hypsometric DEM missing');
+const meta=await event('fetch',{request:{method:'GET',url:base+'globus/belarus-relief-9.json',mode:'cors'}});
+const metaData=JSON.parse(await meta.text());
+if(metaData.range[0]>125||metaData.range[1]<260||metaData.grades[0]!==9)throw Error('Belarus elevation range invalid');
+const welcome=await event('fetch',{request:{method:'GET',url:base+'assets/home.css',mode:'cors'}});
+if(!(await welcome.text()).includes('home-welcome'))throw Error('Offline welcome design missing');
 for(const asset of ['disclosures.css','disclosures.js']){const response=await event('fetch',{request:{method:'GET',url:base+'assets/'+asset,mode:'cors'}});if((await response.text()).length<200)throw Error('Project disclosure framework missing '+asset)}
 console.log('offline NASA relief, natural rivers/lakes, globe, translations, reference notes and contours: ok');
 offline=false;console.log('remove',await message('REMOVE_WORK'));console.log('final',await message('CHECK_WORK'));})().catch(e=>{console.error(e);process.exit(1)});
