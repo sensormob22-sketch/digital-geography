@@ -21,6 +21,8 @@ jobs:
         run: npm run test:sw
       - name: Проверка глобуса и переводов
         run: npm run test:globe
+      - name: Проверка стартовой страницы и единого языка
+        run: npm run test:home
       - name: Проверка площадных контуров и агломераций
         run: npm run test:areas
       - name: Сборка статического сайта
