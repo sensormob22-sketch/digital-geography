@@ -41,3 +41,53 @@ html[data-theme="dark"] .class-link:hover{background:#453477;color:#fff}
 @media(max-width:1040px){.globe-frame{height:1120px}}
 @media(max-width:780px){.globe-area{border-radius:18px}.globe-area-title{padding:16px}.globe-area-title h2{font-size:19px}.globe-frame{height:1110px}}
 @media(max-width:430px){.globe-frame{height:1100px}.globe-full-link{width:100%}}
+
+/* Only the welcome page exposes the one global language selector. */
+.language-switch[hidden]{display:none!important}
+
+/* Unified section page: no redundant heading, no footer, more map area. */
+.page-content:has(.globe-area--immersive){max-width:none;width:100%;padding:9px 10px 8px;min-height:calc(100dvh - 77px)}
+.globe-area--immersive{margin-top:0;border-radius:18px;box-shadow:none}
+.globe-single-title{font-size:clamp(19px,2.4vw,27px);margin:0;padding:12px 19px;color:var(--ink);line-height:1.2;font-weight:850;letter-spacing:-.04em}
+.globe-area--immersive .globe-frame{height:max(715px,calc(100dvh - 156px));min-height:590px}
+.page-content:has(.globe-area--immersive) .section-title-row{display:none}
+.page-content:has(.globe-area--immersive) .hero{display:none}
+.page-content:has(.globe-area--immersive) .globe-area-title{display:none}
+@media(max-width:780px){
+ .page-content:has(.globe-area--immersive){padding:6px;min-height:calc(100dvh - 66px)}
+ .globe-area--immersive{border-radius:12px}
+ .globe-area--immersive .globe-frame{height:max(1070px,calc(100dvh - 123px))}
+ .globe-single-title{padding:12px;font-size:20px}
+}
+/* Animated, distinct geography scenes on each grade tile.
+   CSS-only layers cycle even on mobile with no network/runtime cost. */
+.class-strip{grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin:20px 0 8px}
+.class-link-illustrated{height:225px;min-height:0;position:relative;display:flex;align-items:stretch;justify-content:flex-start;flex-direction:column;gap:10px;overflow:hidden;
+ text-decoration:none;padding:17px;background:linear-gradient(146deg,#292055,#3b2a71);border:1px solid #b3a0eb66;color:white!important;box-shadow:0 12px 30px #130e352d}
+.class-link-illustrated:hover{background:linear-gradient(146deg,#38266e,#4d3695);transform:translateY(-3px)}
+.class-link-illustrated>strong{position:relative;z-index:3;text-align:left;font-size:19px;letter-spacing:-.02em}
+.class-link-arr{position:absolute;right:14px;top:13px;z-index:3;filter:brightness(3)}
+.grade-scene{--g1:#55a5da;--g2:#3c599c;position:relative;flex:1;min-height:144px;border-radius:13px;display:grid;place-items:center;overflow:hidden;
+ background:radial-gradient(circle at 74% 16%,#ffffff53,transparent 34%),linear-gradient(135deg,var(--g1),var(--g2));isolation:isolate}
+.grade-scene--sun{--g1:#c48735;--g2:#3e7fa5}
+.grade-scene--ocean{--g1:#35a9be;--g2:#154e97}
+.grade-scene--tectonic{--g1:#ac6751;--g2:#5b3d73}
+.grade-scene--belarus{--g1:#5ba57e;--g2:#215a62}
+.grade-scene--population{--g1:#6b7ed1;--g2:#3b376f}
+.grade-scene--global{--g1:#9c69ba;--g2:#234b84}
+.grade-orbit{position:absolute;border:1.5px solid #ffffff61;border-radius:50%;width:70%;height:118%;transform:rotate(26deg);animation:grade-orbit 12s linear infinite}
+.grade-orbit-b{width:112%;height:52%;animation-duration:9s;animation-direction:reverse;opacity:.75}
+.grade-horizon{position:absolute;left:-10%;right:-10%;bottom:-65%;height:96%;border-radius:50% 50% 0 0;background:#07173855;border-top:2px solid #ffffff55}
+.grade-frame{position:absolute;inset:0;display:grid;place-items:center;opacity:0;animation:grade-scenes 12s linear infinite}
+.grade-frame-0{animation-delay:0s}.grade-frame-1{animation-delay:4s}.grade-frame-2{animation-delay:8s}
+.grade-symbol{font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif;font-size:clamp(45px,5vw,70px);display:block;text-shadow:0 12px 23px #111a4c77;filter:drop-shadow(0 8px 11px #111b3c66);animation:grade-bob 4s ease-in-out infinite}
+.grade-stars{position:absolute;right:10%;top:13%;font-size:24px;letter-spacing:22px;color:#fff9;text-shadow:0 0 10px white}
+.grade-scene-caption{position:absolute;left:12px;bottom:9px;color:#fff;font-size:11px;font-weight:850;letter-spacing:.03em;z-index:4;
+ background:#0b1c498c;border:1px solid #fff2;padding:5px 10px;border-radius:8px;backdrop-filter:blur(4px)}
+@keyframes grade-scenes{0%{opacity:0;transform:scale(.86) rotate(-7deg)}5%,28%{opacity:1;transform:scale(1) rotate(0deg)}33.333%,100%{opacity:0;transform:scale(1.14) rotate(7deg)}}
+@keyframes grade-orbit{to{transform:rotate(386deg)}}
+@keyframes grade-bob{50%{transform:translateY(-8px) rotate(5deg)}}
+@media(max-width:970px){.class-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.class-link-illustrated{height:190px}}
+@media(max-width:560px){.class-strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.class-link-illustrated{height:184px;padding:11px}.grade-symbol{font-size:48px}.grade-scene{min-height:120px}.grade-scene-caption{font-size:9px;left:6px;bottom:6px}}
+@media(max-width:365px){.class-strip{grid-template-columns:1fr}.class-link-illustrated{height:185px}}
+@media(prefers-reduced-motion:reduce){.grade-orbit,.grade-symbol{animation:none}.grade-frame{animation:none;opacity:0}.grade-frame-0{opacity:1}}

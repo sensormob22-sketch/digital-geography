@@ -1,11 +1,9 @@
 /* Платформа «Цифровая география». Service Worker: core shell + opt-in works. */
-const VERSION='geo-core-2026-10-v10';
+const VERSION='geo-core-2026-10-v19';
 const CORE=`${VERSION}-shell`;
 const WORKS='geo-offline-works-v6';
 const BASE=new URL(self.registration.scope);
-const coreFiles=['./','index.html','offline.html','manifest.webmanifest','assets/styles.css','assets/app.js','assets/pwa.js','assets/favicon.svg','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/icon-maskable-512.png','globus/index.html','globus/objects.js','globus/translations.js','globus/world-110m.json'];
-const RELIEF_IMAGE='https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Elevation.jpg/1280px-Elevation.jpg';
-const RELIEF_CACHE='geo-globe-relief-v1'; 
+const coreFiles=['./','index.html','offline.html','manifest.webmanifest','assets/styles.css','assets/home.css','assets/disclosures.css','assets/disclosures.js','assets/app.js','assets/pwa.js','assets/favicon.svg','assets/icons/icon-192.png','assets/icons/icon-512.png','assets/icons/icon-maskable-512.png','globus/index.html','globus/objects.js','globus/translations.js','globus/facts.js','globus/areas.js','globus/area-renderer.js','globus/hydrology-renderer.js','globus/water-focus.js','globus/vector-map.js','globus/world-110m.json','globus/world-50m.json','globus/hydrology-50m.json','globus/relief-nasa-8192.jpg','globus/belarus-relief-9.png','globus/belarus-relief-9.json','globus/parks-belarus.json','globus/belarus-regions-dem.json','globus/belarus-rivers-osm.json','globus/belarus-hydrology-10m.json'];
 const inScope=(url)=>url.origin===self.location.origin && url.pathname.startsWith(BASE.pathname);
 const absolute=path=>new URL(path,BASE).href;
 const workURL=absolute('works/9/3/index.html');
@@ -43,16 +41,6 @@ self.addEventListener('activate',event=>{
 self.addEventListener('fetch',event=>{
   const request=event.request;
   if(request.method!=='GET')return;
-  if(request.url===RELIEF_IMAGE){
-    event.respondWith((async()=>{
-      const cache=await caches.open(RELIEF_CACHE);
-      const saved=await cache.match(request);
-      if(saved)return saved;
-      try{const image=await fetch(request);if(image.ok){await cache.put(request,image.clone());}return image}
-      catch{return Response.error()}
-    })());
-    return;
-  }
   if(!inScope(new URL(request.url)))return;
   const uri=new URL(request.url);
   const isWork=uri.pathname===new URL(workURL).pathname || uri.pathname===new URL(absolute('works/9/3/')).pathname;
