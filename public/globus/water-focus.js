@@ -39,6 +39,19 @@ function featureDistance(f,ref){
  }
  return min;
 }
+function lakeContains(feature,lon,lat){
+ for(const ring of feature.paths||[]){
+  if(ring.length<4)continue;
+  let inside=false;
+  for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+   const a=ring[i],b=ring[j];
+   if((a[1]>lat)!==(b[1]>lat) &&
+      lon<(b[0]-a[0])*(lat-a[1])/(b[1]-a[1])+a[0])inside=!inside;
+  }
+  if(inside)return true;
+ }
+ return false;
+}
 function matching(o,global,regional){
  if(!o)return null;
  const kind=/Озеро|Группа озёр|Море-озеро|Водохранилище/.test(o.rawType||'')?'lakes':
@@ -54,18 +67,13 @@ function matching(o,global,regional){
   const byName=fName.length>1&&names.some(n=>fName===n||n.length>5&&(fName.startsWith(n+' ')||n.startsWith(fName+' ')));
   if(byName)candidates.push({f:feature,source:pool.source,d});
  }
- // Natural Earth 1:10m Belarus lakes often have EMPTY names even when their
- // polygons are correctly surveyed. Only use a uniquely near regional lake.
- // Lake Chervonoye's reference point is not near a confidently identified
- // Natural Earth polygon; a neighbouring unnamed polygon was wrongly used.
- // Require a validated named/OSM boundary instead of fabricating this lake.
- if(kind==='lakes'&&o.rawName==='Червоное'&&!candidates.length)return null;
+ // An unnamed lake is accepted only when its ACTUAL polygon contains the
+ // reference point. Selecting the nearest unnamed lake by distance alone
+ // previously highlighted the wrong outline for Lake Chervonoye.
  if(kind==='lakes'&&!candidates.length&&regional){
-  const near=(regional.lakes||[]).filter(f=>f.paths?.length)
-   .map(f=>({f,d:featureDistance(f,ref)})).sort((a,b)=>a.d-b.d);
-  const first=near[0],second=near[1];
-  if(first&&first.d<.16&&(!second||second.d>first.d*1.65)){
-   return {kind,source:'regional',distance:first.d,f:{...first.f,name:o.rawName}};
+  const exact=(regional.lakes||[]).filter(f=>f.paths?.length&&lakeContains(f,ref.lon,ref.lat));
+  if(exact.length===1){
+   return {kind,source:'regional',distance:0,f:{...exact[0],name:o.rawName}};
   }
  }
  if(!candidates.length)return null;
