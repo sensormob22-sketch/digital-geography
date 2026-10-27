@@ -117,6 +117,7 @@ try{
  await wait(200);
  assert.match(await page.locator('#factHeading').innerText(),/About this location/);
  assert.match(await page.locator('#factName').innerText(),/BosWash/);
+ await page.waitForFunction(()=>document.getElementById('stage').dataset.markerLabel.startsWith('BosWash'),{timeout:8000});
  assert.match(await page.locator('#legendTitle').innerText(),/Map legend/);
  assert.match(await page.locator('#hint').innerText(),/Drag to rotate/);
  assert.equal(await page.locator('#plus').getAttribute('title'),'Zoom in');
