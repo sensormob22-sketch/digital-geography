@@ -131,10 +131,10 @@ shapes['Токио']=shapes['Токио — Иокогама'];
 const counts={natural:0,urban:0};
 for(const [name,obj] of Object.entries(shapes)){if(name!=='Токио')counts[obj.kind]++;}
 function installMapped(name,item){
- if(!item||item.quality!=='mapped'||!Array.isArray(item.rings)||!item.rings.some(r=>r.length>=4))return false;
+ if(!item||!['mapped','dem-derived','hydrography'].includes(item.quality)||!Array.isArray(item.rings)||!item.rings.some(r=>r.length>=4))return false;
  const clean=item.rings.filter(r=>r.length>=4&&r.every(p=>Array.isArray(p)&&p.length===2&&Number.isFinite(p[0])&&Number.isFinite(p[1])));
  if(!clean.length)return false;
- shapes[name]={name,kind:'natural',quality:'mapped',source:item.source||'WDPCA GIS',rings:clean};
+ shapes[name]={name,kind:'natural',quality:item.quality,source:item.source||'GIS / DEM',rings:clean};
  return true;
 }
 window.GLOBE_AREAS={
