@@ -77,6 +77,32 @@ try{
  const homePicture=path.join(dir,'homepage_welcome_ru.jpg');
  await page.screenshot({path:homePicture,type:'jpeg',quality:72,fullPage:true});
  emit('homepage_welcome_ru',homePicture);
+ // Embedded desktop globe: one visible title and no duplicate grade buttons.
+ await page.goto(BASE+'/#practice',{waitUntil:'domcontentloaded'});
+ await page.locator('.class-link-illustrated').first().waitFor();
+ assert.equal(await page.locator('.class-link-illustrated').count(),6);
+ assert.match(await page.locator('.hero h1').innerText(),/Практические работы по географии/);
+ assert.equal((await page.locator('.hero p').innerText()).trim(),'');
+ assert.equal(await page.locator('.grade-scene').count(),6);
+ assert.equal(await page.locator('.grade-frame').count(),18);
+ assert(await page.locator('.grade-frame-0').first().evaluate(e=>getComputedStyle(e).animationName==='grade-scenes'),
+ 'Geography grade cards should animate without JavaScript');
+ assert.equal(await page.locator('.footer').count(),0,'Bottom footer must be removed');
+ const cardsShot=path.join(dir,'practice_grade_cards_ru.jpg');
+ await page.screenshot({path:cardsShot,type:'jpeg',quality:74,fullPage:true});
+ emit('practice_grade_cards_ru',cardsShot);
+ await page.goto(BASE+'/#nomenclature/6',{waitUntil:'domcontentloaded'});
+ await page.locator('#geographyGlobe').waitFor();
+ const frame=page.frameLocator('#geographyGlobe');
+ await frame.locator('#groups .place').first().waitFor({timeout:25000});
+ assert.equal(await page.locator('.globe-single-title').count(),1);
+ assert.equal(await page.locator('.globe-area-title').count(),0);
+ assert(!await frame.locator('.top').isVisible(),'Globe inside site must hide duplicate header');
+ assert(!await frame.locator('.grades').isVisible(),'Only sidebar should choose grade in desktop embedded mode');
+ assert(await page.locator('#geographyGlobe').evaluate(e=>e.clientWidth>500),'Embedded globe must fill page width');
+ const embeddedShot=path.join(dir,'embedded_globe_grade6_ru.jpg');
+ await page.screenshot({path:embeddedShot,type:'jpeg',quality:73,fullPage:true});
+ emit('embedded_globe_grade6_ru',embeddedShot);
  await open('/globus/index.html?grade=6&lang=en&theme=light');
  assert.equal(await page.locator('.languages [data-lang]').count(),0,'No internal language toggles');
  assert.equal(await page.locator('html').getAttribute('lang'),'ru','URL lang must not override homepage');
@@ -114,6 +140,15 @@ try{
  assert.equal(await page.locator('#stage').getAttribute('data-marker-label'),'Гималаи');
  // Native accordion: collapsing legend gives the flexible nomenclature list room.
  const beforePanel=await page.locator('.sidebar-content .panel').evaluate(e=>e.getBoundingClientRect().height);
+ // A native accordion expands only one group at a time.
+ const groupEls=page.locator('#groups details.group');
+ const firstGroup=groupEls.first(),secondGroup=groupEls.nth(1);
+ if(!await firstGroup.evaluate(e=>e.open))await firstGroup.locator('summary').click();
+ await secondGroup.locator('summary').click();
+ await page.waitForFunction(()=>[...document.querySelectorAll('#groups details.group[open]')].length===1);
+ assert(await secondGroup.evaluate(e=>e.open),'Selected group must stay open');
+ await firstGroup.locator('summary').click();
+ await page.waitForFunction(()=>[...document.querySelectorAll('#groups details.group[open]')].length===1);
  assert(!await page.locator('#legendPanel').evaluate(e=>e.open),'Legend should be collapsed initially');
  await page.locator('#legendPanel summary').click();await wait(450);
  const expandedPanel=await page.locator('.sidebar-content .panel').evaluate(e=>e.getBoundingClientRect().height);
@@ -194,6 +229,18 @@ try{
  assert.equal(await page.locator('html').getAttribute('lang'),'be');
  await page.waitForFunction(()=>document.documentElement.dataset.belarusRelief==='ready',{timeout:30000});
  await page.waitForFunction(()=>document.documentElement.dataset.belarusHydro==='ready',{timeout:30000});
+ await page.waitForFunction(()=>document.documentElement.dataset.reliefRegions==='6',{timeout:30000});
+ await page.waitForFunction(()=>document.documentElement.dataset.parkGeometry==='mapped',{timeout:30000});
+ const shapes=await page.evaluate(()=>({
+  ridge:window.GLOBE_AREAS.get('Белорусская гряда')?.quality,
+  novogrudok:window.GLOBE_AREAS.get('Новогрудская возвышенность')?.quality,
+  park:window.GLOBE_AREAS.get('Беловежская пуща')?.quality
+ }));
+ assert.equal(shapes.ridge,'dem-derived');
+ assert.equal(shapes.novogrudok,'dem-derived');
+ assert.equal(shapes.park,'mapped');
+ console.log('BELARUS_REAL_CONTOURS',JSON.stringify(shapes));
+
  assert.match(await page.locator('#mapMode').innerText(),/Фізічны/);
  const belarusName=await page.evaluate(()=>window.GLOBE_TRANSLATIONS.name('Белорусская гряда','be'));
  await page.evaluate(()=>{
