@@ -106,6 +106,19 @@ body.geo-no-scroll{overflow:hidden}
  .layout:fullscreen .stage,.layout.is-fullscreen .stage{border-radius:9px}
  .layout:fullscreen .sidebar-content,.layout.is-fullscreen .sidebar-content{height:max(370px,calc(100dvh - var(--globe-h) - 18px))}
 }
+
+body.embedded-globe .top,body.embedded-globe .grades{display:none!important}
+body.embedded-globe .layout{width:100%;max-width:none;margin:0;padding:7px;gap:9px;--globe-h:clamp(580px,calc(100dvh - 14px),1150px)}
+body.embedded-globe .layout .stage{border-radius:13px}
+body.embedded-globe .layout .sidebar-content{height:var(--globe-h)}
+@media(max-width:970px){
+ body.embedded-globe .layout{--globe-h:clamp(410px,58dvh,660px);gap:8px}
+ body.embedded-globe .layout .sidebar-content{height:clamp(500px,54dvh,850px)}
+}
+@media(max-width:570px){
+ body.embedded-globe .layout{padding:5px}
+ body.embedded-globe .layout .sidebar-content{height:clamp(470px,55dvh,760px)}
+}
 </style></head>
 <body>
 <header class="top"><div><h1 id="title">🌍 Учебный глобус</h1><p id="subtitle">Географическая номенклатура · 6–11 классы</p></div></header>
@@ -130,7 +143,7 @@ body.geo-no-scroll{overflow:hidden}
 <script defer src="../assets/disclosures.js"></script><script src="./hydrology-renderer.js"></script><script src="./water-focus.js"></script><script src="./objects.js"></script><script src="./translations.js"></script><script src="./facts.js"></script><script src="./areas.js"></script><script src="./area-renderer.js"></script><script src="./vector-map.js"></script>
 <script>
 (function(){'use strict';
-const $=id=>document.getElementById(id),pars=new URLSearchParams(location.search),RAW=window.GLOBE_CATALOG||{},TR=window.GLOBE_TRANSLATIONS||{},FACTS=window.GLOBE_FACTS||{},AREAS=window.GLOBE_AREAS||{},AREA_RENDER=window.GLOBE_AREA_RENDERER||{},VECTOR_MAP=window.GLOBE_VECTOR_MAP||{},HYDRO_RENDER=window.GLOBE_HYDROLOGY_RENDERER||{},WATER_FOCUS=window.GLOBE_WATER_FOCUS||{},RAD=Math.PI/180;
+sameRAW=window.GLOBE_CATALOG||{},TR=window.GLOBE_TRANSLATIONS||{},FACTS=window.GLOBE_FACTS||{},AREAS=window.GLOBE_AREAS||{},AREA_RENDER=window.GLOBE_AREA_RENDERER||{},VECTOR_MAP=window.GLOBE_VECTOR_MAP||{},HYDRO_RENDER=window.GLOBE_HYDROLOGY_RENDERER||{},WATER_FOCUS=window.GLOBE_WATER_FOCUS||{},RAD=Math.PI/180;
 let grade=+pars.get('grade')||7,lang='ru',theme=pars.get('theme')||'light';
 try{
  const saved=localStorage.getItem('geo_site_lang');
@@ -263,7 +276,8 @@ function renderList(){
  const hits=visible();
  const shown=groups.map(g=>({...g,objects:g.objects.filter(o=>hits.includes(o))})).filter(g=>g.objects.length);
  if(!shown.length){$('groups').innerHTML='<p class="empty">'+t(10)+'</p>';return}
- $('groups').innerHTML=shown.map(g=>'<details class="group geo-disclosure" data-id="'+g.id+'" '+(filter||g.id===openGroup?'open':'')+'><summary>'+escape(g.name)+'</summary><ul>'+g.objects.map(o=>'<li><button class="place '+(chosen?.id===o.id?'active':'')+(AREAS.get?.(o.rawName)?' has-contour '+AREAS.get(o.rawName).kind+'-contour':'')+'" data-obj="'+o.id+'"><span class="dot"></span><span><strong>'+escape(o.name)+'</strong><small>'+escape(o.type)+'</small></span></button></li>').join('')+'</ul></details>').join('');
+ if(!shown.some(g=>g.id===openGroup))openGroup=shown[0].id;
+ $('groups').innerHTML=shown.map(g=>'<details class="group geo-disclosure" data-id="'+g.id+'" '+(g.id===openGroup?'open':'')+'><summary>'+escape(g.name)+'</summary><ul>'+g.objects.map(o=>'<li><button class="place '+(chosen?.id===o.id?'active':'')+(AREAS.get?.(o.rawName)?' has-contour '+AREAS.get(o.rawName).kind+'-contour':'')+'" data-obj="'+o.id+'"><span class="dot"></span><span><strong>'+escape(o.name)+'</strong><small>'+escape(o.type)+'</small></span></button></li>').join('')+'</ul></details>').join('');
 }
 const wrap=n=>Math.atan2(Math.sin(n),Math.cos(n));
 const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
@@ -652,7 +666,15 @@ $('gradeButtons').addEventListener('click',e=>{const b=e.target.closest('[data-g
 window.addEventListener('storage',e=>{if(e.key==='geo_site_lang'&&['ru','be','en'].includes(e.newValue)){lang=e.newValue;const old=chosen?.id;compileGroups();chosen=all().find(o=>o.id===old)||null;labels();redraw()}});
 window.addEventListener('pageshow',()=>{try{const saved=localStorage.getItem('geo_site_lang');if(['ru','be','en'].includes(saved)&&saved!==lang){lang=saved;const old=chosen?.id;compileGroups();chosen=all().find(o=>o.id===old)||null;labels();redraw()}}catch(e){}});
 $('groups').addEventListener('click',e=>{const b=e.target.closest('[data-obj]');if(b){const item=all().find(v=>v.id===b.dataset.obj);if(item)choose(item)}});
-$('groups').addEventListener('toggle',e=>{if(e.target.matches('.group')&&e.target.open&&!filter)openGroup=+e.target.dataset.id},true);
+// Only one nomenclature category can be expanded at any time.
+$('groups').addEventListener('toggle',e=>{
+ const active=e.target;
+ if(!active.matches?.('.group')||!active.open)return;
+ openGroup=+active.dataset.id;
+ for(const other of $('groups').querySelectorAll('details.group')){
+  if(other!==active&&other.open)other.open=false;
+ }
+},true);
 $('search').addEventListener('input',e=>{filter=e.target.value.trim();renderList();redraw()});
 window.addEventListener('message',e=>{if(e.origin===location.origin&&e.data?.type==='geographyTheme'){theme=e.data.theme==='dark'?'dark':'light';document.documentElement.dataset.theme=theme}});
 function fullscreenActive(){return document.fullscreenElement===$('globeLayout')||$('globeLayout').classList.contains('is-fullscreen')}
@@ -679,6 +701,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('globeLayout').cl
 new ResizeObserver(resize).observe($('stage'));
 $('legendPanel').addEventListener('toggle',()=>requestAnimationFrame(resize));
 window.addEventListener('resize',resize);
+if(embedded)document.body.classList.add('embedded-globe');
 compileGroups();mapMode=grade>=10?'political':'physical';initGL();labels();resize();loadGeometry();loadRelief();loadHydrology();loadBelarusHydrology();loadBelarusRelief();redraw();
 })();
 </script></body></html>
