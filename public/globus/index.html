@@ -91,6 +91,7 @@
 @media(max-width:970px){.layout{--globe-h:clamp(480px,70dvh,730px)}.sidebar-content{height:var(--globe-h)}}
 @media(max-width:570px){.layout{--globe-h:clamp(450px,72dvh,680px)}.sidebar-content .panel{min-height:105px}.fact-card{padding:14px}.fact-title h2{font-size:17px}.fact-meta{grid-template-columns:minmax(108px,34%) minmax(0,1fr);column-gap:10px;row-gap:9px;font-size:11.5px}.fact-description{font-size:12.5px}}
 
+body.geo-no-scroll{overflow:hidden}
 /* Standard responsive fullscreen layout and fixed-proportion globe canvases. */
 .fullscreen-btn{font-family:"Segoe UI Symbol",system-ui,sans-serif;font-size:24px!important;font-weight:650}
 .layout:fullscreen,.layout.is-fullscreen{width:100vw;height:100dvh;max-width:none;position:fixed;inset:0;z-index:9900;overflow:auto;margin:0;padding:12px;background:#f7f5fc;--globe-h:calc(100dvh - 24px)}
@@ -217,9 +218,9 @@ function compileGroups(){
 function all(){return groups.flatMap(g=>g.objects)}
 function visible(){return all().filter(o=>o.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase()))}
 const helpText={
-ru:{hint:'⇄ Перетаскивайте для вращения · +/− масштаб',busy:'Загрузка глобуса…',failed:'Картографические контуры недоступны',zoomIn:'Увеличить масштаб',zoomOut:'Уменьшить масштаб',reset:'Вернуть начальный вид',gesture:'Вращайте глобус перетаскиванием. Используйте стрелки клавиатуры и колесо мыши.',stage:'Интерактивный учебный глобус',search:'Поиск географического объекта',fact:'Справка по объекту',title:'Учебный глобус — Цифровая география'},
-be:{hint:'⇄ Перацягвайце для вярчэння · +/− маштаб',busy:'Загрузка глобуса…',failed:'Картографічныя контуры недаступныя',zoomIn:'Павялічыць маштаб',zoomOut:'Паменшыць маштаб',reset:'Вярнуць пачатковы выгляд',gesture:'Круціце глобус перацягваннем. Карыстайцеся стрэлкамі клавіятуры і колам мышы.',stage:'Інтэрактыўны вучэбны глобус',search:'Пошук геаграфічнага аб’екта',fact:'Даведка пра аб’ект',title:'Вучэбны глобус — Лічбавая геаграфія'},
-en:{hint:'⇄ Drag to rotate · +/− to zoom',busy:'Loading globe…',failed:'Map outlines are unavailable',zoomIn:'Zoom in',zoomOut:'Zoom out',reset:'Reset globe view',gesture:'Drag to rotate the globe. Use arrow keys and the mouse wheel.',stage:'Interactive learning globe',search:'Search geographic objects',fact:'About this location',title:'Learning globe — Digital Geography'}
+ru:{hint:'⇄ Перетаскивайте для вращения · +/− масштаб',busy:'Загрузка глобуса…',failed:'Картографические контуры недоступны',zoomIn:'Увеличить масштаб',zoomOut:'Уменьшить масштаб',reset:'Вернуть начальный вид',gesture:'Вращайте глобус перетаскиванием. Используйте стрелки клавиатуры и колесо мыши.',stage:'Интерактивный учебный глобус',search:'Поиск географического объекта',fact:'Справка по объекту',fullscreenEnter:'Во весь экран',fullscreenExit:'Выйти из полного экрана',title:'Учебный глобус — Цифровая география'},
+be:{hint:'⇄ Перацягвайце для вярчэння · +/− маштаб',busy:'Загрузка глобуса…',failed:'Картографічныя контуры недаступныя',zoomIn:'Павялічыць маштаб',zoomOut:'Паменшыць маштаб',reset:'Вярнуць пачатковы выгляд',gesture:'Круціце глобус перацягваннем. Карыстайцеся стрэлкамі клавіятуры і колам мышы.',stage:'Інтэрактыўны вучэбны глобус',search:'Пошук геаграфічнага аб’екта',fact:'Даведка пра аб’ект',fullscreenEnter:'На ўвесь экран',fullscreenExit:'Выйсці з поўнага экрана',title:'Вучэбны глобус — Лічбавая геаграфія'},
+en:{hint:'⇄ Drag to rotate · +/− to zoom',busy:'Loading globe…',failed:'Map outlines are unavailable',zoomIn:'Zoom in',zoomOut:'Zoom out',reset:'Reset globe view',gesture:'Drag to rotate the globe. Use arrow keys and the mouse wheel.',stage:'Interactive learning globe',search:'Search geographic objects',fact:'About this location',fullscreenEnter:'Enter fullscreen',fullscreenExit:'Exit fullscreen',title:'Learning globe — Digital Geography'}
 };
 function updateHelp(){
  const d=helpText[lang];
@@ -229,6 +230,8 @@ function updateHelp(){
  $('gesture').setAttribute('aria-label',d.gesture);
  $('search').setAttribute('aria-label',d.search);
  $('factPanel').setAttribute('aria-label',d.fact);
+ $('fullscreen').setAttribute('aria-label',fullscreenActive()?d.fullscreenExit:d.fullscreenEnter);
+ $('fullscreen').title=fullscreenActive()?d.fullscreenExit:d.fullscreenEnter;
  if(!$('status').hidden)$('status').textContent=d.busy;
  for(const [id,label] of [['plus',d.zoomIn],['minus',d.zoomOut],['reset',d.reset]]){
   $(id).setAttribute('aria-label',label);$(id).title=label;
@@ -315,15 +318,29 @@ function animate(){
  if(Math.abs(dx)+Math.abs(dy)+Math.abs(dz)>.002)requestAnimationFrame(animate);
  else{longitude=target.lon;latitude=target.lat;zoom=target.zoom||zoom;target=null;redraw()}
 }
+function drawMarkerLabel(ctx,x,y,value){
+ let label=String(value||'');if(!label)return;
+ ctx.save();ctx.font='700 13px system-ui,"Segoe UI",sans-serif';
+ const maxText=Math.min(260,Math.max(80,w-32));
+ while(ctx.measureText(label).width>maxText-23&&label.length>4)label=label.slice(0,-2).replace(/…$/,'')+'…';
+ const width=Math.min(maxText,ctx.measureText(label).width+22),height=28;
+ const left=clamp(x+17,8,Math.max(8,w-width-8)),top=clamp(y-height-8,8,Math.max(8,h-height-8));
+ ctx.fillStyle='rgba(8,33,59,.94)';ctx.strokeStyle='#b4e5ff';ctx.lineWidth=1.2;
+ ctx.beginPath();ctx.roundRect(left,top,width,height,7);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#fff';ctx.textBaseline='middle';ctx.fillText(label,left+11,top+height/2);
+ ctx.restore();
+}
 function drawPoints(){
  const cv=$('points');over.setTransform(dpr,0,0,dpr,0,0);over.clearRect(0,0,w,h);
  VECTOR_MAP.draw?.(over,vectorGeo||geo,project,zoom,mapMode,w,h);
  HYDRO_RENDER.draw?.(over,hydroData,project,zoom,mapMode);
  AREA_RENDER.draw?.(over,visibleMap(),chosen,AREAS,project,zoom,mapMode);
+ let labelPoint=null;
  visibleMap().forEach(o=>{const p=project(o.lat*RAD,o.lon*RAD);if(p.vis<.04)return;
- const active=chosen?.id===o.id;over.beginPath();over.arc(p.x,p.y,active?8:4.5,0,Math.PI*2);over.fillStyle=active?'#ffd38a':'#63e8d4';over.fill();over.strokeStyle='#07364e';over.lineWidth=1.7;over.stroke();
+ const active=chosen?.id===o.id;if(active)labelPoint=p;over.beginPath();over.arc(p.x,p.y,active?8:4.5,0,Math.PI*2);over.fillStyle=active?'#ffd38a':'#63e8d4';over.fill();over.strokeStyle='#07364e';over.lineWidth=1.7;over.stroke();
  if(active){over.beginPath();over.arc(p.x,p.y,15,0,Math.PI*2);over.strokeStyle='#ffe0a3';over.lineWidth=2.2;over.stroke();}
  });
+ if(chosen&&labelPoint)drawMarkerLabel(over,labelPoint.x,labelPoint.y,chosen.name);
 }
 function redraw(){if(!queued){queued=true;requestAnimationFrame(draw)}}
 function draw(){
@@ -354,7 +371,9 @@ function draw(){
  drawPoints();
 }
 function resize(){
- const r=$('stage').getBoundingClientRect();w=r.width;h=r.height;dpr=Math.min(window.devicePixelRatio||1,2);
+ const r=$('stage').getBoundingClientRect();if(!r.width||!r.height)return;
+ if(Math.abs(w-r.width)<.5&&Math.abs(h-r.height)<.5)return;
+ w=r.width;h=r.height;dpr=Math.min(window.devicePixelRatio||1,2);
  for(const id of ['canvas','points']){$(id).width=Math.max(1,Math.round(w*dpr));$(id).height=Math.max(1,Math.round(h*dpr))}
  redraw();
 }
@@ -491,6 +510,29 @@ $('groups').addEventListener('click',e=>{const b=e.target.closest('[data-obj]');
 $('groups').addEventListener('toggle',e=>{if(e.target.matches('.group')&&e.target.open&&!filter)openGroup=+e.target.dataset.id},true);
 $('search').addEventListener('input',e=>{filter=e.target.value.trim();renderList();redraw()});
 window.addEventListener('message',e=>{if(e.origin===location.origin&&e.data?.type==='geographyTheme'){theme=e.data.theme==='dark'?'dark':'light';document.documentElement.dataset.theme=theme}});
+function fullscreenActive(){return document.fullscreenElement===$('globeLayout')||$('globeLayout').classList.contains('is-fullscreen')}
+function syncFullscreen(){
+ const on=fullscreenActive();$('fullscreen').textContent=on?'⤡':'⛶';
+ $('fullscreen').setAttribute('aria-pressed',String(on));
+ $('fullscreen').setAttribute('aria-label',on?helpText[lang].fullscreenExit:helpText[lang].fullscreenEnter);
+ $('fullscreen').title=on?helpText[lang].fullscreenExit:helpText[lang].fullscreenEnter;
+ document.body.classList.toggle('geo-no-scroll',on);
+ requestAnimationFrame(resize);
+}
+$('fullscreen').addEventListener('click',async()=>{
+ const box=$('globeLayout');
+ if(fullscreenActive()){
+  try{if(document.fullscreenElement)await document.exitFullscreen()}catch(e){}
+  box.classList.remove('is-fullscreen');
+ }else if(box.requestFullscreen){
+  try{await box.requestFullscreen()}catch(e){box.classList.add('is-fullscreen')}
+ }else box.classList.add('is-fullscreen');
+ syncFullscreen();
+});
+document.addEventListener('fullscreenchange',syncFullscreen);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('globeLayout').classList.contains('is-fullscreen')){$('globeLayout').classList.remove('is-fullscreen');syncFullscreen()}});
+new ResizeObserver(resize).observe($('stage'));
+$('legendPanel').addEventListener('toggle',()=>requestAnimationFrame(resize));
 window.addEventListener('resize',resize);
 compileGroups();mapMode=grade>=10?'political':'physical';initGL();labels();resize();loadGeometry();loadRelief();loadHydrology();redraw();
 })();
