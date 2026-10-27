@@ -3,8 +3,8 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'../public/globus'),window={};
 const context=vm.createContext({window});
-for(const file of ['objects.js','translations.js','facts.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
-const catalog=window.GLOBE_CATALOG,translations=window.GLOBE_TRANSLATIONS,facts=window.GLOBE_FACTS;
+for(const file of ['objects.js','translations.js','facts.js','country-facts.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
+const catalog=window.GLOBE_CATALOG,translations=window.GLOBE_TRANSLATIONS,facts=window.GLOBE_FACTS,countries=window.GLOBE_COUNTRIES;
 assert(facts&&facts.get,'Object reference descriptions must load');
 assert(facts.get('Гималаи','en').includes('Himalayas'),'English Himalayas reference missing');
 assert(facts.get('Минск','be').includes('Беларусь'),'Belarusian Minsk reference missing');
@@ -36,6 +36,7 @@ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert(html.includes('id="factPanel"')&&html.includes('id="legendPanel"'),'Reference and legend panels must exist');
 assert(html.includes('renderFact()')&&html.includes('id="factDescription"'),'Object card must render on selection');
 assert(html.includes('facts.js'),'Fact descriptions need script import');
+assert(html.includes('country-facts.js'),'Country profiles need script import');
 assert(html.includes('const helpText={')&&html.includes('updateHelp()'),'RU/BE/EN user guidance required');
 assert(html.includes('function mapFor(o)')&&html.includes('visibleMap()'),'Map-specific object separation required');
 assert(!html.includes('data-area-layer')&&!html.includes('type="checkbox"'),'No manual contour layer toggles');
@@ -52,7 +53,27 @@ const disclosure=fs.readFileSync(path.resolve(root,'../assets/disclosures.js'),'
 assert(disclosure.includes('geo-disclosure-change'),'Shared disclosure control required');
 assert(!html.includes('id="count"')&&!html.includes('class="counter"'),'Object and topic counters must be absent');
 assert(!html.includes("$('count')")&&!html.includes('g.objects.length+'), 'No hidden count rendering');
-assert(html.includes("const rows=[[d.type,chosen.type],[d.topic,group],[d.coordinate,coords]];"),'Reference should have exactly three metadata fields');
+assert(html.includes('const rows=country')&&html.includes('[d.territory,country.area]')&&html.includes('[d.structure,country.structure]'),'Country profiles must have five geography fields');
+assert(html.includes(':[[d.type,chosen.type],[d.topic,group],[d.coordinate,coords]]'),'Non-country objects should keep their three metadata fields');
+const expectedCountries=new Set();
+for(const grade of [10,11])for(const [,rows] of catalog[grade])
+ for(const item of rows.split(';')){
+  const name=item.split('|')[0];
+  if(['Россия','Канада','Китай','США','Бразилия','Индия','Индонезия','Пакистан','Бахрейн','Монголия','Катар','Папуа — Новая Гвинея','Саудовская Аравия','Германия','Япония','Сингапур','Сомали','Нигер','Бангладеш','Нигерия','Норвегия'].includes(name))expectedCountries.add(name);
+ }
+assert.equal(expectedCountries.size,21,'Country name set unexpectedly changed');
+assert.deepEqual(Array.from(countries.names()).sort(),Array.from(expectedCountries).sort(),'Country metadata must exactly cover all 10–11 grade countries');
+for(const name of countries.names())for(const language of ['ru','be','en']){
+ const info=countries.get(name,language);
+ for(const field of ['area','capital','population','government','structure','kind','note'])
+  assert(info[field]&&String(info[field]).length>2,'Missing '+language+' '+field+' for '+name);
+ assert(info.population.includes('2025'),'Population year must be explicit');
+}
+assert.equal(countries.get('Индия','ru').capital,'Нью-Дели');
+assert.match(countries.get('Нигер','ru').government,/переходное военное/i);
+assert.equal(countries.get('Германия','be').structure,'Федэрацыя');
+assert.equal(countries.get('Канада','en').capital,'Ottawa');
+assert.equal(countries.get('Дели','ru'),null,'A city must never be misclassified as a country');
 assert(!html.includes('Границы на глобусе'),'Obsolete contour label should be removed from reference');
 
 const mapFn=html.match(/function mapFor\(o\)\{[\s\S]*?\n\}/);
