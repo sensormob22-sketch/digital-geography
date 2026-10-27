@@ -109,3 +109,90 @@ const target=path.join(ROOT,'belarus-relief-9.png');
 await sharp(out,{raw:{width,height,channels:4}}).png({compressionLevel:9,palette:true,quality:95}).toFile(target);
 await fs.writeFile(path.join(ROOT,'belarus-relief-9.json'),JSON.stringify({bounds,width,height,range:[Math.round(minElevation),Math.round(maxElevation)],source:'Mapzen Terrain Tiles/Mapzen Joerd, AWS Open Data; Natural Earth 50m boundary',clip:'BLR Natural Earth 1:50m',grades:[9]}));
 console.log('Belarus local 9th-grade DEM ready:',jobs.length,'elevation tiles,',land,'land pixels,',minElevation.toFixed(1),'-',maxElevation.toFixed(1),'m,',target);
+
+/* Derive hill/lowland contours from actual DEM cells, not manually invented
+ * ellipses. These are approximate terrain-height zones, NOT surveyed regional
+ * administrative or physiographic boundaries. School-friendly simplification.
+ */
+const cellsX=680,cellsY=345,dx=(bounds.east-bounds.west)/cellsX,dy=(bounds.north-bounds.south)/cellsY;
+const grid=new Float32Array(cellsX*cellsY),valid=new Uint8Array(cellsX*cellsY);
+for(let y=0;y<cellsY;y++)for(let x=0;x<cellsX;x++){
+ const lon=bounds.west+(x+.5)*dx,lat=bounds.north-(y+.5)*dy,i=y*cellsX+x;
+ if(inBelarus(lon,lat)){grid[i]=elevation(lon,lat);valid[i]=1}
+}
+const regions=[
+ {name:'Белорусская гряда',box:[23.3,52.9,30.3,55.0],m:187,dir:1,seed:[26.9,53.8],multiple:true},
+ {name:'Минская возвышенность',box:[26.2,53.55,28.2,54.6],m:199,dir:1,seed:[27.1,54.05]},
+ {name:'Новогрудская возвышенность',box:[25.0,53.25,26.68,54.04],m:193,dir:1,seed:[25.87,53.6]},
+ {name:'Ошмянская возвышенность',box:[25.3,53.97,27.05,54.92],m:190,dir:1,seed:[26.1,54.45]},
+ {name:'Полесская низменность',box:[23.2,51.38,31.24,53.05],m:156,dir:-1,seed:[27.7,52.15]},
+ {name:'Центральноберезинская равнина',box:[27.0,52.82,30.55,54.25],m:187,dir:-1,seed:[28.65,53.35]}
+];
+function makeTerrainZone(spec){
+ const mask=new Uint8Array(valid.length);let count=0;
+ for(let y=0;y<cellsY;y++)for(let x=0;x<cellsX;x++){
+  const i=y*cellsX+x;if(!valid[i])continue;
+  const lon=bounds.west+(x+.5)*dx,lat=bounds.north-(y+.5)*dy;
+  if(lon<spec.box[0]||lon>spec.box[2]||lat<spec.box[1]||lat>spec.box[3])continue;
+  const h=grid[i],inside=spec.dir>0?h>=spec.m:h<=spec.m;
+  if(inside)mask[i]=1,count++;
+ }
+ // Components keep the terrain region around the nomenclature anchor. The
+ // longitudinal Belarusian Ridge is a chain of separate elevated hills.
+ const component=new Int32Array(mask.length);let id=0,components=[],queue=new Int32Array(mask.length);
+ for(let i=0;i<mask.length;i++){
+  if(!mask[i]||component[i])continue;
+  id++;let size=0,front=0,back=1;queue[0]=i;component[i]=id;
+  let closest=1e9;
+  while(front<back){
+   const u=queue[front++],ux=u%cellsX,uy=Math.floor(u/cellsX);size++;
+   const lon=bounds.west+(ux+.5)*dx,lat=bounds.north-(uy+.5)*dy;
+   closest=Math.min(closest,Math.hypot((lon-spec.seed[0])*.6,lat-spec.seed[1]));
+   for(const nb of [ux>0?u-1:-1,ux<cellsX-1?u+1:-1,uy>0?u-cellsX:-1,uy<cellsY-1?u+cellsX:-1]){
+    if(nb>=0&&mask[nb]&&!component[nb]){component[nb]=id;queue[back++]=nb}
+   }
+  }
+  components.push({id,size,closest});
+ }
+ components.sort((a,b)=>a.closest-b.closest);
+ let keep=new Set();
+ if(spec.multiple)for(const c of components)if(c.size>=55)keep.add(c.id);
+ else for(const c of components.slice(0,3))if(c.size>=10&&c.closest<.8)keep.add(c.id);
+ if(!keep.size&&components[0])keep.add(components[0].id);
+ const edges=new Map();
+ const addEdge=(a,b)=>{
+  const k=a.join(','),j=b.join(',');
+  if(!edges.has(k))edges.set(k,[]);
+  edges.get(k).push(j);
+ };
+ const active=(x,y)=>x>=0&&x<cellsX&&y>=0&&y<cellsY&&keep.has(component[y*cellsX+x]);
+ for(let y=0;y<cellsY;y++)for(let x=0;x<cellsX;x++){
+  if(!active(x,y))continue;
+  if(!active(x,y-1))addEdge([x,y],[x+1,y]);
+  if(!active(x+1,y))addEdge([x+1,y],[x+1,y+1]);
+  if(!active(x,y+1))addEdge([x+1,y+1],[x,y+1]);
+  if(!active(x-1,y))addEdge([x,y+1],[x,y]);
+ }
+ const rings=[];let maxSteps=cellsX*cellsY*4;
+ while(edges.size&&rings.length<150){
+  const first=edges.keys().next().value,current=[...first.split(',').map(Number)],ring=[],origin=first;
+  let key=first,steps=0;
+  while(steps++<maxSteps){
+   const [x,y]=key.split(',').map(Number);
+   ring.push([+(bounds.north-y*dy).toFixed(4),+(bounds.west+x*dx).toFixed(4)]);
+   const next=edges.get(key)?.pop();if(!next)break;
+   if(!edges.get(key).length)edges.delete(key);
+   key=next;if(key===origin)break;
+  }
+  if(ring.length>=15){
+   const sampled=ring.filter((p,i)=>i%Math.max(1,Math.floor(ring.length/2000))===0);
+   if(sampled.length>=12)rings.push(sampled);
+  }
+ }
+ if(!rings.length)throw Error('No DEM-derived ring for '+spec.name+' components '+JSON.stringify(components.slice(0,3)));
+ console.log('DEM-derived outline',spec.name,count,'cells',rings.length,'rings');
+ return {name:spec.name,kind:'natural',quality:'dem-derived',source:'Mapzen elevation zone '+(spec.dir>0?'>=':'<=')+spec.m+' m; not an official physiographic boundary',rings};
+}
+const terrainRegions=Object.fromEntries(regions.map(spec=>[spec.name,makeTerrainZone(spec)]));
+await fs.writeFile(path.join(ROOT,'belarus-regions-dem.json'),JSON.stringify({source:'Mapzen/AWS elevation-derived approximate terrain zone boundaries',regions:terrainRegions}));
+console.log('Six Belarus relief contours generated from DEM, not geometric ellipses');
