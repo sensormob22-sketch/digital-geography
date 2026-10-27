@@ -1251,6 +1251,7 @@ $('exitWork').addEventListener('click',()=>{clearSavedWork();load();window.locat
  // Tasks 2–10 unlock after all 36 plotted values are entered; only the final button evaluates work.
 
 try{const site=localStorage.getItem('geo_site_lang');if(['ru','be','en'].includes(site))lang=site;}catch(e){}
+window.addEventListener('storage',e=>{if(e.key==='geo_site_lang'&&['ru','be','en'].includes(e.newValue))setLang(e.newValue)});
 clearSavedWork();load();applyLang();renderAnalysis();
 // A Back/Forward-Cache restore must show a blank worksheet too, not the old DOM.
 window.addEventListener('pagehide',()=>{clearSavedWork();load();});
