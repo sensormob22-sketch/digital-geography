@@ -557,6 +557,17 @@ async function loadBelarusHydrology(){
   const r=await fetch('./belarus-hydrology-10m.json');
   if(!r.ok)throw Error('HTTP '+r.status);
   belarusHydro=await r.json();document.documentElement.dataset.belarusHydro='ready';
+  try{
+   const supplement=await fetch('./belarus-rivers-osm.json');
+   if(supplement.ok){
+    const local=await supplement.json();
+    if(local.rivers?.length){
+     belarusHydro.rivers.push(...local.rivers);
+     document.documentElement.dataset.belarusRivers='osm';
+    }
+   }
+  }catch(e){console.info('Additional OSM river segments unavailable, using Natural Earth',e)}
+
   // Prefer actual Natural Earth polygon rings over the old artificial ellipses.
   for(const [name,lat,lon,type] of [
    ['Нарочь',54.86,26.73,'Озеро'],['Освейское',56.05,28.15,'Озеро'],
