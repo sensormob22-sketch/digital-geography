@@ -108,8 +108,8 @@ body.geo-no-scroll{overflow:hidden}
 }
 </style></head>
 <body>
-<header class="top"><div><h1 id="title">🌍 Учебный глобус</h1><p id="subtitle">Географическая номенклатура · 6–11 классы</p></div></header>
-<div class="grades"><div class="grade-buttons" id="gradeButtons"></div><span class="source" id="source"></span></div>
+<header class="top"><h1 id="title">🌍 Учебный глобус</h1></header>
+<div class="grades" hidden><div class="grade-buttons" id="gradeButtons"></div><span class="source" id="source"></span></div>
 <main class="layout" id="globeLayout">
 <section class="stage" id="stage" aria-label="Интерактивный глобус">
 <canvas id="canvas"></canvas><canvas id="focusLayer"></canvas><canvas id="points"></canvas><div class="gesture" id="gesture" role="application" tabindex="0" aria-label="Глобус: перетаскивание для вращения, стрелки клавиатуры"></div>
@@ -263,7 +263,7 @@ function renderList(){
  const hits=visible();
  const shown=groups.map(g=>({...g,objects:g.objects.filter(o=>hits.includes(o))})).filter(g=>g.objects.length);
  if(!shown.length){$('groups').innerHTML='<p class="empty">'+t(10)+'</p>';return}
- $('groups').innerHTML=shown.map(g=>'<details class="group geo-disclosure" data-id="'+g.id+'" '+(filter||g.id===openGroup?'open':'')+'><summary>'+escape(g.name)+'</summary><ul>'+g.objects.map(o=>'<li><button class="place '+(chosen?.id===o.id?'active':'')+(AREAS.get?.(o.rawName)?' has-contour '+AREAS.get(o.rawName).kind+'-contour':'')+'" data-obj="'+o.id+'"><span class="dot"></span><span><strong>'+escape(o.name)+'</strong><small>'+escape(o.type)+'</small></span></button></li>').join('')+'</ul></details>').join('');
+ $('groups').innerHTML=shown.map(g=>'<details class="group geo-disclosure" data-id="'+g.id+'" '+(g.id===openGroup?'open':'')+'><summary>'+escape(g.name)+'</summary><ul>'+g.objects.map(o=>'<li><button class="place '+(chosen?.id===o.id?'active':'')+(AREAS.get?.(o.rawName)?' has-contour '+AREAS.get(o.rawName).kind+'-contour':'')+'" data-obj="'+o.id+'"><span class="dot"></span><span><strong>'+escape(o.name)+'</strong><small>'+escape(o.type)+'</small></span></button></li>').join('')+'</ul></details>').join('');
 }
 const wrap=n=>Math.atan2(Math.sin(n),Math.cos(n));
 const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
