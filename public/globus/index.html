@@ -269,8 +269,45 @@ function project(phi,lambda){
  const rr=Math.min(w,h)*.445*zoom;
  return {x:w/2+rr*c*Math.sin(d),y:h/2-rr*(Math.cos(latitude)*Math.sin(phi)-Math.sin(latitude)*c*Math.cos(d)),vis};
 }
+function cancelTravel(){
+ if(flightFrame){cancelAnimationFrame(flightFrame);flightFrame=0}
+ flight=null;target=null;$('stage').dataset.flight='idle';
+}
+const smooth=t=>t*t*(3-2*t),lerp=(a,b,t)=>a+(b-a)*t;
 function choose(o){
- chosen=o;openGroup=o.group;setMapMode(isPolitical(o)?'political':'physical');selectedLabel();renderFact();renderList();$('groups').querySelector('.place.active')?.scrollIntoView({block:'nearest'});target={lon:o.lon*RAD,lat:clamp(o.lat*RAD,-1.45,1.45),zoom:adaptiveZoom(o)};animate();
+ const from={lon:longitude,lat:latitude,zoom};
+ cancelTravel();
+ chosen=o;openGroup=o.group;
+ selectedLabel();renderFact();renderList();
+ $('groups').querySelector('.place.active')?.scrollIntoView({block:'nearest'});
+ const end={lon:o.lon*RAD,lat:clamp(o.lat*RAD,-1.45,1.45),zoom:adaptiveZoom(o)};
+ const desiredMode=isWater(o)&&mapMode==='political'?'political':mapFor(o);
+ const delta=wrap(end.lon-from.lon),duration=1540;
+ let start=null,switched=false;
+ flight={from,end};
+ const step=time=>{
+  if(!flight)return;
+  if(start===null)start=time;
+  const t=Math.min(1,(time-start)/duration);
+  if(t<.27){
+   $('stage').dataset.flight='out';
+   zoom=lerp(from.zoom,1,smooth(t/.27));longitude=from.lon;latitude=from.lat;
+  }else if(t<.59){
+   $('stage').dataset.flight='rotate';
+   if(!switched){setMapMode(desiredMode);switched=true}
+   const k=smooth((t-.27)/.32);
+   zoom=1;longitude=from.lon+delta*k;latitude=lerp(from.lat,end.lat,k);
+  }else{
+   $('stage').dataset.flight='in';
+   const k=smooth((t-.59)/.41);
+   zoom=lerp(1,end.zoom,k);longitude=from.lon+delta;latitude=end.lat;
+  }
+  $('stage').dataset.flightZoom=zoom.toFixed(3);
+  redraw();
+  if(t<1)flightFrame=requestAnimationFrame(step);
+  else{zoom=end.zoom;longitude=wrap(end.lon);latitude=end.lat;flight=null;flightFrame=0;$('stage').dataset.flight='done';redraw()}
+ };
+ flightFrame=requestAnimationFrame(step);
 }
 function animate(){
  if(!target)return;const dx=wrap(target.lon-longitude),dy=target.lat-latitude,dz=Math.log((target.zoom||1)/zoom);
@@ -429,7 +466,7 @@ async function loadGeometry(){
  }catch(e){console.warn(e);$('status').textContent=helpText[lang].failed;setTimeout(()=>$('status').hidden=true,4200)}
 }
 let drag=null;const gesture=$('gesture');
-gesture.addEventListener('pointerdown',e=>{if(e.button!==0&&e.pointerType==='mouse')return;gesture.setPointerCapture(e.pointerId);target=null;drag={id:e.pointerId,x:e.clientX,y:e.clientY,lon:longitude,lat:latitude,dist:0}});
+gesture.addEventListener('pointerdown',e=>{if(e.button!==0&&e.pointerType==='mouse')return;gesture.setPointerCapture(e.pointerId);cancelTravel();drag={id:e.pointerId,x:e.clientX,y:e.clientY,lon:longitude,lat:latitude,dist:0}});
 gesture.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;
  const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.dist=Math.hypot(dx,dy);
  const r=Math.max(90,Math.min(w,h)*.445*zoom);
@@ -441,14 +478,14 @@ gesture.addEventListener('pointerup',e=>{if(!drag||drag.id!==e.pointerId)return;
  drag=null;
 });
 gesture.addEventListener('pointercancel',()=>drag=null);
-gesture.addEventListener('wheel',e=>{e.preventDefault();target=null;zoom=clamp(zoom*Math.exp(-e.deltaY*.0015),.55,26);redraw()},{passive:false});
-gesture.addEventListener('keydown',e=>{const d=.13;if(e.key==='ArrowLeft')longitude-=d;else if(e.key==='ArrowRight')longitude+=d;else if(e.key==='ArrowUp')latitude=clamp(latitude+d,-1.45,1.45);else if(e.key==='ArrowDown')latitude=clamp(latitude-d,-1.45,1.45);else return;e.preventDefault();target=null;redraw()});
-$('plus').onclick=()=>{target=null;zoom=clamp(zoom*1.35,.55,26);redraw()};
-$('minus').onclick=()=>{target=null;zoom=clamp(zoom/1.35,.55,26);redraw()};
-$('reset').onclick=()=>{target={zoom:1,lon:27*RAD,lat:30*RAD};animate()};
+gesture.addEventListener('wheel',e=>{e.preventDefault();cancelTravel();zoom=clamp(zoom*Math.exp(-e.deltaY*.0015),.55,26);redraw()},{passive:false});
+gesture.addEventListener('keydown',e=>{const d=.13;if(e.key==='ArrowLeft')longitude-=d;else if(e.key==='ArrowRight')longitude+=d;else if(e.key==='ArrowUp')latitude=clamp(latitude+d,-1.45,1.45);else if(e.key==='ArrowDown')latitude=clamp(latitude-d,-1.45,1.45);else return;e.preventDefault();cancelTravel();redraw()});
+$('plus').onclick=()=>{cancelTravel();zoom=clamp(zoom*1.35,.55,26);redraw()};
+$('minus').onclick=()=>{cancelTravel();zoom=clamp(zoom/1.35,.55,26);redraw()};
+$('reset').onclick=()=>{cancelTravel();target={zoom:1,lon:27*RAD,lat:30*RAD};animate()};
 $('factClose').onclick=()=>{chosen=null;selectedLabel();renderFact();renderList();redraw()};
 
-$('gradeButtons').addEventListener('click',e=>{const b=e.target.closest('[data-grade]');if(!b)return;grade=+b.dataset.grade;compileGroups();chosen=null;zoom=1;setMapMode(grade>=10?'political':'physical');openGroup=0;filter='';$('search').value='';labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&lang='+lang+'&theme='+theme);redraw()});
+$('gradeButtons').addEventListener('click',e=>{const b=e.target.closest('[data-grade]');if(!b)return;cancelTravel();grade=+b.dataset.grade;compileGroups();chosen=null;zoom=1;setMapMode(grade>=10?'political':'physical');openGroup=0;filter='';$('search').value='';labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&lang='+lang+'&theme='+theme);redraw()});
 document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{lang=b.dataset.lang;const old=chosen?.id;compileGroups();chosen=all().find(o=>o.id===old)||null;labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&lang='+lang+'&theme='+theme)}));
 $('groups').addEventListener('click',e=>{const b=e.target.closest('[data-obj]');if(b){const item=all().find(v=>v.id===b.dataset.obj);if(item)choose(item)}});
 $('groups').addEventListener('toggle',e=>{if(e.target.matches('.group')&&e.target.open&&!filter)openGroup=+e.target.dataset.id},true);
