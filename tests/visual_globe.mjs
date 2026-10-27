@@ -331,6 +331,42 @@ try{
  await page.screenshot({path:mobile,type:'jpeg',quality:68,fullPage:true});
  console.log('MOBILE_BROWSER_OK',JSON.stringify(overflow));
  emit('mobile_minsk_be',mobile);
+ // Country cards should contain school geography data, not a map anchor/group.
+ await open('/globus/index.html?grade=10&theme=dark');
+ const indiaName=await page.evaluate(()=>window.GLOBE_TRANSLATIONS.name('Индия','be'));
+ await choose(indiaName);
+ assert.deepEqual(await page.locator('#factMeta dt').allInnerTexts(),
+  ['Плошча тэрыторыі','Сталіца','Насельніцтва','Форма кіравання','Тып дзяржаўнага ўладкавання']);
+ assert.equal(await page.locator('#factMeta dd').count(),5,'State reference must show precisely five facts');
+ assert.match(await page.locator('#factMeta').innerText(),/2025/,'Country population needs a dated estimate');
+ assert.match(await page.locator('#factMeta').innerText(),/Нью-Дэлі/,'Country capital must be correct');
+ assert(!/Кропка-арыенцір|Тэматычная група/.test(await page.locator('#factPanel').innerText()),
+  'State must not display map anchor or thematic group');
+ const standaloneBadge=await page.evaluate(()=>{
+  const iframe=document.createElement('iframe');iframe.id='nl-badge-frame';
+  document.body.appendChild(iframe);
+  const display=getComputedStyle(iframe).display;
+  iframe.remove();return display;
+ });
+ assert(standaloneBadge!=='none','Standalone globe should retain its own Netlify badge');
+ await page.setViewportSize({width:1365,height:900});await wait(450);
+ const desktopTall=await page.locator('#stage').evaluate(el=>el.getBoundingClientRect().height);
+ assert(desktopTall>=770,'Desktop globe should use available height: '+desktopTall);
+ const countryPicture=path.join(dir,'country_india_profile_desktop_be.jpg');
+ await page.screenshot({path:countryPicture,quality:74,type:'jpeg',fullPage:false});
+ emit('country_india_profile_desktop_be',countryPicture);
+ // Simulate the Netlify-injected iframe to verify only embedded badges disappear.
+ await page.goto(BASE+'/#nomenclature/10',{waitUntil:'domcontentloaded'});
+ await page.locator('#geographyGlobe').waitFor();
+ await page.waitForFunction(()=>document.getElementById('geographyGlobe')?.contentDocument?.body);
+ const badgeVisibility=await page.locator('#geographyGlobe').evaluate(frame=>{
+  const doc=frame.contentDocument,iframe=doc.createElement('iframe');
+  iframe.id='nl-badge-frame';doc.body.appendChild(iframe);
+  const display=doc.defaultView.getComputedStyle(iframe).display;
+  iframe.remove();return display;
+ });
+ assert.equal(badgeVisibility,'none','Embedded globe must hide only its own Netlify badge');
+ console.log('COUNTRY_REFERENCE_AND_NETLIFY_BADGE_OK',JSON.stringify({desktopTall,badgeVisibility}));
  assert.equal(errors.length,0,'JavaScript page errors:\n'+errors.join('\n'));
  console.log('VISUAL_BROWSER_TESTS_PASSED — actual built globe screenshots in visual-output/');
 }catch(e){
