@@ -1,6 +1,6 @@
 <!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Учебный глобус — Цифровая география</title><meta name="theme-color" content="#3d2c8a">
-<style>
+<link rel="stylesheet" href="../assets/disclosures.css"><style>
 :root{font-family:system-ui,"Segoe UI",sans-serif;color:#20233e;background:#faf9fe}*{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #ec9e64;outline-offset:2px}
 .top{padding:16px 23px;color:#fff;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:linear-gradient(112deg,#453096,#7455cc)}
 .top h1{font-size:clamp(21px,2.8vw,29px);letter-spacing:-.035em;margin:0}.top p{font-size:11px;margin:3px 0 0;opacity:.85}
@@ -9,13 +9,13 @@
 .grades{background:white;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px solid #e9e1fa;padding:12px 20px}
 .grade-buttons{display:flex;gap:6px;flex-wrap:wrap}.grade{border:1px solid #e1d8fa;border-radius:11px;background:#f6f1ff;color:#5f47a9;padding:10px 13px;font-weight:800;font-size:12px}.grade.active{background:#684dcd;color:white;border-color:#684dcd}
 .source{color:#847797;font-size:11px;font-weight:680}
-.layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(275px,.89fr);gap:14px;padding:14px;max-width:1800px;margin:auto}
-.stage{min-height:620px;position:relative;overflow:hidden;background:radial-gradient(ellipse at center,#1d4b6c,#0f2038 67%,#0a1427);border-radius:23px;box-shadow:0 14px 35px #1a153d33}
+.layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(295px,.88fr);gap:14px;padding:14px;max-width:1800px;margin:auto;align-items:start;--globe-h:clamp(565px,75dvh,820px)}
+.stage{height:var(--globe-h);min-height:0;align-self:start;position:relative;overflow:hidden;background:radial-gradient(ellipse at center,#1d4b6c,#0f2038 67%,#0a1427);border-radius:23px;box-shadow:0 14px 35px #1a153d33}
 .stage:before{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(#ffffffe0 .8px,transparent 1.4px);background-size:69px 77px;opacity:.18}
 #canvas,#points{position:absolute;inset:0;width:100%;height:100%;display:block}#points{pointer-events:none}
 .gesture{position:absolute;inset:0;touch-action:none;cursor:grab}.gesture:active{cursor:grabbing}
 .caption{position:absolute;left:19px;top:16px;color:#e1f4ff;pointer-events:none}.caption strong{display:block;font-size:13px;font-weight:900;letter-spacing:.06em}.caption span{display:block;color:#b7d4e7;font-size:11px;margin-top:3px}
-.zoom{position:absolute;top:14px;right:14px;display:grid;gap:7px}
+.zoom{position:absolute;top:14px;right:14px;display:grid;gap:7px;z-index:6}
 .map-mode{position:absolute;top:67px;left:18px;padding:6px 10px;border-radius:8px;background:#102d48de;color:#e0f3ff;font-size:11px;font-weight:800;pointer-events:none}
 .map-legend{position:absolute;right:14px;top:166px;bottom:auto;max-width:240px;background:#0d2944e6;color:#ecfaff;border:1px solid #82c5d455;border-radius:11px;padding:9px 10px;font-size:10px;line-height:1.35;pointer-events:none}
 .map-legend-title{font-weight:800;margin-bottom:5px}.map-legend-scale{display:flex;height:9px;overflow:hidden;border-radius:6px;margin:3px 0}.map-legend-scale b{flex:1}.map-legend-axis{display:flex;justify-content:space-between;font-size:9px;opacity:.85;gap:8px}.map-legend-note{display:block;opacity:.8;margin-top:4px}
@@ -47,9 +47,9 @@
 .caption{top:12px;left:12px}.caption span{display:none}.hint{left:12px}.selected{left:9px;right:9px;bottom:9px;padding:10px 12px}.selected strong{font-size:16px}.selected small,.selected span{font-size:10px}
 .panel{border-radius:17px;max-height:525px}}
 
-.sidebar-content{display:flex;flex-direction:column;gap:12px;min-width:0}
-.sidebar-content .panel{max-height:375px;min-height:220px;flex:none}
-.fact-card,.feature-legend{background:white;border:1px solid #e5dff4;border-radius:17px;box-shadow:0 9px 24px #321e8c12;overflow:hidden}
+.sidebar-content{display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0;height:var(--globe-h);overflow:hidden}
+.sidebar-content .panel{max-height:none;min-height:125px;flex:1 1 0;overflow:hidden}
+.fact-card,.feature-legend{flex:none;background:white;border:1px solid #e5dff4;border-radius:17px;box-shadow:0 9px 24px #321e8c12;overflow:hidden}
 .fact-card[hidden]{display:none}.fact-card{padding:17px 18px}
 .fact-top{display:flex;align-items:flex-start;gap:12px}
 .fact-avatar{width:44px;height:44px;flex:none;border-radius:13px;background:#eee9ff;display:grid;place-items:center;font-size:23px}
@@ -88,30 +88,45 @@
 [data-theme="dark"] .fact-avatar,[data-theme="dark"] .fact-close,[data-theme="dark"] .fact-extra{background:#382b54;color:#f5edff}
 [data-theme="dark"] .fact-meta{border-color:#4b3e62}
 [data-theme="dark"] .feature-legend .map-legend{color:#f6edff}
-@media(max-width:970px){.sidebar-content .panel{max-height:415px}}
-@media(max-width:570px){.sidebar-content .panel{max-height:360px;min-height:210px}.fact-card{padding:14px}.fact-title h2{font-size:17px}.fact-meta{grid-template-columns:minmax(108px,34%) minmax(0,1fr);column-gap:10px;row-gap:9px;font-size:11.5px}.fact-description{font-size:12.5px}}
+@media(max-width:970px){.layout{--globe-h:clamp(480px,70dvh,730px)}.sidebar-content{height:var(--globe-h)}}
+@media(max-width:570px){.layout{--globe-h:clamp(450px,72dvh,680px)}.sidebar-content .panel{min-height:105px}.fact-card{padding:14px}.fact-title h2{font-size:17px}.fact-meta{grid-template-columns:minmax(108px,34%) minmax(0,1fr);column-gap:10px;row-gap:9px;font-size:11.5px}.fact-description{font-size:12.5px}}
+
+/* Standard responsive fullscreen layout and fixed-proportion globe canvases. */
+.fullscreen-btn{font-family:"Segoe UI Symbol",system-ui,sans-serif;font-size:24px!important;font-weight:650}
+.layout:fullscreen,.layout.is-fullscreen{width:100vw;height:100dvh;max-width:none;position:fixed;inset:0;z-index:9900;overflow:auto;margin:0;padding:12px;background:#f7f5fc;--globe-h:calc(100dvh - 24px)}
+[data-theme="dark"] .layout:fullscreen,[data-theme="dark"] .layout.is-fullscreen{background:#151024}
+.layout:fullscreen .stage,.layout.is-fullscreen .stage,.layout:fullscreen .sidebar-content,.layout.is-fullscreen .sidebar-content{height:var(--globe-h)}
+@media(max-width:970px){
+ .layout:fullscreen,.layout.is-fullscreen{--globe-h:clamp(360px,54dvh,640px)}
+ .layout:fullscreen .sidebar-content,.layout.is-fullscreen .sidebar-content{height:max(380px,calc(100dvh - var(--globe-h) - 44px))}
+}
+@media(max-width:570px){
+ .layout:fullscreen,.layout.is-fullscreen{grid-template-columns:minmax(0,1fr);padding:6px;gap:6px;--globe-h:clamp(290px,54dvh,560px)}
+ .layout:fullscreen .stage,.layout.is-fullscreen .stage{border-radius:9px}
+ .layout:fullscreen .sidebar-content,.layout.is-fullscreen .sidebar-content{height:max(370px,calc(100dvh - var(--globe-h) - 18px))}
+}
 </style></head>
 <body>
 <header class="top"><div><h1 id="title">🌍 Учебный глобус</h1><p id="subtitle">Географическая номенклатура · 6–11 классы</p></div><div class="head-right"><div class="languages"><button data-lang="ru">RU</button><button data-lang="be">BE</button><button data-lang="en">EN</button></div><a class="go-site" id="back" href="../#nomenclature">← На сайт</a></div></header>
 <div class="grades"><div class="grade-buttons" id="gradeButtons"></div><span class="source" id="source"></span></div>
-<main class="layout">
+<main class="layout" id="globeLayout">
 <section class="stage" id="stage" aria-label="Интерактивный глобус">
 <canvas id="canvas"></canvas><canvas id="points"></canvas><div class="gesture" id="gesture" role="application" tabindex="0" aria-label="Глобус: перетаскивание для вращения, стрелки клавиатуры"></div>
 <div class="caption"><strong id="caption">ИССЛЕДУЙ ЗЕМЛЮ</strong><span id="captionSub">Выберите объект в списке</span></div><div class="map-mode" id="mapMode"></div>
-<div class="zoom"><button id="plus" aria-label="Увеличить">+</button><button id="minus" aria-label="Уменьшить">−</button><button id="reset" aria-label="Начальный вид">⌂</button></div>
+<div class="zoom"><button type="button" id="fullscreen" class="fullscreen-btn" aria-label="Развернуть на весь экран" title="Развернуть на весь экран" aria-pressed="false">⛶</button><button id="plus" aria-label="Увеличить">+</button><button id="minus" aria-label="Уменьшить">−</button><button id="reset" aria-label="Начальный вид">⌂</button></div>
 <div class="selected" id="selected" hidden><small id="selectedKind"></small><strong id="selectedName"></strong><span id="selectedCoords"></span><span class="selected-detail" id="selectedDetail" hidden></span></div><div class="hint" id="hint">⇄ Вращение · +/− Масштаб</div><div class="status" id="status">Загрузка глобуса…</div>
 </section>
-<aside class="sidebar-content"><section class="panel" aria-label="Список географических объектов"><div class="panel-head"><h2 id="objectsTitle">Объекты на карте</h2></div>
+<aside class="sidebar-content" id="globeSidebar"><section class="panel" aria-label="Список географических объектов"><div class="panel-head"><h2 id="objectsTitle">Объекты на карте</h2></div>
 <div class="search-wrap"><input type="search" id="search" placeholder="Поиск географического объекта" aria-label="Поиск географического объекта"></div><div class="groups" id="groups"></div><p class="disclaimer" id="disclaimer"></p></section>
 <section class="fact-card" id="factPanel" aria-label="Справка по объекту" hidden>
 <div class="fact-top"><span class="fact-avatar" id="factIcon" aria-hidden="true">🌍</span>
 <div class="fact-title"><small id="factHeading">Справка по объекту</small><h2 id="factName"></h2><p id="factKind"></p></div><button type="button" class="fact-close" id="factClose" aria-label="Закрыть справку">×</button></div>
 <dl class="fact-meta" id="factMeta"></dl><p class="fact-description" id="factDescription"></p><div class="fact-extra" id="factExtra" hidden></div><p class="fact-footnote" id="factFootnote"></p>
 </section>
-<details class="feature-legend" id="legendPanel" open><summary id="legendTitle">Условные обозначения</summary><div class="map-legend" id="mapLegend" aria-live="polite"></div></details>
+<details class="feature-legend geo-disclosure" id="legendPanel" open><summary id="legendTitle">Условные обозначения</summary><div class="map-legend" id="mapLegend" aria-live="polite"></div></details>
 </aside>
 </main>
-<script src="./objects.js"></script><script src="./translations.js"></script><script src="./facts.js"></script><script src="./areas.js"></script><script src="./area-renderer.js"></script><script src="./vector-map.js"></script>
+<script defer src="../assets/disclosures.js"></script><script src="./hydrology-renderer.js"></script><script src="./objects.js"></script><script src="./translations.js"></script><script src="./facts.js"></script><script src="./areas.js"></script><script src="./area-renderer.js"></script><script src="./vector-map.js"></script>
 <script>
 (function(){'use strict';
 const $=id=>document.getElementById(id),pars=new URLSearchParams(location.search),RAW=window.GLOBE_CATALOG||{},TR=window.GLOBE_TRANSLATIONS||{},FACTS=window.GLOBE_FACTS||{},AREAS=window.GLOBE_AREAS||{},AREA_RENDER=window.GLOBE_AREA_RENDERER||{},VECTOR_MAP=window.GLOBE_VECTOR_MAP||{},RAD=Math.PI/180;
@@ -244,7 +259,7 @@ function renderList(){
  const hits=visible();
  const shown=groups.map(g=>({...g,objects:g.objects.filter(o=>hits.includes(o))})).filter(g=>g.objects.length);
  if(!shown.length){$('groups').innerHTML='<p class="empty">'+t(10)+'</p>';return}
- $('groups').innerHTML=shown.map(g=>'<details class="group" data-id="'+g.id+'" '+(filter||g.id===openGroup?'open':'')+'><summary>'+escape(g.name)+'</summary><ul>'+g.objects.map(o=>'<li><button class="place '+(chosen?.id===o.id?'active':'')+(AREAS.get?.(o.rawName)?' has-contour '+AREAS.get(o.rawName).kind+'-contour':'')+'" data-obj="'+o.id+'"><span class="dot"></span><span><strong>'+escape(o.name)+'</strong><small>'+escape(o.type)+'</small></span></button></li>').join('')+'</ul></details>').join('');
+ $('groups').innerHTML=shown.map(g=>'<details class="group geo-disclosure" data-id="'+g.id+'" '+(filter||g.id===openGroup?'open':'')+'><summary>'+escape(g.name)+'</summary><ul>'+g.objects.map(o=>'<li><button class="place '+(chosen?.id===o.id?'active':'')+(AREAS.get?.(o.rawName)?' has-contour '+AREAS.get(o.rawName).kind+'-contour':'')+'" data-obj="'+o.id+'"><span class="dot"></span><span><strong>'+escape(o.name)+'</strong><small>'+escape(o.type)+'</small></span></button></li>').join('')+'</ul></details>').join('');
 }
 const wrap=n=>Math.atan2(Math.sin(n),Math.cos(n));
 const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
