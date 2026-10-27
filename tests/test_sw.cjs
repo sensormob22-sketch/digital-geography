@@ -35,6 +35,8 @@ if(pic.length<100000||pic[0]!==137||pic[1]!==80||pic[2]!==78||pic[3]!==71)throw 
 const meta=await event('fetch',{request:{method:'GET',url:base+'globus/belarus-relief-9.json',mode:'cors'}});
 const metaData=JSON.parse(await meta.text());
 if(metaData.range[0]>125||metaData.range[1]<260||metaData.grades[0]!==9)throw Error('Belarus elevation range invalid');
+const fineHydro=await event('fetch',{request:{method:'GET',url:base+'globus/belarus-hydrology-10m.json',mode:'cors'}});
+const fine=JSON.parse(await fineHydro.text());if(fine.rivers.length<50||fine.lakes.length<25)throw Error('Detailed offline Belarus hydrology was not cached');
 const welcome=await event('fetch',{request:{method:'GET',url:base+'assets/home.css',mode:'cors'}});
 if(!(await welcome.text()).includes('home-welcome'))throw Error('Offline welcome design missing');
 for(const asset of ['disclosures.css','disclosures.js']){const response=await event('fetch',{request:{method:'GET',url:base+'assets/'+asset,mode:'cors'}});if((await response.text()).length<200)throw Error('Project disclosure framework missing '+asset)}
