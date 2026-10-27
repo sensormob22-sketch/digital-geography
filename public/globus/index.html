@@ -285,33 +285,43 @@ function choose(o){
  $('groups').querySelector('.place.active')?.scrollIntoView({block:'nearest'});
  const end={lon:o.lon*RAD,lat:clamp(o.lat*RAD,-1.45,1.45),zoom:adaptiveZoom(o)};
  const desiredMode=isWater(o)&&mapMode==='political'?'political':mapFor(o);
- const delta=wrap(end.lon-from.lon),duration=1540;
- let start=null,switched=false;
+ const delta=wrap(end.lon-from.lon);
+ const segments=[
+  {name:'out',duration:470},
+  {name:'rotate',duration:540},
+  {name:'in',duration:690}
+ ];
+ let index=0,phaseStart=null,switched=false;
+ const stage=$('stage');
+ stage.dataset.flightHistory='';
  flight={from,end};
  const step=time=>{
   if(!flight)return;
-  if(start===null)start=time;
-  const t=Math.min(1,(time-start)/duration);
-  // A slow rendering frame can jump over the rotation interval entirely.
-  // Switch the globe mode whenever the out-phase has elapsed, without relying
-  // on observing an intermediate frame.
-  if(!switched&&t>=.27){setMapMode(desiredMode);switched=true}
-  if(t<.27){
-   $('stage').dataset.flight='out';
-   zoom=lerp(from.zoom,1,smooth(t/.27));longitude=from.lon;latitude=from.lat;
-  }else if(t<.59){
-   $('stage').dataset.flight='rotate';
-   const k=smooth((t-.27)/.32);
+  const phase=segments[index];
+  if(phaseStart===null)phaseStart=time;
+  const k=smooth(Math.min(1,(time-phaseStart)/phase.duration));
+  if(stage.dataset.flight!==phase.name){
+   stage.dataset.flight=phase.name;
+   stage.dataset.flightHistory+=(stage.dataset.flightHistory?'→':'')+phase.name;
+  }
+  if(index===0){
+   zoom=lerp(from.zoom,1,k);longitude=from.lon;latitude=from.lat;
+  }else if(index===1){
+   if(!switched){setMapMode(desiredMode);switched=true}
    zoom=1;longitude=from.lon+delta*k;latitude=lerp(from.lat,end.lat,k);
   }else{
-   $('stage').dataset.flight='in';
-   const k=smooth((t-.59)/.41);
    zoom=lerp(1,end.zoom,k);longitude=from.lon+delta;latitude=end.lat;
   }
-  $('stage').dataset.flightZoom=zoom.toFixed(3);
-  redraw();
-  if(t<1)flightFrame=requestAnimationFrame(step);
-  else{zoom=end.zoom;longitude=wrap(end.lon);latitude=end.lat;flight=null;flightFrame=0;$('stage').dataset.flight='done';redraw()}
+  stage.dataset.flightZoom=zoom.toFixed(3);redraw();
+  if(k>=1){
+   index++;phaseStart=null;
+   if(index===segments.length){
+    zoom=end.zoom;longitude=wrap(end.lon);latitude=end.lat;
+    flight=null;flightFrame=0;stage.dataset.flight='done';stage.dataset.flightHistory+='→done';redraw();
+    return;
+   }
+  }
+  flightFrame=requestAnimationFrame(step);
  };
  flightFrame=requestAnimationFrame(step);
 }
