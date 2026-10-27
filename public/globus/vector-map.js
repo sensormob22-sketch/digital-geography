@@ -33,12 +33,35 @@ function paintRing(ctx,ring,project,zoom){
  if(started&&first.vis>.0001)ctx.closePath();
  return drew;
 }
-function draw(ctx,polys,project,zoom,mode,width,height){
+/* Polygon bounds cached once: at close zoom do not project countries that
+   cannot intersect the current map viewport. */
+const extents=new WeakMap();
+function boxFor(poly){
+ if(extents.has(poly))return extents.get(poly);
+ let west=Infinity,east=-Infinity,south=Infinity,north=-Infinity;
+ for(const ring of poly.rings||[])for(const p of ring){
+  west=Math.min(west,p[0]);east=Math.max(east,p[0]);
+  south=Math.min(south,p[1]);north=Math.max(north,p[1]);
+ }
+ const b={west,east,south,north};extents.set(poly,b);return b;
+}
+function inView(poly,camera,zoom){
+ if(!camera||zoom<3)return true;
+ const b=boxFor(poly),radius=110/zoom;
+ if(camera.lat<b.south-radius||camera.lat>b.north+radius)return false;
+ const maxLon=radius/Math.max(.22,Math.cos(camera.lat*DEG));
+ return [-360,0,360].some(shift=>{
+  const min=b.west+shift,max=b.east+shift;
+  return camera.lon>=min-maxLon&&camera.lon<=max+maxLon;
+ });
+}
+function draw(ctx,polys,project,zoom,mode,width,height,camera=null){
  if(!Array.isArray(polys)||zoom<1.8)return;
  ctx.save();
  ctx.beginPath();ctx.rect(0,0,width,height);ctx.clip();
  ctx.lineJoin='round';ctx.lineCap='round';
  for(const poly of polys){
+  if(!inView(poly,camera,zoom))continue;
   ctx.beginPath();let any=false;
   for(const ring of poly.rings){any=paintRing(ctx,ring,project,zoom)||any}
   if(!any)continue;
@@ -52,5 +75,5 @@ function draw(ctx,polys,project,zoom,mode,width,height){
  }
  ctx.restore();
 }
-window.GLOBE_VECTOR_MAP={draw,hashHue,shortLon,paintRing};
+window.GLOBE_VECTOR_MAP={draw,hashHue,shortLon,paintRing,inView};
 })();
