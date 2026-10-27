@@ -556,6 +556,17 @@ async function loadBelarusHydrology(){
   belarusHydro=await r.json();document.documentElement.dataset.belarusHydro='ready';if(chosen&&isWater(chosen)){activeWater=WATER_FOCUS.matching?.(chosen,hydroData,belarusHydro)||null;startPulse()}redraw();
  }catch(e){console.warn('Belarus 10m water layer unavailable',e);document.documentElement.dataset.belarusHydro='unavailable'}
 }
+async function loadTerrainRegions(){
+ try{
+  const r=await fetch('./belarus-regions-dem.json');
+  if(!r.ok)throw Error('HTTP '+r.status);
+  const data=await r.json();let count=0;
+  for(const [name,shape] of Object.entries(data.regions||{}))
+   if(AREAS.installMapped?.(name,shape))count++;
+  document.documentElement.dataset.reliefRegions=String(count);
+  renderList();redraw();
+ }catch(e){console.warn('Elevation-derived physiographic contours unavailable',e);document.documentElement.dataset.reliefRegions='unavailable'}
+}
 async function loadParks(){
  try{
   const response=await fetch('./parks-belarus.json');
@@ -713,6 +724,6 @@ new ResizeObserver(resize).observe($('stage'));
 $('legendPanel').addEventListener('toggle',()=>requestAnimationFrame(resize));
 window.addEventListener('resize',resize);
 if(embedded)document.body.classList.add('embedded-globe');
-compileGroups();mapMode=grade>=10?'political':'physical';initGL();labels();resize();loadGeometry();loadRelief();loadHydrology();loadBelarusHydrology();loadBelarusRelief();loadParks();redraw();
+compileGroups();mapMode=grade>=10?'political':'physical';initGL();labels();resize();loadGeometry();loadRelief();loadHydrology();loadBelarusHydrology();loadBelarusRelief();loadTerrainRegions();loadParks();redraw();
 })();
 </script></body></html>
