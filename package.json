@@ -12,7 +12,8 @@
     "test:globe": "node tests/test_globe.cjs",
     "test:areas": "node tests/test_areas.cjs",
     "postinstall": "node scripts/prepare-geodata.mjs && node scripts/prepare-globe-visuals.mjs && node scripts/prepare-belarus-relief.mjs",
-    "test:home": "node tests/test_home.cjs"
+    "test:home": "node tests/test_home.cjs",
+    "test:water": "node tests/test_water_focus.cjs"
   },
   "dependencies": {
     "astro": "^6.0.0",
