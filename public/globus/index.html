@@ -337,7 +337,7 @@ function choose(o){
    index++;phaseStart=null;
    if(index===segments.length){
     zoom=end.zoom;longitude=wrap(end.lon);latitude=end.lat;
-    flight=null;flightFrame=0;stage.dataset.flight='done';stage.dataset.flightHistory+='→done';redraw();
+    flight=null;flightFrame=0;stage.dataset.zoom=zoom.toFixed(4);stage.dataset.flight='done';stage.dataset.flightHistory+='→done';redraw();
     return;
    }
   }
