@@ -83,7 +83,22 @@ try{
  assert.match(await page.locator('#mapMode').innerText(),/Физический/);
  assert(await page.locator('#points').evaluate(c=>!!c.getContext('2d')));
  await choose('Гималаи');
+ assert.equal(await page.locator('#back').count(),0,'Recursive На сайт hyperlink must be absent');
  assert.match(await page.locator('#factName').innerText(),/Гималаи/);
+ // Independent +/- even with a selected object; no forced camera snapback.
+ const zoomBefore=Number(await page.locator('#stage').getAttribute('data-zoom'));
+ await page.locator('#plus').click();
+ await page.waitForFunction(z=>Number(document.getElementById('stage').dataset.zoom)>z*1.1,zoomBefore);
+ const zoomPlus=Number(await page.locator('#stage').getAttribute('data-zoom'));
+ await page.locator('#minus').click();
+ await page.waitForFunction(z=>Number(document.getElementById('stage').dataset.zoom)<z*.93,zoomPlus);
+ assert.match(await page.locator('#factName').innerText(),/Гималаи/);
+ // Manual zoom also works with no active object.
+ await page.locator('#factClose').click();
+ const noSelectionZoom=Number(await page.locator('#stage').getAttribute('data-zoom'));
+ await page.locator('#plus').click();
+ await page.waitForFunction(z=>Number(document.getElementById('stage').dataset.zoom)>z,noSelectionZoom);
+ await choose('Гималаи');
  assert.deepEqual(await page.locator('#factMeta dt').allInnerTexts(),['Тип объекта','Тематическая группа','Точка-ориентир']);
  assert.equal(await page.locator('#factMeta dd').count(),3);
  assert.equal(await page.locator('#count,.counter').count(),0);
@@ -116,6 +131,21 @@ try{
  let pix=await pixelSummary();
  assert(pix.opaque>200,'Physical globe overlay is blank');
  assert(pix.cyan>30,'Natural feature outlines are not drawn');
+ // Real water path, not just a marker: pulse is drawn on independent canvas.
+ await choose('Нил');
+ await page.waitForFunction(()=>document.getElementById('stage').dataset.activeWater.length>0,{timeout:8000});
+ const activeName=await page.locator('#stage').getAttribute('data-active-water');
+ console.log('ACTIVATED_NILE_WATER_GEOMETRY',activeName);
+ const focusPixels=await page.locator('#focusLayer').evaluate(c=>{
+   const p=c.getContext('2d').getImageData(0,0,c.width,c.height).data;
+   let count=0;for(let i=3;i<p.length;i+=4)if(p[i]>85)count++;return count;
+ });
+ assert(focusPixels>25,'Watercourse should be highlighted along the actual river course');
+ await choose('Байкал');
+ await page.waitForFunction(()=>document.getElementById('stage').dataset.activeWater.length>0,{timeout:8000});
+ const waterZoom=Number(await page.locator('#stage').getAttribute('data-zoom'));
+ assert(waterZoom>11,'Large selected lake must zoom in based on its outline');
+ await choose('Гималаи');
  const physical=path.join(dir,'physical_himalayas_ru.jpg');
  await page.screenshot({path:physical,quality:70,type:'jpeg',fullPage:true});
  console.log('PHYSICAL_BROWSER_OK',JSON.stringify(pix));
@@ -198,6 +228,23 @@ try{
  assert(await page.evaluate(()=>Boolean(document.fullscreenElement)||document.getElementById('globeLayout').classList.contains('is-fullscreen')),'Mobile fullscreen entry failed');
  await page.locator('#fullscreen').click();await wait(350);
  assert(!await page.evaluate(()=>Boolean(document.fullscreenElement)||document.getElementById('globeLayout').classList.contains('is-fullscreen')),'Mobile fullscreen exit failed');
+ // Two simulated touch pointers exercise the same PointerEvent path used by
+ // real touchscreens; moving fingers apart and together changes view scale.
+ const pinchResults=await page.locator('#gesture').evaluate(el=>{
+  const event=(kind,id,x,y)=>el.dispatchEvent(new PointerEvent(kind,{
+   pointerId:id,pointerType:'touch',isPrimary:id===301,bubbles:true,
+   clientX:x,clientY:y,button:0,buttons:kind==='pointerup'?0:1
+  }));
+  const get=()=>Number(document.getElementById('stage').dataset.zoomGesture||0);
+  event('pointerdown',301,115,280);event('pointerdown',302,205,280);
+  event('pointermove',302,245,280);
+  const zoomIn=get();
+  event('pointermove',302,162,280);
+  const zoomOut=get();
+  event('pointerup',302,162,280);event('pointerup',301,115,280);
+  return {zoomIn,zoomOut};
+ });
+ assert(pinchResults.zoomIn>pinchResults.zoomOut*1.1,'Mobile pinch should zoom in/out: '+JSON.stringify(pinchResults));
  const mobile=path.join(dir,'mobile_minsk_be.jpg');
  await page.screenshot({path:mobile,type:'jpeg',quality:68,fullPage:true});
  console.log('MOBILE_BROWSER_OK',JSON.stringify(overflow));
