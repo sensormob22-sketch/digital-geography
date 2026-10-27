@@ -77,12 +77,34 @@ try{
  const homePicture=path.join(dir,'homepage_welcome_ru.jpg');
  await page.screenshot({path:homePicture,type:'jpeg',quality:72,fullPage:true});
  emit('homepage_welcome_ru',homePicture);
+ // Real responsive parent site: one title, no footer, full-width workspace.
+ await page.goto(BASE+'/#practice',{waitUntil:'domcontentloaded'});
+ await page.locator('.geography-class-grid .animated-class-link').first().waitFor({timeout:12000});
+ assert.equal(await page.locator('.geography-class-grid .animated-class-link').count(),6);
+ assert.equal(await page.locator('#pageContent h1').count(),1,'Practice catalog should have exactly one visible section heading');
+ assert.match(await page.locator('#pageContent h1').innerText(),/Практические работы по географии/);
+ assert.equal(await page.locator('.footer').count(),0,'No bottom footer band');
+ const tileAnimation=await page.locator('.scene-frame').first().evaluate(el=>getComputedStyle(el).animationName);
+ assert(tileAnimation.includes('scene-reel'),'Thematic grade-card animation is not running');
+ const practiceShot=path.join(dir,'practice_cards_desktop_ru.jpg');
+ await page.screenshot({path:practiceShot,type:'jpeg',quality:72,fullPage:true});
+ emit('practice_cards_desktop_ru',practiceShot);
+ await page.goto(BASE+'/#nomenclature/6',{waitUntil:'domcontentloaded'});
+ await page.locator('#geographyGlobe').waitFor({timeout:12000});
+ assert.equal(await page.locator('.hero,.globe-area-title,.footer').count(),0,'Duplicate heading/footer must be removed from embedded catalog');
+ const widths=await page.evaluate(()=>{
+  const c=document.getElementById('pageContent').getBoundingClientRect(),g=document.querySelector('.globe-area').getBoundingClientRect();
+  return {container:c.width,globe:g.width};
+ });
+ assert(widths.globe/widths.container>.95,'Globe must use almost all main content width: '+JSON.stringify(widths));
  await open('/globus/index.html?grade=6&lang=en&theme=light');
  assert.equal(await page.locator('.languages [data-lang]').count(),0,'No internal language toggles');
  assert.equal(await page.locator('html').getAttribute('lang'),'ru','URL lang must not override homepage');
  assert.match(await page.locator('#mapMode').innerText(),/Физический/);
  assert(await page.locator('#points').evaluate(c=>!!c.getContext('2d')));
  await choose('Гималаи');
+ assert.equal(await page.locator('#gradeButtons').isVisible(),false,'No duplicated desktop class navigation in globe');
+ assert((await page.locator('#groups details.group[open]').count())<=1,'Only one catalogue topic can stay expanded');
  assert.equal(await page.locator('#back').count(),0,'Recursive На сайт hyperlink must be absent');
  assert.match(await page.locator('#factName').innerText(),/Гималаи/);
  // Independent +/- even with a selected object; no forced camera snapback.
