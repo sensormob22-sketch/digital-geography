@@ -108,6 +108,9 @@ body.geo-no-scroll{overflow:hidden}
 }
 
 body.embedded-globe .top,body.embedded-globe .grades{display:none!important}
+body.embedded-globe a[href*="netlify.com"]:not([data-keep]),
+body.embedded-globe [aria-label*="Powered by Netlify"],
+body.embedded-globe [title*="Powered by Netlify"]{display:none!important}
 body.embedded-globe .layout{width:100%;max-width:none;margin:0;padding:7px;gap:9px;--globe-h:clamp(580px,calc(100dvh - 14px),1150px)}
 body.embedded-globe .layout .stage{border-radius:13px}
 body.embedded-globe .layout .sidebar-content{height:var(--globe-h)}
@@ -734,7 +737,18 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('globeLayout').cl
 new ResizeObserver(resize).observe($('stage'));
 $('legendPanel').addEventListener('toggle',()=>requestAnimationFrame(resize));
 window.addEventListener('resize',resize);
-if(embedded)document.body.classList.add('embedded-globe');
+if(embedded){
+ document.body.classList.add('embedded-globe');
+ // The hosting platform can inject its branding badge independently into
+ // each nested document. Keep parent badge, suppress iframe duplicates only.
+ const hideDuplicateBadge=()=>{
+  for(const el of document.querySelectorAll('a,button,[role="link"]')){
+   if(/Powered by Netlify/i.test(el.textContent||el.getAttribute('aria-label')||''))el.hidden=true;
+  }
+ };
+ new MutationObserver(hideDuplicateBadge).observe(document.body,{subtree:true,childList:true});
+ hideDuplicateBadge();
+}
 compileGroups();mapMode=grade>=10?'political':'physical';initGL();labels();resize();loadGeometry();loadRelief();loadHydrology();loadBelarusHydrology();loadBelarusRelief();loadTerrainRegions();loadParks();redraw();
 })();
 </script></body></html>
