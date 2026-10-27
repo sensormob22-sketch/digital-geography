@@ -44,6 +44,7 @@ function compact(ring){
  }
  return output.length>=4?output:[];
 }
+console.log('WDPCA candidates:',raw.features.map(f=>(f.properties?.name_eng||f.properties?.name||'?')+' ['+(f.properties?.desig_eng||'?')+']').join(' | '));
 const matched={};
 for(const [target,aliases] of Object.entries(targets)){
  const features=raw.features.filter(f=>{
