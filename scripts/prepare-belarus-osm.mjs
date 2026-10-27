@@ -20,7 +20,7 @@ const names={
 const bbox='51.1,22.7,56.5,33.4';
 const parks='Беловеж|Белавеж|Białowie|Belove|Браслав|Braslav|Нароч|Нарач|Naroch|Прыпя|Припя|Pripyat|Березин|Бярэзін|Berezin';
 const lakes='Червоно|Червон|Chervon|Вилей|Вілей|Viley|Vilej';
-const query=`[out:json][timeout:65];(relation(${bbox})["boundary"~"protected_area|national_park"]["name"~"${parks}",i];relation(${bbox})["name"~"${lakes}",i]["natural"="water"];way(${bbox})["name"~"${lakes}",i]["natural"="water"];);out geom;`;
+const query=`[out:json][timeout:28];(relation(${bbox})["boundary"~"protected_area|national_park"]["name"~"${parks}",i];relation(${bbox})["name"~"${lakes}",i]["natural"="water"];way(${bbox})["name"~"${lakes}",i]["natural"="water"];);out geom;`;
 function same(a,b){return Math.abs(a[0]-b[0])<.00012&&Math.abs(a[1]-b[1])<.00012}
 function buildRings(element){
  let ways=[];
@@ -54,9 +54,9 @@ function bounds(rings){
 }
 const output={source:'OpenStreetMap © contributors (ODbL); relation/way geometries downloaded during site build',regions:{}};
 let elements=[];
-for(const server of ['https://overpass.kumi.systems/api/interpreter','https://overpass-api.de/api/interpreter','https://overpass.nchc.org.tw/api/interpreter']){
+for(const server of ['https://overpass.kumi.systems/api/interpreter','https://overpass-api.de/api/interpreter']){
  try{
-  const response=await fetch(server,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','User-Agent':'DigitalGeographySchool/1.0'},body:new URLSearchParams({data:query}),signal:AbortSignal.timeout(65000)});
+  const response=await fetch(server,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','User-Agent':'DigitalGeographySchool/1.0'},body:new URLSearchParams({data:query}),signal:AbortSignal.timeout(30000)});
   if(!response.ok)throw Error('HTTP '+response.status);
   const data=await response.json();
   if(!Array.isArray(data.elements))throw Error('No elements');
