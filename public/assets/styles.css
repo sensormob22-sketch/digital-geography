@@ -41,3 +41,6 @@ html[data-theme="dark"] .class-link:hover{background:#453477;color:#fff}
 @media(max-width:1040px){.globe-frame{height:1120px}}
 @media(max-width:780px){.globe-area{border-radius:18px}.globe-area-title{padding:16px}.globe-area-title h2{font-size:19px}.globe-frame{height:1110px}}
 @media(max-width:430px){.globe-frame{height:1100px}.globe-full-link{width:100%}}
+
+/* Only the welcome page exposes the one global language selector. */
+.language-switch[hidden]{display:none!important}
