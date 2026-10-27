@@ -12,6 +12,8 @@ assert(styles.includes('scene-reel')&&styles.includes('infinite'),'Grade illustr
 assert(styles.includes('prefers-reduced-motion'),'Grade animations need reduced-motion fallback');
 assert(styles.includes('.geography-class-grid'),'Responsive six-grade grid missing');
 assert(styles.includes('max-width:none'),'Work area should use screen width');
+assert(globe.includes('Mobile and tablet must undo the desktop two-column override'),'Missing mobile globe layout regression fix');
+assert(globe.includes('.layout{grid-template-columns:minmax(0,1fr);--globe-h:clamp(300px'),'Phone globe must be full-width and stacked above the nomenclature');
 assert(!globe.includes('id="back"'),'Recursive site button must never return');
 assert(globe.includes('class="grades" hidden'),'Standalone class buttons hidden in embedded UI');
 assert(globe.includes('for(const other of')&&globe.includes('other.open=false'),'Accordion must keep only one list expanded');
