@@ -520,7 +520,7 @@ $('reset').onclick=()=>{cancelTravel();target={zoom:1,lon:27*RAD,lat:30*RAD};ani
 $('factClose').onclick=()=>{chosen=null;selectedLabel();renderFact();renderList();redraw()};
 
 $('gradeButtons').addEventListener('click',e=>{const b=e.target.closest('[data-grade]');if(!b)return;cancelTravel();grade=+b.dataset.grade;compileGroups();chosen=null;zoom=1;setMapMode(grade>=10?'political':'physical');openGroup=0;filter='';$('search').value='';labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&lang='+lang+'&theme='+theme);redraw()});
-document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{lang=b.dataset.lang;const old=chosen?.id;compileGroups();chosen=all().find(o=>o.id===old)||null;labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&lang='+lang+'&theme='+theme)}));
+document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{lang=b.dataset.lang;const old=chosen?.id;compileGroups();chosen=all().find(o=>o.id===old)||null;labels();redraw();history.replaceState(null,'',location.pathname+'?grade='+grade+'&lang='+lang+'&theme='+theme)}));
 $('groups').addEventListener('click',e=>{const b=e.target.closest('[data-obj]');if(b){const item=all().find(v=>v.id===b.dataset.obj);if(item)choose(item)}});
 $('groups').addEventListener('toggle',e=>{if(e.target.matches('.group')&&e.target.open&&!filter)openGroup=+e.target.dataset.id},true);
 $('search').addEventListener('input',e=>{filter=e.target.value.trim();renderList();redraw()});
