@@ -32,6 +32,15 @@ try{
  page=await browser.newPage({viewport:{width:1365,height:900},deviceScaleFactor:1,locale:'ru-RU'});
  page.on('pageerror',e=>errors.push(String(e)));
  page.on('console',msg=>{if(msg.type()==='error')console.log('BROWSER_CONSOLE_ERROR:',msg.text().slice(0,300))});
+ async function setSiteLanguage(next){
+  const r=await page.goto(BASE+'/#home',{waitUntil:'domcontentloaded'});
+  assert(r?.ok(),'Homepage failed');
+  await page.locator('.home-welcome').waitFor();
+  assert(await page.locator('#globalLanguageSwitch').isVisible(),'Home language switch missing');
+  await page.locator('#globalLanguageSwitch [data-lang="'+next+'"]').click();
+  await page.waitForFunction(language=>document.documentElement.lang===language,next);
+  assert.equal(await page.locator('.home-feature').count(),3);
+ }
  async function open(url){
   const response=await page.goto(BASE+url,{waitUntil:'domcontentloaded',timeout:30000});
   assert(response?.ok(),'Failed to open '+url);
@@ -64,7 +73,13 @@ try{
   });
  }
  // Physical / natural-feature contour at production desktop size.
- await open('/globus/index.html?grade=6&lang=ru&theme=light');
+ await setSiteLanguage('ru');
+ const homePicture=path.join(dir,'homepage_welcome_ru.jpg');
+ await page.screenshot({path:homePicture,type:'jpeg',quality:72,fullPage:true});
+ emit('homepage_welcome_ru',homePicture);
+ await open('/globus/index.html?grade=6&lang=en&theme=light');
+ assert.equal(await page.locator('.languages [data-lang]').count(),0,'No internal language toggles');
+ assert.equal(await page.locator('html').getAttribute('lang'),'ru','URL lang must not override homepage');
  assert.match(await page.locator('#mapMode').innerText(),/Физический/);
  assert(await page.locator('#points').evaluate(c=>!!c.getContext('2d')));
  await choose('Гималаи');
@@ -113,8 +128,11 @@ try{
  assert.match(await page.locator('#mapMode').innerText(),/Политический/);
  pix=await pixelSummary();
  assert(pix.pink>20,'Urban megaregion contour is not visible');
- await page.locator('[data-lang="en"]').click();
- await wait(200);
+ await setSiteLanguage('en');
+ await open('/globus/index.html?grade=11&lang=ru&theme=dark');
+ const englishBoswash=await page.evaluate(()=>window.GLOBE_TRANSLATIONS.name('Босваш (Приатлантический)','en'));
+ await choose(englishBoswash);
+ assert.equal(await page.locator('html').getAttribute('lang'),'en');
  assert.match(await page.locator('#factHeading').innerText(),/About this location/);
  assert.match(await page.locator('#factName').innerText(),/BosWash/);
  await page.waitForFunction(()=>document.getElementById('stage').dataset.markerLabel.startsWith('BosWash'),{timeout:8000});
@@ -134,8 +152,28 @@ try{
  console.log('POLITICAL_BROWSER_OK',JSON.stringify(pix));
  emit('political_boswash_en',political);
  // Mobile: semantic info panel, readable legend and no horizontal scrolling.
+ await page.goto(BASE+'/works/9/3/index.html',{waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>document.documentElement.lang==='en',{timeout:15000});
+ assert.equal(await page.locator('[data-language]').count(),0,'Meteolab language controls must be absent');
+ await setSiteLanguage('be');
  await page.setViewportSize({width:390,height:844});
- await open('/globus/index.html?grade=9&lang=be&theme=dark');
+ await open('/globus/index.html?grade=9&lang=ru&theme=dark');
+ assert.equal(await page.locator('html').getAttribute('lang'),'be');
+ await page.waitForFunction(()=>document.documentElement.dataset.belarusRelief==='ready',{timeout:30000});
+ assert.match(await page.locator('#mapMode').innerText(),/Фізічны/);
+ const belarusName=await page.evaluate(()=>window.GLOBE_TRANSLATIONS.name('Белорусская гряда','be'));
+ await page.evaluate(()=>{
+  window.__flightMin=Infinity;const stage=document.getElementById('stage');
+  new MutationObserver(()=>{
+   const z=parseFloat(stage.dataset.flightZoom);
+   if(Number.isFinite(z))window.__flightMin=Math.min(window.__flightMin,z);
+  }).observe(stage,{attributes:true,attributeFilter:['data-flight-zoom']});
+ });
+ await choose(belarusName);
+ assert((await page.evaluate(()=>window.__flightMin))>=6.9,'Grade 9 zoom-out exceeded Europe scale');
+ const belarusPicture=path.join(dir,'belarus_elevation_grade9_be.jpg');
+ await page.screenshot({path:belarusPicture,type:'jpeg',quality:78,fullPage:true});
+ emit('belarus_elevation_grade9_be',belarusPicture);
  await choose('Мінск');
  assert.equal((await page.locator('#factName').innerText()).trim(),'Мінск');
  assert.match(await page.locator('#legendTitle').innerText(),/Умоўныя абазначэнні/);
