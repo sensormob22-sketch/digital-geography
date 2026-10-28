@@ -99,6 +99,12 @@ try{
  assert.equal(await page.locator('.footer').count(),0,'No bottom footer band');
  const tileAnimation=await page.locator('.scene-frame').first().evaluate(el=>getComputedStyle(el).animationName);
  assert(tileAnimation.includes('scene-reel'),'Thematic grade-card animation is not running');
+ const desktopFrames=await page.locator('.geography-class-grid .animated-class-link').first().evaluate(el=>({
+  negativeDelay:getComputedStyle(el.querySelectorAll('.scene-frame')[1]).animationDelay,
+  all:Array.from(el.querySelectorAll('.scene-frame')).map(x=>getComputedStyle(x).opacity)
+ }));
+ assert(desktopFrames.negativeDelay.startsWith('-'),'Desktop animated cards must start with staggered NEGATIVE delays: '+JSON.stringify(desktopFrames));
+ assert(desktopFrames.all.some(v=>Number(v)>.5),'At least one thematic frame must be visible immediately on desktop: '+JSON.stringify(desktopFrames));
  const practiceShot=path.join(dir,'practice_cards_desktop_ru.jpg');
  await page.screenshot({path:practiceShot,type:'jpeg',quality:72,fullPage:true});
  emit('practice_cards_desktop_ru',practiceShot);
@@ -228,6 +234,13 @@ try{
    let count=0;for(let i=3;i<p.length;i+=4)if(p[i]>85)count++;return count;
  });
  assert(focusPixels>25,'Watercourse should be highlighted along the actual river course');
+ const desktopWaterLayer=await page.locator('#focusLayer').evaluate(x=>({
+  z:getComputedStyle(x).zIndex,base:getComputedStyle(document.getElementById('points')).zIndex
+ }));
+ assert(+desktopWaterLayer.z>+desktopWaterLayer.base,'Animated water layer must be ABOVE opaque desktop vector-map polygons');
+ const firstPulse=Number(await page.locator('#stage').getAttribute('data-water-pulse'))||0;
+ await page.waitForFunction(previous=>Number(document.getElementById('stage').dataset.waterPulse)>previous,firstPulse,{timeout:5000});
+ console.log('DESKTOP_RIVER_PULSE_OK',JSON.stringify({firstPulse,desktopWaterLayer}));
  await choose('Байкал');
  await page.waitForFunction(()=>document.getElementById('stage').dataset.activeWater.length>0,{timeout:8000});
  const waterZoom=Number(await page.locator('#stage').getAttribute('data-zoom'));
@@ -260,7 +273,9 @@ try{
  await page.locator('#legendPanel summary').click();
  assert((await page.locator('#legendPanel').innerText()).includes('Rivers')||(await page.locator('#legendPanel').innerText()).includes('Реки'),'Hydrology key missing from political legend');
  await page.locator('#legendPanel summary').click();
- assert.deepEqual(await page.locator('#factMeta dt').allInnerTexts(),['Object type','Topic group','Reference point']);
+ assert.deepEqual(await page.locator('#factMeta dt').allInnerTexts(),['Object type','Population','Principal cities']);
+ assert.match(await page.locator('#factMeta dd').nth(1).innerText(),/51.8 million/);
+ assert.match(await page.locator('#factMeta dd').nth(2).innerText(),/Boston.*New York.*Washington/);
  assert.equal(await page.locator('#factMeta dd').count(),3);
  assert.equal(await page.locator('#count,.counter').count(),0);
  assert(!/Outline on globe|^Map$/m.test(await page.locator('#factPanel').innerText()));
@@ -278,6 +293,14 @@ try{
  assert.equal(await page.locator('html').getAttribute('lang'),'be');
  await page.waitForFunction(()=>document.documentElement.dataset.belarusRelief==='ready',{timeout:30000});
  await page.waitForFunction(()=>document.documentElement.dataset.belarusHydro==='ready',{timeout:30000});
+ await page.waitForFunction(()=>document.documentElement.dataset.belarusOblasts==='ready',{timeout:30000});
+ const initialBelarus=await page.locator('#stage').evaluate(x=>({
+  zoom:Number(x.dataset.zoom),home:Number(x.dataset.belarusDefaultZoom),
+  width:x.clientWidth,height:x.clientHeight
+ }));
+ assert(initialBelarus.home>9&&Math.abs(initialBelarus.zoom-initialBelarus.home)<.12,
+  'Belarus must open fitted to ~3/4 of its mobile viewport: '+JSON.stringify(initialBelarus));
+ console.log('BELARUS_DEFAULT_ATLAS_VIEW_OK',JSON.stringify(initialBelarus));
  assert.match(await page.locator('#mapMode').innerText(),/Фізічны/);
  const belarusName=await page.evaluate(()=>window.GLOBE_TRANSLATIONS.name('Белорусская гряда','be'));
  await page.evaluate(()=>{
@@ -301,6 +324,9 @@ try{
   console.log('BELARUS_RIVER_ROUTE_OK',raw,route);
  }
  await choose('Мінск');
+ const belarusCityZoom=Number(await page.locator('#stage').getAttribute('data-zoom'));
+ assert(Math.abs(belarusCityZoom/initialBelarus.home-1.08)<.025,
+  'Grade 9 city zoom must be gentle (~8%): '+JSON.stringify({belarusCityZoom,initialBelarus}));
  assert.equal((await page.locator('#factName').innerText()).trim(),'Мінск');
  assert.match(await page.locator('#legendTitle').innerText(),/Умоўныя абазначэнні/);
  assert.match(await page.locator('#mapMode').innerText(),/Палітычны/);
