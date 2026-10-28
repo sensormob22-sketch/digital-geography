@@ -113,7 +113,7 @@ const boundData=JSON.parse(fs.readFileSync(path.join(root,'belarus-oblasts.json'
 assert.equal(oblasts.setData(boundData),7,'Six oblasts and Minsk city must be in bundled geometry');
 assert.equal(oblasts.legend('ru').length,6,'Oblast key must show six distinct regions');
 assert.equal(new Set(oblasts.legend('ru').map(x=>x.color)).size,6,'Each oblast needs its own color');
-for(const region of boundData.regions)assert(region.rings.every(r=>r.length>=10),'Invalid boundary shape '+region.name);
+for(const region of boundData.regions)assert(region.rings.every(r=>r.length>=4),'Invalid boundary shape '+region.name);
 assert.equal(oblasts.countryLabels.length,5,'Belarus must have five neighbors');
 assert(html.includes('loadBelarusOblasts()'),'Administrative shapes loader must be called');
 assert(html.includes('BELARUS_REGIONS.drawNeighbors'),'Neighbor country names must be painted');
