@@ -108,6 +108,34 @@ try{
  const practiceShot=path.join(dir,'practice_cards_desktop_ru.jpg');
  await page.screenshot({path:practiceShot,type:'jpeg',quality:72,fullPage:true});
  emit('practice_cards_desktop_ru',practiceShot);
+ // Test the REAL embedded grade-9 desktop globe, not a standalone helper
+ // and not merely the math in belarus-view.js.
+ await page.goto(BASE+'/#nomenclature/9',{waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>{
+  const doc=document.getElementById('geographyGlobe')?.contentDocument;
+  const stage=doc?.getElementById('stage');
+  return doc?.documentElement.dataset.belarusOblasts==='ready' &&
+    stage?.dataset.belarusFitMode==='desktop' &&
+    Number(stage.dataset.belarusCoverageHeight)>0;
+ },null,{timeout:35000});
+ const desktopBelarus=await page.locator('#geographyGlobe').evaluate(frame=>{
+  const doc=frame.contentDocument,stage=doc.getElementById('stage');
+  return {frame:frame.clientWidth,stageWidth:stage.clientWidth,
+   stageHeight:stage.clientHeight,mode:stage.dataset.belarusFitMode,
+   widthFraction:Number(stage.dataset.belarusCoverageWidth),
+   heightFraction:Number(stage.dataset.belarusCoverageHeight),
+   zoom:Number(stage.dataset.zoom),home:Number(stage.dataset.belarusDefaultZoom)};
+ });
+ assert(desktopBelarus.heightFraction>=.68&&desktopBelarus.heightFraction<=.755,
+  'Initial DESKTOP Belarus must occupy ~3/4 of actual stage height: '+JSON.stringify(desktopBelarus));
+ assert(desktopBelarus.widthFraction<=.935&&desktopBelarus.widthFraction>.65,
+  'Full Belarus borders must fit horizontally with small margins: '+JSON.stringify(desktopBelarus));
+ assert(Math.abs(desktopBelarus.zoom-desktopBelarus.home)<.2,
+  'Default desktop fit zoom must actually be applied, not merely calculated: '+JSON.stringify(desktopBelarus));
+ console.log('BELARUS_DESKTOP_75_PERCENT_VISIBLE_OK',JSON.stringify(desktopBelarus));
+ const desktopBelarusShot=path.join(dir,'belarus_desktop_initial_75_percent_ru.jpg');
+ await page.screenshot({path:desktopBelarusShot,quality:78,type:'jpeg',fullPage:false});
+ emit('belarus_desktop_initial_75_percent_ru',desktopBelarusShot);
  await page.setViewportSize({width:390,height:844});
  await page.goto(BASE+'/#practice',{waitUntil:'domcontentloaded'});
  await page.locator('.animated-class-link').first().waitFor({timeout:12000});
