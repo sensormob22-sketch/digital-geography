@@ -1,5 +1,6 @@
 /* Платформа «Цифровая география». Service Worker: core shell + opt-in works. */
-const VERSION='geo-core-2026-10-v24';
+const VERSION='geo-core-2026-10-v25';
+const CITY_ARMS='geo-belarus-city-heraldry-v1';
 const CORE=`${VERSION}-shell`;
 const WORKS='geo-offline-works-v6';
 const BASE=new URL(self.registration.scope);
@@ -41,7 +42,24 @@ self.addEventListener('activate',event=>{
 self.addEventListener('fetch',event=>{
   const request=event.request;
   if(request.method!=='GET')return;
-  if(!inScope(new URL(request.url)))return;
+  // Public Wikimedia city-coat assets are fetched on first use and kept for
+  // future offline visits. A failed remote request never blocks the site.
+  const assetUrl=new URL(request.url);
+  if(request.destination==='image'&&assetUrl.origin==='https://commons.wikimedia.org'&&
+     assetUrl.pathname.startsWith('/wiki/Special:FilePath/')){
+    event.respondWith((async()=>{
+      const cache=await caches.open(CITY_ARMS);
+      const stored=await cache.match(request);
+      if(stored)return stored;
+      try{
+        const response=await fetch(request);
+        if(response.ok||response.type==='opaque')await cache.put(request,response.clone());
+        return response;
+      }catch(error){return Response.error()}
+    })());
+    return;
+  }
+  if(!inScope(assetUrl))return;
   const uri=new URL(request.url);
   const isWork=uri.pathname===new URL(workURL).pathname || uri.pathname===new URL(absolute('works/9/3/')).pathname;
   if(isWork){
