@@ -291,7 +291,16 @@ try{
  assert.equal((await page.locator('#factName').innerText()).trim(),'Мінск');
  assert.match(await page.locator('#legendTitle').innerText(),/Умоўныя абазначэнні/);
  assert.match(await page.locator('#mapMode').innerText(),/Палітычны/);
- assert.deepEqual(await page.locator('#factMeta dt').allInnerTexts(),['Тып аб’екта','Тэматычная група','Кропка-арыенцір']);
+ assert.deepEqual(await page.locator('#factMeta dt').allInnerTexts(),['Тып аб’екта','Вобласць','Насельніцтва горада']);
+ assert.equal(await page.locator('#factMeta dd').nth(2).innerText(),new Intl.NumberFormat('be-BY').format(1995091)+' (2026)');
+ assert(await page.locator('#factIcon img').count()===1,'Minsk city heraldic pictogram missing');
+ assert.equal(await page.evaluate(()=>document.documentElement.dataset.belarusOblasts),'ready','Belarus six oblasts + Minsk city were not loaded');
+ const regionLegend=await page.locator('#legendPanel .legend-row').allInnerTexts();
+ assert(regionLegend.some(s=>s.includes('Брэсцкая вобласць')),'Brest colored legend missing');
+ assert(regionLegend.some(s=>s.includes('Гомельская вобласць')),'Gomel colored legend missing');
+ const belarusRegionsImage=path.join(dir,'belarus_six_oblasts_grade9_be.jpg');
+ await page.screenshot({path:belarusRegionsImage,type:'jpeg',quality:76,fullPage:false});
+ emit('belarus_six_oblasts_grade9_be',belarusRegionsImage);
  assert.equal(await page.locator('#factMeta dd').count(),3);
  assert.equal(await page.locator('#count,.counter').count(),0);
  assert.match(await page.locator('#hint').innerText(),/Перацягвайце/);
@@ -305,6 +314,12 @@ try{
  assert(overflow.descriptionSize>=12.5&&overflow.metaSize>=11.5,'Mobile card text is too small');
  assert(overflow.cardContentWidth<=overflow.cardWidth,'Mobile reference information exceeds card bounds');
  assert(overflow.documentWidth<=overflow.viewportWidth+4,'Horizontal overflow on mobile '+JSON.stringify(overflow));
+ // Belarus country names must follow the map projection (not fixed DOM overlays).
+ const regionProj=await page.locator('#points').evaluate(el=>{
+  const data=document.getElementById('stage').dataset;
+  return {width:el.width,height:el.height};
+ });
+ assert(regionProj.width>0&&regionProj.height>0,'Belarus political labels need a canvas');
  // Fullscreen control must be operable in a mobile viewport and reversible.
  await page.locator('#fullscreen').click();await wait(350);
  assert(await page.evaluate(()=>Boolean(document.fullscreenElement)||document.getElementById('globeLayout').classList.contains('is-fullscreen')),'Mobile fullscreen entry failed');
