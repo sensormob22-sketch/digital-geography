@@ -308,7 +308,8 @@ try{
  assert.equal(await page.locator('#factMeta dd').nth(2).innerText(),new Intl.NumberFormat('be-BY').format(1995091)+' (2026)');
  assert(await page.locator('#factIcon img').count()===1,'Minsk city heraldic pictogram missing');
  assert.equal(await page.evaluate(()=>document.documentElement.dataset.belarusOblasts),'ready','Belarus six oblasts + Minsk city were not loaded');
- const regionLegend=await page.locator('#legendPanel .legend-row').allInnerTexts();
+ if(!await page.locator('#legendPanel').evaluate(el=>el.open))await page.locator('#legendPanel summary').click();
+ const regionLegend=await page.locator('#legendPanel .legend-row').allTextContents();
  assert(regionLegend.some(s=>s.includes('Брэсцкая вобласць')),'Brest colored legend missing');
  assert(regionLegend.some(s=>s.includes('Гомельская вобласць')),'Gomel colored legend missing');
  const belarusRegionsImage=path.join(dir,'belarus_six_oblasts_grade9_be.jpg');
