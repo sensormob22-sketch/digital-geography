@@ -20,7 +20,7 @@ const cities=[
  ['Витебск','vitebsk',357899,'Coat of Arms of Viciebsk, Belarus.svg'],
  ['Гомель','gomel',499853,'Coat of Arms of Homiel, Belarus.svg'],
  ['Гродно','grodno',364902,'Coat of arms of Hrodna.svg'],
- ['Могилев','mogilev',352891,'Coat of Arms of Mahiloŭ.svg'],
+ ['Могилёв','mogilev',352891,'Coat of Arms of Mahiloŭ.svg'],
  ['Барановичи','brest',170039,'Coat of arms Baranavičy.svg'],
  ['Бобруйск','mogilev',204103,'Coat of Arms of Babruisk, Belarus.svg'],
  ['Борисов','minsk',133700,'Coat of Arms of Barysaŭ.svg'],
