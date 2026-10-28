@@ -101,7 +101,7 @@ html.in-platform-frame iframe#nl-badge-frame{display:none!important;visibility:h
 body.geo-no-scroll{overflow:hidden}
 /* Embedded globe fills available width, no duplicate desktop grade navigator. */
 .grades{display:none!important}
-.layout{max-width:none;width:100%;margin:0;grid-template-columns:minmax(0,1.6fr) minmax(300px,.85fr);--globe-h:clamp(610px,calc(100dvh - 100px),1350px)}
+.layout{max-width:none;width:100%;margin:0;grid-template-columns:minmax(0,2.18fr) minmax(275px,.74fr);--globe-h:clamp(610px,calc(100dvh - 100px),1350px)}
 /* Mobile and tablet must undo the desktop two-column override above.
    Keep the globe as the first, full-width row and the independently scrolling
    nomenclature pane beneath it. */
@@ -191,7 +191,15 @@ function isPolitical(o){return mapFor(o)==='political'}
 function isWater(o){return /^(Океан|Море|Море-озеро|Залив|Пролив|Река|Приток|Озеро|Группа озёр|Водопад|Водохранилище)/.test(o.rawType||'')}
 function visibleMap(){return visible().filter(o=>mapFor(o)===mapMode||(mapMode==='political'&&isWater(o)))}
 const MAX_ZOOM=650;
-function belarusHome(){return BELARUS_VIEW.fit?.(w,h,belarusOblasts,.75)||{lon:28*RAD,lat:53.6*RAD,zoom:18}}
+function belarusHome(){
+ const desktop=matchMedia('(min-width:971px)').matches;
+ const home=BELARUS_VIEW.fit?.(w,h,belarusOblasts,.75,desktop)||{lon:28*RAD,lat:53.6*RAD,zoom:18};
+ const stage=$('stage');
+ stage.dataset.belarusFitMode=desktop?'desktop':'mobile';
+ stage.dataset.belarusCoverageWidth=String((home.coverageX||0).toFixed(3));
+ stage.dataset.belarusCoverageHeight=String((home.coverageY||0).toFixed(3));
+ return home;
+}
 const isFineFeature=o=>/Река|Приток|Озеро|Группа озёр|Море-озеро|Водохранилище|Возвышенность|Низменность|Равнина|Гряда/.test(o.rawType||'');
 function focusForObject(o){
  return WATER_FOCUS.focusFor?.(o,AREAS,hydroData,grade===9?belarusHydro:null,w,h,MAX_ZOOM)||null;
