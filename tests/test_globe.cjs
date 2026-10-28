@@ -127,6 +127,18 @@ for(const [name,fit] of [['desktop',fitDesktop],['phone',fitPhone]]){
  assert(max>.70&&max<.77,'Belarus should fill ~75% of the viewing window on '+name+': '+max);
  assert(fit.zoom>9&&fit.zoom<45,'Belarus full country view should not be a continental or street zoom');
 }
+// Desktop regression: filling 75% of the FIRST dimension was too small
+// vertically when the globe pane is tall. Fit actual projected country
+// outlines to 75% of the stage height while retaining the full border.
+for(const [width,height] of [[1050,800],[850,800],[760,800],[660,800]]){
+ const fitted=view.fit(width,height,boundData,.75,true);
+ const horizontal=fitted.coverageX,vertical=fitted.coverageY;
+ assert(horizontal<=.931&&vertical<=.751,'Desktop Belarus must not be cropped: '+JSON.stringify({width,height,fitted}));
+ assert(Math.max(horizontal,vertical)>.68,'Desktop Belarus must be visually large: '+JSON.stringify({width,height,fitted}));
+ if(width>=850)assert(Math.abs(vertical-.75)<.012,'Landscape desktop stage must fill 75% HEIGHT: '+JSON.stringify({width,height,fitted}));
+}
+assert.equal(view.fit(800,700,boundData,.75,true).mode,'desktop');
+assert.equal(view.fit(380,500,boundData,.75,false).mode,'mobile');
 const capital={lat:53.9,lon:27.57};
 const cityGoal=view.cityTarget(capital,fitDesktop);
 assert(cityGoal.zoom>fitDesktop.zoom*1.07&&cityGoal.zoom<fitDesktop.zoom*1.1,'City selection should only zoom 8%');
