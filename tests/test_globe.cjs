@@ -3,8 +3,8 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'../public/globus'),window={};
 const context=vm.createContext({window});
-for(const file of ['objects.js','translations.js','facts.js','country-facts.js','belarus-cities.js','belarus-regions.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
-const catalog=window.GLOBE_CATALOG,translations=window.GLOBE_TRANSLATIONS,facts=window.GLOBE_FACTS,countries=window.GLOBE_COUNTRIES,cities=window.GLOBE_BELARUS_CITIES,oblasts=window.GLOBE_BELARUS_REGIONS;
+for(const file of ['objects.js','translations.js','facts.js','country-facts.js','belarus-cities.js','belarus-regions.js','belarus-view.js','urban-facts.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
+const catalog=window.GLOBE_CATALOG,translations=window.GLOBE_TRANSLATIONS,facts=window.GLOBE_FACTS,countries=window.GLOBE_COUNTRIES,cities=window.GLOBE_BELARUS_CITIES,oblasts=window.GLOBE_BELARUS_REGIONS,view=window.GLOBE_BELARUS_VIEW,urban=window.GLOBE_URBAN_FACTS;
 assert(facts&&facts.get,'Object reference descriptions must load');
 assert(facts.get('Гималаи','en').includes('Himalayas'),'English Himalayas reference missing');
 assert(facts.get('Минск','be').includes('Беларусь'),'Belarusian Minsk reference missing');
@@ -38,6 +38,10 @@ assert(html.includes('renderFact()')&&html.includes('id="factDescription"'),'Obj
 assert(html.includes('facts.js'),'Fact descriptions need script import');
 assert(html.includes('country-facts.js'),'Country profiles need script import');
 assert(html.includes('belarus-cities.js')&&html.includes('belarus-regions.js'),'Belarus city and region layers must load');
+assert(html.includes('belarus-view.js')&&html.includes('urban-facts.js'),'Belarus camera and urban settlement assets must load');
+assert(html.includes('const city9=grade===9&&Boolean(BELARUS_CITIES'),'Cities must use gentle school atlas framing');
+assert(html.includes('const rows=country')&&html.includes('[d.urbanPeople,urban.population]')&&html.includes('[d.urbanCenters,urban.centers]'),'Agglomerations and megalopolises must show population and constituent cities');
+
 assert(html.includes('const helpText={')&&html.includes('updateHelp()'),'RU/BE/EN user guidance required');
 assert(html.includes('function mapFor(o)')&&html.includes('visibleMap()'),'Map-specific object separation required');
 assert(!html.includes('data-area-layer')&&!html.includes('type="checkbox"'),'No manual contour layer toggles');
@@ -117,5 +121,32 @@ for(const region of boundData.regions)assert(region.rings.every(r=>r.length>=4),
 assert.equal(oblasts.countryLabels.length,5,'Belarus must have five neighbors');
 assert(html.includes('loadBelarusOblasts()'),'Administrative shapes loader must be called');
 assert(html.includes('BELARUS_REGIONS.drawNeighbors'),'Neighbor country names must be painted');
+const fitDesktop=view.fit(960,800,boundData,.75),fitPhone=view.fit(370,410,boundData,.75);
+for(const [name,fit] of [['desktop',fitDesktop],['phone',fitPhone]]){
+ const max=Math.max(fit.coverageX,fit.coverageY);
+ assert(max>.70&&max<.77,'Belarus should fill ~75% of the viewing window on '+name+': '+max);
+ assert(fit.zoom>9&&fit.zoom<45,'Belarus full country view should not be a continental or street zoom');
+}
+const capital={lat:53.9,lon:27.57};
+const cityGoal=view.cityTarget(capital,fitDesktop);
+assert(cityGoal.zoom>fitDesktop.zoom*1.07&&cityGoal.zoom<fitDesktop.zoom*1.1,'City selection should only zoom 8%');
+assert(Math.abs(cityGoal.lat-fitDesktop.lat)<.008,'Selected city must preserve Belarus territory framing');
+assert(view.fit(960,800,null,.75).zoom>9,'Fallback Belarus view must work offline');
+const allUrban=new Set();
+for(const [heading,entries] of catalog[11])if(/агломераци|мегалополис|Москва/.test(heading)){
+ for(const row of entries.split(';'))allUrban.add(row.split('|')[0]);
+}
+assert.equal(allUrban.size,25,'Grade 11 must preserve the educational 15+1+9 urban-region shortlist');
+assert.deepEqual(Array.from(urban.names()).sort(),Array.from(allUrban).sort(),'Urban profiles must cover ALL agglomerations and megalopolises');
+for(const name of allUrban)for(const lang of ['ru','be','en']){
+ const info=urban.get(name,lang);
+ assert(info&&info.population&&info.centers&&info.note,'Urban fact missing for '+name+' '+lang);
+ assert(info.centers.split(',').length>=3,'Main constituent urban centres missing: '+name);
+ if(info.kind==='mega')assert(info.source.startsWith('https://')&&info.year,'Megalopolis needs dated population source: '+name);
+}
+assert(urban.get('Токио','ru')?.centers.includes('Токио'),'Grade 10 Tokyo short name must resolve');
+assert.match(urban.get('Босваш (Приатлантический)','ru').population,/51,8/);
+assert(urban.get('Дельта Жемчужной реки (Гуандун)','en').population.startsWith('over 88'));
+console.log('Belarus responsive geographic 75% fit and all urban profiles validated');
 console.log('Map partition validated:',physicalCount,'physical and',politicalCount,'political instances');
 console.log('Globe tests passed:',count,'objects,',names.size,'unique names,',groups,'groups; RU/BE/EN coverage complete');
