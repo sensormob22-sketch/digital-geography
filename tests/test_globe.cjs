@@ -90,7 +90,7 @@ assert.equal(cities.get('Минск','ru').regionKey,'minsk-city','Minsk must be
 assert(cities.get('Бобруйск','ru').region.includes('Могилёв'));
 assert(cities.get('Пинск','ru').region.includes('Брест'));
 assert(cities.get('Орша','be').region.includes('Віцеб'));
-assert.equal(Number(cities.get('Гомель','ru').population.replace(/\\D/g,'')),499853);
+assert.equal(Number(cities.get('Гомель','ru').population.replace(/\D/g,'')),499853);
 
 const mapFn=html.match(/function mapFor\(o\)\{[\s\S]*?\n\}/);
 assert(mapFn,'Physical/political classifier not found');
