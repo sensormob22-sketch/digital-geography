@@ -80,7 +80,7 @@ const gradeNineCities=new Set();
 for(const [label,rows] of catalog[9])if(/города|центры/.test(label.toLowerCase()))
  for(const item of rows.split(';'))gradeNineCities.add(item.split('|')[0]);
 assert.equal(gradeNineCities.size,14,'Expected fourteen Belarus city entries');
-assert.deepEqual(cities.names().sort(),Array.from(gradeNineCities).sort(),'Every grade 9 city must have a city reference');
+assert.deepEqual(Array.from(cities.names()).sort(),Array.from(gradeNineCities).sort(),'Every grade 9 city must have a city reference');
 for(const name of cities.names())for(const lang of ['ru','be','en']){
  const info=cities.get(name,lang);
  assert(info.region&&info.population&&info.populationYear===2026,'Missing region/population/year '+name);
