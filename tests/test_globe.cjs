@@ -133,7 +133,7 @@ assert(cityGoal.zoom>fitDesktop.zoom*1.07&&cityGoal.zoom<fitDesktop.zoom*1.1,'Ci
 assert(Math.abs(cityGoal.lat-fitDesktop.lat)<.008,'Selected city must preserve Belarus territory framing');
 assert(view.fit(960,800,null,.75).zoom>9,'Fallback Belarus view must work offline');
 const allUrban=new Set();
-for(const [heading,entries] of catalog[11])if(/агломераци|мегалополис|Москва/.test(heading)){
+for(const [heading,entries] of catalog[11])if(/агломераци|мегалополис|Москва/i.test(heading)){
  for(const row of entries.split(';'))allUrban.add(row.split('|')[0]);
 }
 assert.equal(allUrban.size,25,'Grade 11 must preserve the educational 15+1+9 urban-region shortlist');
