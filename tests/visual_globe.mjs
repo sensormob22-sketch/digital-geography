@@ -5,14 +5,27 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
+import http from 'node:http';
 import { chromium } from 'playwright';
 const PORT=4175,BASE='http://127.0.0.1:'+PORT;
 const dir=path.resolve('visual-output');fs.mkdirSync(dir,{recursive:true});
 const server=spawn('python3',['-m','http.server',String(PORT),'--bind','127.0.0.1','--directory','dist'],{stdio:'ignore'});
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 async function ready(){
+ // Do not use Node's experimental Undici fetch for the readiness probe:
+ // some Node 22 runners crash at Parser.finish during an early socket close.
  for(let i=0;i<45;i++){
-  try{const r=await fetch(BASE+'/globus/index.html');if(r.ok)return}catch{}
+  const available=await new Promise(resolve=>{
+   let settled=false;const done=ok=>{if(!settled){settled=true;resolve(ok)}};
+   const req=http.get(BASE+'/globus/index.html',res=>{
+    res.resume();
+    res.once('end',()=>done(res.statusCode===200));
+    res.once('error',()=>done(false));
+   });
+   req.setTimeout(1800,()=>req.destroy());
+   req.once('error',()=>done(false));
+  });
+  if(available)return;
   await wait(450);
  }
  throw new Error('Built site local web server did not start');
