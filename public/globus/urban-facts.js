@@ -30,10 +30,10 @@ const rows=[
  ['Чипитс (Приозёрный)','mega','Чикаго, Детройт, Кливленд, Питтсбург','Чыкага, Дэтройт, Кліўленд, Пітсбург','Chicago, Detroit, Cleveland, Pittsburgh',17.7,2010,'https://www.prb.org/resource/u-s-megalopolises-50-years-later/','historical'],
  ['Сансан (Калифорнийский)','mega','Сан-Франциско, Лос-Анджелес, Сан-Диего','Сан-Францыска, Лос-Анджэлес, Сан-Дыега','San Francisco, Los Angeles, San Diego',26.7,2010,'https://www.prb.org/resource/u-s-megalopolises-50-years-later/','historical'],
  ['Голубой банан','mega','Лондон, Брюссель, Амстердам, Франкфурт-на-Майне, Милан','Лондан, Брусель, Амстэрдам, Франкфурт-на-Майне, Мілан','London, Brussels, Amsterdam, Frankfurt, Milan',100,2019,'https://www.evs.ee/en/StandardDownload/DownloadPreview?language=EnglishLanguage&productId=113666','informal'],
- ['Рандстад','mega','Амстердам, Роттердам, Гаага, Утрехт','Амстэрдам, Ротэрдам, Гаага, Утрэхт','Amsterdam, Rotterdam, The Hague, Utrecht',8.2,null,'https://documents1.worldbank.org/curated/en/278861591018281649/pdf/International-Practices-of-Metropolitan-Governance-A-Compendium-of-Collaborative-Arrangements-in-Metropolitan-Areas.pdf','historical'],
+ ['Рандстад','mega','Амстердам, Роттердам, Гаага, Утрехт','Амстэрдам, Ротэрдам, Гаага, Утрэхт','Amsterdam, Rotterdam, The Hague, Utrecht',8.2,2019,'https://documents1.worldbank.org/curated/en/278861591018281649/pdf/International-Practices-of-Metropolitan-Governance-A-Compendium-of-Collaborative-Arrangements-in-Metropolitan-Areas.pdf','historical'],
  ['Токайдо','mega','Токио, Иокогама, Нагоя, Киото, Осака, Кобе','Токіа, Ёкагама, Нагоя, Кіёта, Осака, Кобе','Tokyo, Yokohama, Nagoya, Kyoto, Osaka, Kobe',67,2019,'https://www.evs.ee/en/StandardDownload/DownloadPreview?language=EnglishLanguage&productId=113666','informal'],
- ['Дельта реки Янцзы','mega','Шанхай, Нанкин, Ханчжоу, Сучжоу, Нинбо, Хэфэй','Шанхай, Нанкін, Ханчжоу, Сучжоу, Нінбо, Хэфэй','Shanghai, Nanjing, Hangzhou, Suzhou, Ningbo, Hefei',240,2024,'https://www.mdpi.com/2071-1050/17/24/11011','regional'],
- ['Дельта Жемчужной реки (Гуандун)','mega','Гуанчжоу, Шэньчжэнь, Фошань, Дунгуань, Чжухай, Гонконг, Макао','Гуанчжоу, Шэньчжэнь, Фошань, Дунгуань, Чжухай, Ганконг, Макаа','Guangzhou, Shenzhen, Foshan, Dongguan, Zhuhai, Hong Kong, Macao',88.39,2025,'https://research.hktdc.com/en/article/MzYzMDE5NzQ','greaterBay'],
+ ['Дельта реки Янцзы','mega','Шанхай, Нанкин, Ханчжоу, Сучжоу, Нинбо, Хэфэй','Шанхай, Нанкін, Ханчжоу, Сучжоу, Нінбо, Хэфэй','Shanghai, Nanjing, Hangzhou, Suzhou, Ningbo, Hefei',237.99,2024,'https://www.mdpi.com/2071-1050/17/24/11011','regional'],
+ ['Дельта Жемчужной реки (Гуандун)','mega','Гуанчжоу, Шэньчжэнь, Фошань, Дунгуань, Чжухай, Гонконг, Макао','Гуанчжоу, Шэньчжэнь, Фошань, Дунгуань, Чжухай, Ганконг, Макаа','Guangzhou, Shenzhen, Foshan, Dongguan, Zhuhai, Hong Kong, Macao',88,2025,'https://www.bayarea.gov.hk/en/about/overview.html','greaterBay'],
  ['Сан-Рио','mega','Сан-Паулу, Рио-де-Жанейро, Кампинас','Сан-Паўлу, Рыа-дэ-Жанэйра, Кампінас','São Paulo, Rio de Janeiro, Campinas',37.8,2024,'https://agenciagov.ebc.com.br/noticias/202408/mais-da-metade-dos-brasileiros-vivem-em-apenas-387-dos-mais-de-5-mil-municipios-1','sumThree']
 ];
 const indexed=new Map(rows.map(r=>[r[0],r]));
@@ -58,7 +58,8 @@ function get(name,lang,rawType=''){
   return {population:'≈ '+n+' '+t.people,centers:r[i],note:t.metro,kind:'metro',source:'Educational grade 11 catalogue',year:null};
  }
  const value=new Intl.NumberFormat(lang==='be'?'be-BY':lang==='en'?'en-US':'ru-RU',{maximumFractionDigits:2}).format(r[5]);
- return {population:'≈ '+value+' '+t.people+(r[6]?' ('+r[6]+')':''),
+ const prefix=r[8]==='greaterBay'?(lang==='ru'?'более ':lang==='be'?'больш за ':'over '):'≈ ';
+ return {population:prefix+value+' '+t.people+(r[6]?' ('+r[6]+')':''),
   centers:r[i],kind:'mega',year:r[6],source:r[7],note:t[r[8]]};
 }
 window.GLOBE_URBAN_FACTS={get,names:()=>rows.map(r=>r[0]),sources:rows.filter(r=>r[1]==='mega').map(r=>r[7])};
