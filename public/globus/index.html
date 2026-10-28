@@ -217,8 +217,11 @@ function updateLegend(){
  const palette=mapMode==='physical'&&grade===9?['#145c2c','#33813b','#78a15c','#c1b464','#dfa149','#d37a32','#b84f2a']:mapMode==='physical'?['#11326c','#315f8b','#408674','#4d7c44','#88955b','#b4a67f','#d6bd97','#f0ebde']:['#e1f0f8','#8aa4de','#adca78','#e7bd6a','#a9a1df','#d896a9','#88ccc2'];
  const axis=mapMode==='physical'&&grade===9?['~80 м','~200 м','~350 м']:['','',''];
  const symbols=mapMode==='political'?[['country',labels.country],['border',labels.bound],['urban-outline',labels.urbanContour]]:[['natural-outline',labels.naturalContour]];
+ if(grade===9&&mapMode==='political'){
+  for(const region of BELARUS_REGIONS.legend?.(lang)||[])symbols.push(['oblast-'+region.key,region.label,region.color]);
+ }
  symbols.push(['river',labels.river],['lake',labels.lake],['pin',labels.pin],['active',labels.active]);
- $('mapLegend').innerHTML='<div class="map-legend-title">'+escape(mapMode==='physical'&&grade===9?({ru:'Рельеф Беларуси • высоты',be:'Рэльеф Беларусі • вышыні',en:'Belarus elevation zones'}[lang]):mapMode==='physical'?physicalTitle:politicalTitle)+'</div><div class="map-legend-scale">'+palette.map(c=>'<b style="background:'+c+'"></b>').join('')+'</div><div class="map-legend-axis">'+axis.map(z=>'<span>'+escape(z)+'</span>').join('')+'</div><div class="legend-key">'+symbols.map(([kind,label])=>'<div class="legend-row"><i class="legend-mark '+kind+'"></i><span>'+escape(label)+'</span></div>').join('')+'</div><span class="map-legend-note">'+escape(mapMode==='physical'?labels.colorNote+' '+(grade===9&&belarusImage?regionSource:reliefImage?credit:offline):labels.placeNote)+'</span>';
+ $('mapLegend').innerHTML='<div class="map-legend-title">'+escape(mapMode==='physical'&&grade===9?({ru:'Рельеф Беларуси • высоты',be:'Рэльеф Беларусі • вышыні',en:'Belarus elevation zones'}[lang]):mapMode==='physical'?physicalTitle:politicalTitle)+'</div><div class="map-legend-scale">'+palette.map(c=>'<b style="background:'+c+'"></b>').join('')+'</div><div class="map-legend-axis">'+axis.map(z=>'<span>'+escape(z)+'</span>').join('')+'</div><div class="legend-key">'+symbols.map(([kind,label,color])=>'<div class="legend-row"><i class="legend-mark '+kind+'"'+(color?' style="background:'+color+'"':'')+'></i><span>'+escape(label)+'</span></div>').join('')+'</div><span class="map-legend-note">'+escape(mapMode==='physical'?labels.colorNote+' '+(grade===9&&belarusImage?regionSource:reliefImage?credit:offline):labels.placeNote)+'</span>';
 }
 const refStrings={
 ru:{oblast:'Область',cityPopulation:'Население города',cityPopulationNote:'Население — на 1 января 2026 года (Белстат). Герб: Wikimedia Commons. Минск административно не входит в Минскую область.',territory:'Площадь территории',capital:'Столица',population:'Население',government:'Форма правления',structure:'Тип государственного устройства',countryDescription:'Государство на политической карте мира.',title:'Справка по объекту',legend:'Условные обозначения',topic:'Тематическая группа',type:'Тип объекта',coordinate:'Точка-ориентир',schematic:'Приблизительный учебный контур',marker:'Только точка-ориентир',river:'Реки',lake:'Озёра и водохранилища',naturalContour:'Природные объекты — условные контуры',urbanContour:'Мегалополисы / агломерации — условные контуры',showNatural:'Показывать природные контуры',showUrban:'Показывать городские зоны',physical:'Физическая',political:'Политическая',default:'Объект входит в учебную географическую номенклатуру. На глобусе обозначено примерное положение, а не полный географический контур.',note:'Контуры даны для учебной ориентировки, а не для измерения площадей. Там, где контура нет, показан маркер.',extra:'Дополнительная информация',close:'Закрыть справку',height:'Высоты суши',depth:'Глубины океана',sea:'Уровень моря',country:'Страны различаются цветом',bound:'Границы государств',pin:'Местоположение объекта',active:'Выбранный объект',colorNote:'Спутниковая карта рельефа и векторные воды. Цвета не обозначают точные отметки высот.',placeNote:'Границы стран взяты из обобщённой геометрии Natural Earth, учебные контуры городских зон — приблизительные.'},
@@ -408,6 +411,7 @@ function drawPoints(){
  const cv=$('points');over.setTransform(dpr,0,0,dpr,0,0);over.clearRect(0,0,w,h);
  const camera={lon:longitude/RAD,lat:latitude/RAD};
  VECTOR_MAP.draw?.(over,vectorGeo||geo,project,zoom,mapMode,w,h,camera);
+ if(grade===9)BELARUS_REGIONS.draw?.(over,project,zoom,mapMode,lang,BELARUS_CITIES.get?.(chosen?.rawName,lang)?.regionKey);
  HYDRO_RENDER.draw?.(over,hydroData,project,zoom,mapMode,null,camera);
  if(grade===9)HYDRO_RENDER.draw?.(over,belarusHydro,project,zoom,mapMode,12,camera);
  // Prefer confirmed real lake borders to schematic ellipses.
@@ -419,6 +423,7 @@ function drawPoints(){
  const active=chosen?.id===o.id;if(active)labelPoint=p;over.beginPath();over.arc(p.x,p.y,active?8:4.5,0,Math.PI*2);over.fillStyle=active?'#ffd38a':'#63e8d4';over.fill();over.strokeStyle='#07364e';over.lineWidth=1.7;over.stroke();
  if(active){over.beginPath();over.arc(p.x,p.y,15,0,Math.PI*2);over.strokeStyle='#ffe0a3';over.lineWidth=2.2;over.stroke();}
  });
+ if(grade===9)BELARUS_REGIONS.drawNeighbors?.(over,project,zoom,lang);
  if(chosen&&labelPoint)drawMarkerLabel(over,labelPoint.x,labelPoint.y,chosen.name);
  $('stage').dataset.markerLabel=chosen&&labelPoint?chosen.name:'';
  $('stage').dataset.waterMarkers=String(visibleMap().filter(isWater).length);
@@ -574,6 +579,17 @@ function loadRelief(){
  img.onload=()=>{reliefImage=img;document.documentElement.dataset.relief='8192';updateTexture();updateLegend()};
  img.onerror=()=>{reliefImage=null;document.documentElement.dataset.relief='unavailable';updateLegend()};
  img.src=RELIEF_URL;
+}
+async function loadBelarusOblasts(){
+ if(grade!==9)return;
+ try{
+  const res=await fetch('./belarus-oblasts.json');
+  if(!res.ok)throw Error('HTTP '+res.status);
+  belarusOblasts=await res.json();
+  const count=BELARUS_REGIONS.setData?.(belarusOblasts)||0;
+  document.documentElement.dataset.belarusOblasts=count===7?'ready':'incomplete';
+  redraw();
+ }catch(error){console.warn('Belarus administrative layer unavailable',error);document.documentElement.dataset.belarusOblasts='unavailable'}
 }
 async function loadBelarusHydrology(){
  try{
@@ -740,6 +756,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('globeLayout').cl
 new ResizeObserver(resize).observe($('stage'));
 $('legendPanel').addEventListener('toggle',()=>requestAnimationFrame(resize));
 window.addEventListener('resize',resize);
-compileGroups();mapMode=grade>=10?'political':'physical';initGL();labels();resize();loadGeometry();loadRelief();loadHydrology();loadBelarusProtected();loadBelarusHydrology();loadBelarusRelief();redraw();
+compileGroups();mapMode=grade>=10?'political':'physical';initGL();labels();resize();loadGeometry();loadRelief();loadHydrology();loadBelarusProtected();loadBelarusHydrology();loadBelarusOblasts();loadBelarusRelief();redraw();
 })();
 </script></body></html>
