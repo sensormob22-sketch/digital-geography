@@ -153,10 +153,10 @@ body.geo-no-scroll{overflow:hidden}
 </aside>
 </main>
 <script defer src="../assets/disclosures.js"></script><script>try{if(window.self!==window.top)document.documentElement.classList.add('in-platform-frame')}catch(e){document.documentElement.classList.add('in-platform-frame')}</script>
-<script src="./hydrology-renderer.js"></script><script src="./water-focus.js"></script><script src="./belarus-regions.js"></script><script src="./belarus-cities.js"></script><script src="./objects.js"></script><script src="./country-facts.js"></script><script src="./translations.js"></script><script src="./facts.js"></script><script src="./areas.js"></script><script src="./area-renderer.js"></script><script src="./vector-map.js"></script>
+<script src="./hydrology-renderer.js"></script><script src="./water-focus.js"></script><script src="./belarus-regions.js"></script><script src="./belarus-cities.js"></script><script src="./belarus-view.js"></script><script src="./objects.js"></script><script src="./country-facts.js"></script><script src="./urban-facts.js"></script><script src="./translations.js"></script><script src="./facts.js"></script><script src="./areas.js"></script><script src="./area-renderer.js"></script><script src="./vector-map.js"></script>
 <script>
 (function(){'use strict';
-const $=id=>document.getElementById(id),pars=new URLSearchParams(location.search),RAW=window.GLOBE_CATALOG||{},TR=window.GLOBE_TRANSLATIONS||{},FACTS=window.GLOBE_FACTS||{},COUNTRIES=window.GLOBE_COUNTRIES||{},BELARUS_REGIONS=window.GLOBE_BELARUS_REGIONS||{},BELARUS_CITIES=window.GLOBE_BELARUS_CITIES||{},AREAS=window.GLOBE_AREAS||{},AREA_RENDER=window.GLOBE_AREA_RENDERER||{},VECTOR_MAP=window.GLOBE_VECTOR_MAP||{},HYDRO_RENDER=window.GLOBE_HYDROLOGY_RENDERER||{},WATER_FOCUS=window.GLOBE_WATER_FOCUS||{},RAD=Math.PI/180;
+const $=id=>document.getElementById(id),pars=new URLSearchParams(location.search),RAW=window.GLOBE_CATALOG||{},TR=window.GLOBE_TRANSLATIONS||{},FACTS=window.GLOBE_FACTS||{},COUNTRIES=window.GLOBE_COUNTRIES||{},URBAN_FACTS=window.GLOBE_URBAN_FACTS||{},BELARUS_VIEW=window.GLOBE_BELARUS_VIEW||{},BELARUS_REGIONS=window.GLOBE_BELARUS_REGIONS||{},BELARUS_CITIES=window.GLOBE_BELARUS_CITIES||{},AREAS=window.GLOBE_AREAS||{},AREA_RENDER=window.GLOBE_AREA_RENDERER||{},VECTOR_MAP=window.GLOBE_VECTOR_MAP||{},HYDRO_RENDER=window.GLOBE_HYDROLOGY_RENDERER||{},WATER_FOCUS=window.GLOBE_WATER_FOCUS||{},RAD=Math.PI/180;
 let grade=+pars.get('grade')||7,lang='ru',theme=pars.get('theme')||'light';
 try{
  const saved=localStorage.getItem('geo_site_lang');
@@ -174,8 +174,8 @@ const t=n=>i18n[lang][n],escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;'
 // OSM-only protected area outlines replace inaccurate classroom ellipses.
 const authoritativeOnly=['Беловежская пуща','Браславские озёра (нацпарк)','Припятский','Нарочанский','Березинский биосферный заповедник','Червоное','Вилейское водохранилище'];
 for(const name of authoritativeOnly)if(AREAS.shapes)delete AREAS.shapes[name];
-let groups=[],chosen=null,filter='',openGroup=0,longitude=(grade===9?28:27)*RAD,latitude=(grade===9?53:30)*RAD,zoom=grade===9?7:1,target=null,geo=null,gl=null,program=null,texture=null,over=$('points').getContext('2d'),focusCtx=$('focusLayer').getContext('2d'),w=0,h=0,dpr=1,queued=false;
-let belarusOblasts=null;let mapMode='physical',reliefImage=null,textureCanvas=null,vectorGeo=null,hydroData=null,belarusHydro=null,flight=null,flightFrame=0,activeWater=null,pulseRAF=0,pulseLast=0,belarusTexture=null,belarusImage=null,belarusMeta=null;
+let groups=[],chosen=null,filter='',openGroup=0,longitude=(grade===9?28:27)*RAD,latitude=(grade===9?53:30)*RAD,zoom=grade===9?18:1,target=null,geo=null,gl=null,program=null,texture=null,over=$('points').getContext('2d'),focusCtx=$('focusLayer').getContext('2d'),w=0,h=0,dpr=1,queued=false;
+let belarusOblasts=null,userMoved=false;let mapMode='physical',reliefImage=null,textureCanvas=null,vectorGeo=null,hydroData=null,belarusHydro=null,flight=null,flightFrame=0,activeWater=null,pulseRAF=0,pulseLast=0,belarusTexture=null,belarusImage=null,belarusMeta=null;
 
 const RELIEF_URL='./relief-nasa-8192.jpg';
 const modeStrings={ru:['Физический глобус','Политический глобус','Рельеф суши и водная сеть','Государства · условные цвета','Рельеф: NASA Blue Marble; реки и озёра: Natural Earth','Офлайн: упрощённый рельеф'],
@@ -191,6 +191,7 @@ function isPolitical(o){return mapFor(o)==='political'}
 function isWater(o){return /^(Океан|Море|Море-озеро|Залив|Пролив|Река|Приток|Озеро|Группа озёр|Водопад|Водохранилище)/.test(o.rawType||'')}
 function visibleMap(){return visible().filter(o=>mapFor(o)===mapMode||(mapMode==='political'&&isWater(o)))}
 const MAX_ZOOM=650;
+function belarusHome(){return BELARUS_VIEW.fit?.(w,h,belarusOblasts,.75)||{lon:28*RAD,lat:53.6*RAD,zoom:18}}
 const isFineFeature=o=>/Река|Приток|Озеро|Группа озёр|Море-озеро|Водохранилище|Возвышенность|Низменность|Равнина|Гряда/.test(o.rawType||'');
 function focusForObject(o){
  return WATER_FOCUS.focusFor?.(o,AREAS,hydroData,grade===9?belarusHydro:null,w,h,MAX_ZOOM)||null;
@@ -227,14 +228,14 @@ function updateLegend(){
  $('mapLegend').innerHTML='<div class="map-legend-title">'+escape(mapMode==='physical'&&grade===9?({ru:'Рельеф Беларуси • высоты',be:'Рэльеф Беларусі • вышыні',en:'Belarus elevation zones'}[lang]):mapMode==='physical'?physicalTitle:politicalTitle)+'</div><div class="map-legend-scale">'+palette.map(c=>'<b style="background:'+c+'"></b>').join('')+'</div><div class="map-legend-axis">'+axis.map(z=>'<span>'+escape(z)+'</span>').join('')+'</div><div class="legend-key">'+symbols.map(([kind,label,color])=>'<div class="legend-row"><i class="legend-mark '+kind+'"'+(color?' style="background:'+color+'"':'')+'></i><span>'+escape(label)+'</span></div>').join('')+'</div><span class="map-legend-note">'+escape(mapMode==='physical'?labels.colorNote+' '+(grade===9&&belarusImage?regionSource:reliefImage?credit:offline):labels.placeNote+(grade===9?' '+oblastCredit:''))+'</span>';
 }
 const refStrings={
-ru:{oblast:'Область',cityPopulation:'Население города',cityPopulationNote:'Население — на 1 января 2026 года (Белстат). Герб: Wikimedia Commons. Минск административно не входит в Минскую область.',territory:'Площадь территории',capital:'Столица',population:'Население',government:'Форма правления',structure:'Тип государственного устройства',countryDescription:'Государство на политической карте мира.',title:'Справка по объекту',legend:'Условные обозначения',topic:'Тематическая группа',type:'Тип объекта',coordinate:'Точка-ориентир',schematic:'Приблизительный учебный контур',marker:'Только точка-ориентир',river:'Реки',lake:'Озёра и водохранилища',naturalContour:'Природные объекты — условные контуры',urbanContour:'Мегалополисы / агломерации — условные контуры',showNatural:'Показывать природные контуры',showUrban:'Показывать городские зоны',physical:'Физическая',political:'Политическая',default:'Объект входит в учебную географическую номенклатуру. На глобусе обозначено примерное положение, а не полный географический контур.',note:'Контуры даны для учебной ориентировки, а не для измерения площадей. Там, где контура нет, показан маркер.',extra:'Дополнительная информация',close:'Закрыть справку',height:'Высоты суши',depth:'Глубины океана',sea:'Уровень моря',country:'Страны различаются цветом',bound:'Границы государств',pin:'Местоположение объекта',active:'Выбранный объект',colorNote:'Спутниковая карта рельефа и векторные воды. Цвета не обозначают точные отметки высот.',placeNote:'Границы стран взяты из обобщённой геометрии Natural Earth, учебные контуры городских зон — приблизительные.'},
-be:{oblast:'Вобласць',cityPopulation:'Насельніцтва горада',cityPopulationNote:'Насельніцтва — на 1 студзеня 2026 года (Белстат). Герб: Wikimedia Commons. Мінск адміністрацыйна не ўваходзіць у Мінскую вобласць.',territory:'Плошча тэрыторыі',capital:'Сталіца',population:'Насельніцтва',government:'Форма кіравання',structure:'Тып дзяржаўнага ўладкавання',countryDescription:'Дзяржава на палітычнай карце свету.',title:'Даведка пра аб’ект',legend:'Умоўныя абазначэнні',topic:'Тэматычная група',type:'Тып аб’екта',coordinate:'Кропка-арыенцір',schematic:'Прыблізны вучэбны контур',marker:'Толькі кропка-арыенцір',river:'Рэкі',lake:'Азёры і вадасховішчы',naturalContour:'Прыродныя аб’екты — умоўныя контуры',urbanContour:'Мегалаполісы / агламерацыі — умоўныя контуры',showNatural:'Паказваць прыродныя контуры',showUrban:'Паказваць гарадскія зоны',physical:'Фізічная',political:'Палітычная',default:'Аб’ект уваходзіць у вучэбную геаграфічную наменклатуру. На глобусе паказана прыблізнае становішча, а не поўны геаграфічны контур.',note:'Контуры прызначаны для вучэбнага арыентавання, а не вымярэння плошчаў. Дзе контуру няма, паказаны маркер.',extra:'Дадатковая інфармацыя',close:'Закрыць даведку',height:'Вышыні сушы',depth:'Глыбіні акіяна',sea:'Узровень мора',country:'Дзяржавы адрозніваюцца колерам',bound:'Межы дзяржаў',pin:'Месцазнаходжанне аб’екта',active:'Выбраны аб’ект',colorNote:'Спадарожнікавая карта рэльефу і вектарныя воды. Колеры не азначаюць дакладных вышынь.',placeNote:'Межы дзяржаў — з абагульненай геаметрыі Natural Earth; вучэбныя контуры гарадскіх зон прыблізныя.'},
-en:{oblast:'Region',cityPopulation:'City population',cityPopulationNote:'Population as of 1 January 2026 (Belstat). Coat of arms: Wikimedia Commons. Minsk is separate from Minsk Region.',territory:'Territorial area',capital:'Capital',population:'Population',government:'Form of government',structure:'State structure',countryDescription:'A state on the political map of the world.',title:'About this location',legend:'Map legend',topic:'Topic group',type:'Object type',coordinate:'Reference point',schematic:'Approximate teaching outline',marker:'Reference point only',river:'Rivers',lake:'Lakes and reservoirs',naturalContour:'Natural features — schematic outlines',urbanContour:'Megaregions / agglomerations — schematic outlines',showNatural:'Show natural outlines',showUrban:'Show urban regions',physical:'Physical',political:'Political',default:'This is a location from the school geography catalogue. The globe shows an approximate reference position rather than the object’s geographic outline.',note:'Outlines are simplified teaching guides and must not be used for measuring areas. Objects without outlines have markers.',extra:'Additional information',close:'Close information',height:'Land elevations',depth:'Ocean depths',sea:'Sea level',country:'Countries shown in different colors',bound:'Country boundaries',pin:'Location marker',active:'Selected location',colorNote:'Satellite landcover and relief with vector rivers and lakes; colors are not measured elevation values.',placeNote:'Country boundaries are generalized Natural Earth geometry; urban-region outlines are approximate teaching guides.'}
+ru:{urbanPeople:'Численность населения',urbanCenters:'Основные города',urbanNote:'Указанные города — главные центры, а не все населённые пункты. Данные разного года и охвата нельзя напрямую сравнивать.',oblast:'Область',cityPopulation:'Население города',cityPopulationNote:'Население — на 1 января 2026 года (Белстат). Герб: Wikimedia Commons. Минск административно не входит в Минскую область.',territory:'Площадь территории',capital:'Столица',population:'Население',government:'Форма правления',structure:'Тип государственного устройства',countryDescription:'Государство на политической карте мира.',title:'Справка по объекту',legend:'Условные обозначения',topic:'Тематическая группа',type:'Тип объекта',coordinate:'Точка-ориентир',schematic:'Приблизительный учебный контур',marker:'Только точка-ориентир',river:'Реки',lake:'Озёра и водохранилища',naturalContour:'Природные объекты — условные контуры',urbanContour:'Мегалополисы / агломерации — условные контуры',showNatural:'Показывать природные контуры',showUrban:'Показывать городские зоны',physical:'Физическая',political:'Политическая',default:'Объект входит в учебную географическую номенклатуру. На глобусе обозначено примерное положение, а не полный географический контур.',note:'Контуры даны для учебной ориентировки, а не для измерения площадей. Там, где контура нет, показан маркер.',extra:'Дополнительная информация',close:'Закрыть справку',height:'Высоты суши',depth:'Глубины океана',sea:'Уровень моря',country:'Страны различаются цветом',bound:'Границы государств',pin:'Местоположение объекта',active:'Выбранный объект',colorNote:'Спутниковая карта рельефа и векторные воды. Цвета не обозначают точные отметки высот.',placeNote:'Границы стран взяты из обобщённой геометрии Natural Earth, учебные контуры городских зон — приблизительные.'},
+be:{urbanPeople:'Колькасць насельніцтва',urbanCenters:'Асноўныя гарады',urbanNote:'Названыя гарады — асноўныя цэнтры, не ўсе населеныя пункты. Дадзеныя розных гадоў і ахопу не варта непасрэдна параўноўваць.',oblast:'Вобласць',cityPopulation:'Насельніцтва горада',cityPopulationNote:'Насельніцтва — на 1 студзеня 2026 года (Белстат). Герб: Wikimedia Commons. Мінск адміністрацыйна не ўваходзіць у Мінскую вобласць.',territory:'Плошча тэрыторыі',capital:'Сталіца',population:'Насельніцтва',government:'Форма кіравання',structure:'Тып дзяржаўнага ўладкавання',countryDescription:'Дзяржава на палітычнай карце свету.',title:'Даведка пра аб’ект',legend:'Умоўныя абазначэнні',topic:'Тэматычная група',type:'Тып аб’екта',coordinate:'Кропка-арыенцір',schematic:'Прыблізны вучэбны контур',marker:'Толькі кропка-арыенцір',river:'Рэкі',lake:'Азёры і вадасховішчы',naturalContour:'Прыродныя аб’екты — умоўныя контуры',urbanContour:'Мегалаполісы / агламерацыі — умоўныя контуры',showNatural:'Паказваць прыродныя контуры',showUrban:'Паказваць гарадскія зоны',physical:'Фізічная',political:'Палітычная',default:'Аб’ект уваходзіць у вучэбную геаграфічную наменклатуру. На глобусе паказана прыблізнае становішча, а не поўны геаграфічны контур.',note:'Контуры прызначаны для вучэбнага арыентавання, а не вымярэння плошчаў. Дзе контуру няма, паказаны маркер.',extra:'Дадатковая інфармацыя',close:'Закрыць даведку',height:'Вышыні сушы',depth:'Глыбіні акіяна',sea:'Узровень мора',country:'Дзяржавы адрозніваюцца колерам',bound:'Межы дзяржаў',pin:'Месцазнаходжанне аб’екта',active:'Выбраны аб’ект',colorNote:'Спадарожнікавая карта рэльефу і вектарныя воды. Колеры не азначаюць дакладных вышынь.',placeNote:'Межы дзяржаў — з абагульненай геаметрыі Natural Earth; вучэбныя контуры гарадскіх зон прыблізныя.'},
+en:{urbanPeople:'Population',urbanCenters:'Principal cities',urbanNote:'Principal centres, not all localities. Counts have different dates and geographic definitions, so are not directly comparable.',oblast:'Region',cityPopulation:'City population',cityPopulationNote:'Population as of 1 January 2026 (Belstat). Coat of arms: Wikimedia Commons. Minsk is separate from Minsk Region.',territory:'Territorial area',capital:'Capital',population:'Population',government:'Form of government',structure:'State structure',countryDescription:'A state on the political map of the world.',title:'About this location',legend:'Map legend',topic:'Topic group',type:'Object type',coordinate:'Reference point',schematic:'Approximate teaching outline',marker:'Reference point only',river:'Rivers',lake:'Lakes and reservoirs',naturalContour:'Natural features — schematic outlines',urbanContour:'Megaregions / agglomerations — schematic outlines',showNatural:'Show natural outlines',showUrban:'Show urban regions',physical:'Physical',political:'Political',default:'This is a location from the school geography catalogue. The globe shows an approximate reference position rather than the object’s geographic outline.',note:'Outlines are simplified teaching guides and must not be used for measuring areas. Objects without outlines have markers.',extra:'Additional information',close:'Close information',height:'Land elevations',depth:'Ocean depths',sea:'Sea level',country:'Countries shown in different colors',bound:'Country boundaries',pin:'Location marker',active:'Selected location',colorNote:'Satellite landcover and relief with vector rivers and lakes; colors are not measured elevation values.',placeNote:'Country boundaries are generalized Natural Earth geometry; urban-region outlines are approximate teaching guides.'}
 };
 function renderFact(){
  const panel=$('factPanel');panel.hidden=!chosen;
  if(!chosen)return;
- const d=refStrings[lang],country=COUNTRIES.get?.(chosen.rawName,lang),city=grade===9?BELARUS_CITIES.get?.(chosen.rawName,lang):null,group=groups.find(g=>g.id===chosen.group)?.name||'';
+ const d=refStrings[lang],country=COUNTRIES.get?.(chosen.rawName,lang),city=grade===9?BELARUS_CITIES.get?.(chosen.rawName,lang):null,urban=grade>=10?URBAN_FACTS.get?.(chosen.rawName,lang,chosen.rawType):null,group=groups.find(g=>g.id===chosen.group)?.name||'';
  const coords=Math.abs(chosen.lat).toFixed(2)+'° '+(chosen.lat>=0?'N':'S')+' · '+Math.abs(chosen.lon).toFixed(2)+'° '+(chosen.lon>=0?'E':'W');
  $('factHeading').textContent=d.title;$('factName').textContent=chosen.name;
  $('factKind').textContent=country?country.kind:chosen.type;
@@ -250,11 +251,12 @@ function renderFact(){
  const rows=country
   ?[[d.territory,country.area],[d.capital,country.capital],[d.population,country.population],[d.government,country.government],[d.structure,country.structure]]
   :city?[[d.type,chosen.type],[d.oblast,city.region],[d.cityPopulation,city.population+' ('+city.populationYear+')']]
+  :urban?[[d.type,chosen.type],[d.urbanPeople,urban.population],[d.urbanCenters,urban.centers]]
   :[[d.type,chosen.type],[d.topic,group],[d.coordinate,coords]];
  $('factMeta').innerHTML=rows.map(([key,value])=>'<dt>'+escape(key)+'</dt><dd>'+escape(value)+'</dd>').join('');
  $('factDescription').textContent=FACTS.get?.(chosen.rawName,lang)||(country?d.countryDescription:d.default);
- $('factExtra').hidden=Boolean(country||city)||!chosen.info;$('factExtra').textContent=country||city?'':chosen.info?d.extra+': '+chosen.info:'';
- $('factFootnote').textContent=country?country.note:city?d.cityPopulationNote:d.note;
+ $('factExtra').hidden=Boolean(country||city||urban)||!chosen.info;$('factExtra').textContent=country||city||urban?'':chosen.info?d.extra+': '+chosen.info:'';
+ $('factFootnote').textContent=country?country.note:city?d.cityPopulationNote:urban?urban.note+' '+d.urbanNote:d.note;
 }
 function compileGroups(){
  groups=RAW[grade].map((v,i)=>({id:i,name:TR.group(v[0].split('|')[0],v[0].split('|')[1],lang),objects:v[1].split(';').map((s,j)=>{const p=s.split('|');return {id:i+'-'+j,rawName:p[0],rawType:p[3],name:TR.name(p[0],lang),lat:+p[1],lon:+p[2],type:TR.type(p[3],lang),info:TR.detail(p[4]||'',lang),group:i}})}));
@@ -327,12 +329,13 @@ function choose(o){
  chosen=o;openGroup=o.group;
  selectedLabel();renderFact();renderList();
  $('groups').querySelector('.place.active')?.scrollIntoView({block:'nearest'});
- const focus=focusForObject(o);
- const end={lon:focus?.lon??o.lon*RAD,lat:focus?.lat??clamp(o.lat*RAD,-1.45,1.45),zoom:focus?.zoom??adaptiveZoom(o)};
+ const city9=grade===9&&Boolean(BELARUS_CITIES.get?.(o.rawName,lang));
+ const focus=city9?null:focusForObject(o),home=city9?belarusHome():null;
+ const end=city9?BELARUS_VIEW.cityTarget(o,home):{lon:focus?.lon??o.lon*RAD,lat:focus?.lat??clamp(o.lat*RAD,-1.45,1.45),zoom:focus?.zoom??adaptiveZoom(o)};
  activeWater=focus?.hydro||WATER_FOCUS.matching?.(o,hydroData,grade===9?belarusHydro:null)||null;
  startPulse();
  const desiredMode=isWater(o)&&mapMode==='political'?'political':mapFor(o);
- const delta=wrap(end.lon-from.lon),wide=grade===9?7:1;
+ const delta=wrap(end.lon-from.lon),wide=city9?home.zoom*.96:grade===9?7:1;
  const segments=[
   {name:'out',duration:470},
   {name:'rotate',duration:540},
@@ -473,6 +476,10 @@ function resize(){
  const r=$('stage').getBoundingClientRect();if(!r.width||!r.height)return;
  if(Math.abs(w-r.width)<.5&&Math.abs(h-r.height)<.5)return;
  w=r.width;h=r.height;dpr=Math.min(window.devicePixelRatio||1,2);
+ if(grade===9&&!chosen&&!flight&&!target&&!userMoved){
+  const home=belarusHome();longitude=home.lon;latitude=home.lat;zoom=home.zoom;
+  $('stage').dataset.belarusDefaultZoom=home.zoom.toFixed(3);
+ }
  for(const id of ['canvas','focusLayer','points']){$(id).width=Math.max(1,Math.round(w*dpr));$(id).height=Math.max(1,Math.round(h*dpr))}
  redraw();
 }
@@ -596,6 +603,10 @@ async function loadBelarusOblasts(){
   belarusOblasts=await res.json();
   const count=BELARUS_REGIONS.setData?.(belarusOblasts)||0;
   document.documentElement.dataset.belarusOblasts=count===7?'ready':'incomplete';
+  if(grade===9&&!chosen&&!flight&&!target&&!userMoved){
+   const home=belarusHome();longitude=home.lon;latitude=home.lat;zoom=home.zoom;
+   $('stage').dataset.belarusDefaultZoom=home.zoom.toFixed(3);
+  }
   redraw();
  }catch(error){console.warn('Belarus administrative layer unavailable',error);document.documentElement.dataset.belarusOblasts='unavailable'}
 }
@@ -658,7 +669,7 @@ function pointerPair(){
 }
 gesture.addEventListener('pointerdown',e=>{
  if(e.pointerType==='mouse'&&e.button!==0)return;
- e.preventDefault();cancelTravel();
+ e.preventDefault();cancelTravel();userMoved=true;
  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
  try{gesture.setPointerCapture(e.pointerId)}catch{}
  if(pointers.size===1){
@@ -717,7 +728,7 @@ gesture.addEventListener('pointerup',e=>pointerFinish(e));
 gesture.addEventListener('pointercancel',e=>pointerFinish(e,true));
 gesture.addEventListener('lostpointercapture',e=>{if(pointers.has(e.pointerId))pointerFinish(e,true)});
 function applyManualZoom(value){
- cancelTravel();zoom=clamp(value,.55,MAX_ZOOM);
+ cancelTravel();userMoved=true;zoom=clamp(value,.55,MAX_ZOOM);
  $('stage').dataset.zoom=zoom.toFixed(4);
  redraw();
 }
@@ -725,10 +736,10 @@ gesture.addEventListener('wheel',e=>{e.preventDefault();applyManualZoom(zoom*Mat
 gesture.addEventListener('keydown',e=>{const d=.13;if(e.key==='ArrowLeft')longitude-=d;else if(e.key==='ArrowRight')longitude+=d;else if(e.key==='ArrowUp')latitude=clamp(latitude+d,-1.45,1.45);else if(e.key==='ArrowDown')latitude=clamp(latitude-d,-1.45,1.45);else return;e.preventDefault();cancelTravel();redraw()});
 $('plus').onclick=()=>applyManualZoom(zoom*1.35);
 $('minus').onclick=()=>applyManualZoom(zoom/1.35);
-$('reset').onclick=()=>{cancelTravel();target={zoom:grade===9?7:1,lon:(grade===9?28:27)*RAD,lat:(grade===9?53:30)*RAD};animate()};
+$('reset').onclick=()=>{cancelTravel();userMoved=false;target=grade===9?belarusHome():{zoom:1,lon:27*RAD,lat:30*RAD};animate()};
 $('factClose').onclick=()=>{chosen=null;activeWater=null;stopPulse();selectedLabel();renderFact();renderList();redraw()};
 
-$('gradeButtons').addEventListener('click',e=>{const b=e.target.closest('[data-grade]');if(!b)return;cancelTravel();grade=+b.dataset.grade;compileGroups();chosen=null;activeWater=null;stopPulse();zoom=grade===9?7:1;longitude=(grade===9?28:27)*RAD;latitude=(grade===9?53:30)*RAD;setMapMode(grade>=10?'political':'physical');openGroup=0;filter='';$('search').value='';labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&theme='+theme);redraw()});
+$('gradeButtons').addEventListener('click',e=>{const b=e.target.closest('[data-grade]');if(!b)return;cancelTravel();grade=+b.dataset.grade;compileGroups();chosen=null;activeWater=null;stopPulse();zoom=grade===9?belarusHome().zoom:1;longitude=grade===9?belarusHome().lon:27*RAD;latitude=grade===9?belarusHome().lat:30*RAD;userMoved=false;if(grade===9&&!belarusOblasts)loadBelarusOblasts();setMapMode(grade>=10?'political':'physical');openGroup=0;filter='';$('search').value='';labels();history.replaceState(null,'',location.pathname+'?grade='+grade+'&theme='+theme);redraw()});
 // The homepage is the only place where visitors change the language.
 window.addEventListener('storage',e=>{if(e.key==='geo_site_lang'&&['ru','be','en'].includes(e.newValue)){lang=e.newValue;const old=chosen?.id;compileGroups();chosen=all().find(o=>o.id===old)||null;labels();redraw()}});
 window.addEventListener('pageshow',()=>{try{const saved=localStorage.getItem('geo_site_lang');if(['ru','be','en'].includes(saved)&&saved!==lang){lang=saved;const old=chosen?.id;compileGroups();chosen=all().find(o=>o.id===old)||null;labels();redraw()}}catch(e){}});
