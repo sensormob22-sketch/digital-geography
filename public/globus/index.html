@@ -17,7 +17,9 @@ html.in-platform-frame iframe#nl-badge-frame{display:none!important;visibility:h
 .layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(295px,.88fr);gap:14px;padding:14px;max-width:1800px;margin:auto;align-items:start;--globe-h:clamp(565px,75dvh,820px)}
 .stage{height:var(--globe-h);min-height:0;align-self:start;position:relative;overflow:hidden;background:radial-gradient(ellipse at center,#1d4b6c,#0f2038 67%,#0a1427);border-radius:23px;box-shadow:0 14px 35px #1a153d33}
 .stage:before{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(#ffffffe0 .8px,transparent 1.4px);background-size:69px 77px;opacity:.18}
-#canvas,#points,#focusLayer{position:absolute;inset:0;width:100%;height:100%;display:block}#points,#focusLayer{pointer-events:none}
+#canvas,#points,#focusLayer{position:absolute;inset:0;width:100%;height:100%;display:block}
+#canvas{z-index:0}#points{z-index:1}#focusLayer{z-index:2;mix-blend-mode:normal}
+#points,#focusLayer{pointer-events:none}
 .gesture{position:absolute;inset:0;touch-action:none;cursor:grab}.gesture:active{cursor:grabbing}
 .caption{position:absolute;left:19px;top:16px;color:#e1f4ff;pointer-events:none}.caption strong{display:block;font-size:13px;font-weight:900;letter-spacing:.06em}.caption span{display:block;color:#b7d4e7;font-size:11px;margin-top:3px}
 .zoom{position:absolute;top:14px;right:14px;display:grid;gap:7px;z-index:6}
@@ -392,11 +394,15 @@ function drawMarkerLabel(ctx,x,y,value){
    loading slower phones with continuous full-resolution vector work. */
 function stopPulse(){if(pulseRAF)cancelAnimationFrame(pulseRAF);pulseRAF=0}
 function startPulse(){
- stopPulse();if(!activeWater||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ stopPulse();
+ if(!activeWater)return;
+ // Keep a visible outline for reduced-motion users; otherwise animate it on
+ // both desktop and mobile. The highlight canvas is above vector boundaries.
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches){drawFocus();return}
  pulseLast=0;
  const tick=now=>{
   if(!activeWater||document.hidden){pulseRAF=0;return}
-  if(now-pulseLast>85){pulseLast=now;drawFocus()}
+  if(now-pulseLast>85){pulseLast=now;drawFocus();$('stage').dataset.waterPulse=String(Math.round(now/85))}
   pulseRAF=requestAnimationFrame(tick);
  };
  pulseRAF=requestAnimationFrame(tick);
@@ -404,6 +410,7 @@ function startPulse(){
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPulse();else startPulse()});
 function drawFocus(){
  if(!w||!h)return;
+ $('stage').dataset.waterHighlight=activeWater?'visible':'none';
  focusCtx.setTransform(dpr,0,0,dpr,0,0);
  focusCtx.clearRect(0,0,w,h);
  WATER_FOCUS.draw?.(focusCtx,activeWater,project,performance.now()/1000,matchMedia('(prefers-reduced-motion: reduce)').matches);
