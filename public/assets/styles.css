@@ -60,9 +60,9 @@ html[data-theme="dark"] .class-link:hover{background:#453477;color:#fff}
 .class-scene{position:relative;display:grid;place-items:center;min-height:145px;flex:1;isolation:isolate;border-radius:15px;overflow:hidden;background:radial-gradient(circle at 70% 22%,#d4f1ff66,transparent 42%),linear-gradient(165deg,#36418d,#86b7b4)}
 .scene-7{background:linear-gradient(160deg,#e6bb74,#956c4a)}.scene-8{background:linear-gradient(150deg,#72bf9f,#31768d)}
 .scene-9{background:linear-gradient(155deg,#649b73,#25584c)}.scene-10{background:linear-gradient(155deg,#756ac8,#3c5798)}.scene-11{background:linear-gradient(155deg,#275e8a,#418b7d)}
-.scene-frame{position:absolute;z-index:2;font-size:clamp(54px,7vw,100px);line-height:1;opacity:0;filter:drop-shadow(0 10px 12px #0004);animation:scene-reel 12s ease-in-out infinite;animation-delay:calc(var(--scene-i)*3s)}
+.scene-frame{position:absolute;z-index:2;font-size:clamp(54px,7vw,100px);line-height:1;opacity:0;filter:drop-shadow(0 10px 12px #0004);animation:scene-reel 12s ease-in-out infinite;animation-delay:calc(var(--scene-i)*-3s);animation-fill-mode:both;will-change:opacity,transform}
 .scene-land{position:absolute;bottom:-10%;left:-20%;width:140%;height:38%;border-radius:50% 50% 0 0;background:#164e5773;box-shadow:0 -6px 45px #dfffd622;animation:scene-breathe 5s ease-in-out infinite alternate}
-@keyframes scene-reel{0%,3%{opacity:0;transform:translateY(22px) scale(.82) rotate(-7deg)}7%,23%{opacity:1;transform:translateY(0) scale(1) rotate(0)}27%,100%{opacity:0;transform:translateY(-24px) scale(1.12) rotate(5deg)}}
+@keyframes scene-reel{0%,2%,19%{opacity:1;transform:translateY(0) scale(1) rotate(0)}24%,94%{opacity:0;transform:translateY(-16px) scale(.92) rotate(5deg)}100%{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
 @keyframes scene-breathe{to{transform:translateY(-8px) scale(1.04)}}
 @media(max-width:900px){.geography-class-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.geography-class-grid{grid-template-columns:1fr}.animated-class-link{min-height:210px}.class-scene{min-height:146px}.scene-frame{font-size:90px}}
