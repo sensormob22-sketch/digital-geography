@@ -235,7 +235,7 @@ en:{urbanPeople:'Population',urbanCenters:'Principal cities',urbanNote:'Principa
 function renderFact(){
  const panel=$('factPanel');panel.hidden=!chosen;
  if(!chosen)return;
- const d=refStrings[lang],country=COUNTRIES.get?.(chosen.rawName,lang),city=grade===9?BELARUS_CITIES.get?.(chosen.rawName,lang):null,urban=grade>=10?URBAN_FACTS.get?.(chosen.rawName,lang,chosen.rawType):null,group=groups.find(g=>g.id===chosen.group)?.name||'';
+ const d=refStrings[lang],country=COUNTRIES.get?.(chosen.rawName,lang),city=grade===9?BELARUS_CITIES.get?.(chosen.rawName,lang):null,urban=grade>=10&&(/Агломерац|Мегалополис|≈\s*\d/.test(chosen.rawType||''))?URBAN_FACTS.get?.(chosen.rawName,lang,chosen.rawType):null,group=groups.find(g=>g.id===chosen.group)?.name||'';
  const coords=Math.abs(chosen.lat).toFixed(2)+'° '+(chosen.lat>=0?'N':'S')+' · '+Math.abs(chosen.lon).toFixed(2)+'° '+(chosen.lon>=0?'E':'W');
  $('factHeading').textContent=d.title;$('factName').textContent=chosen.name;
  $('factKind').textContent=country?country.kind:chosen.type;
