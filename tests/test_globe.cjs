@@ -3,8 +3,8 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'../public/globus'),window={};
 const context=vm.createContext({window});
-for(const file of ['objects.js','translations.js','facts.js','country-facts.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
-const catalog=window.GLOBE_CATALOG,translations=window.GLOBE_TRANSLATIONS,facts=window.GLOBE_FACTS,countries=window.GLOBE_COUNTRIES;
+for(const file of ['objects.js','translations.js','facts.js','country-facts.js','belarus-cities.js','belarus-regions.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
+const catalog=window.GLOBE_CATALOG,translations=window.GLOBE_TRANSLATIONS,facts=window.GLOBE_FACTS,countries=window.GLOBE_COUNTRIES,cities=window.GLOBE_BELARUS_CITIES,oblasts=window.GLOBE_BELARUS_REGIONS;
 assert(facts&&facts.get,'Object reference descriptions must load');
 assert(facts.get('Гималаи','en').includes('Himalayas'),'English Himalayas reference missing');
 assert(facts.get('Минск','be').includes('Беларусь'),'Belarusian Minsk reference missing');
@@ -37,6 +37,7 @@ assert(html.includes('id="factPanel"')&&html.includes('id="legendPanel"'),'Refer
 assert(html.includes('renderFact()')&&html.includes('id="factDescription"'),'Object card must render on selection');
 assert(html.includes('facts.js'),'Fact descriptions need script import');
 assert(html.includes('country-facts.js'),'Country profiles need script import');
+assert(html.includes('belarus-cities.js')&&html.includes('belarus-regions.js'),'Belarus city and region layers must load');
 assert(html.includes('const helpText={')&&html.includes('updateHelp()'),'RU/BE/EN user guidance required');
 assert(html.includes('function mapFor(o)')&&html.includes('visibleMap()'),'Map-specific object separation required');
 assert(!html.includes('data-area-layer')&&!html.includes('type="checkbox"'),'No manual contour layer toggles');
@@ -75,6 +76,21 @@ assert.equal(countries.get('Германия','be').structure,'Федэрацы�
 assert.equal(countries.get('Канада','en').capital,'Ottawa');
 assert.equal(countries.get('Дели','ru'),null,'A city must never be misclassified as a country');
 assert(!html.includes('Границы на глобусе'),'Obsolete contour label should be removed from reference');
+const gradeNineCities=new Set();
+for(const [label,rows] of catalog[9])if(/города|центры/.test(label.toLowerCase()))
+ for(const item of rows.split(';'))gradeNineCities.add(item.split('|')[0]);
+assert.equal(gradeNineCities.size,14,'Expected fourteen Belarus city entries');
+assert.deepEqual(cities.names().sort(),Array.from(gradeNineCities).sort(),'Every grade 9 city must have a city reference');
+for(const name of cities.names())for(const lang of ['ru','be','en']){
+ const info=cities.get(name,lang);
+ assert(info.region&&info.population&&info.populationYear===2026,'Missing region/population/year '+name);
+ assert(info.emblemUrl.includes('commons.wikimedia.org/wiki/Special:FilePath/'),'Real Wikimedia coat of arms required: '+name);
+}
+assert.equal(cities.get('Минск','ru').regionKey,'minsk-city','Minsk must be distinct from Minsk Oblast');
+assert(cities.get('Бобруйск','ru').region.includes('Могилёв'));
+assert(cities.get('Пинск','ru').region.includes('Брест'));
+assert(cities.get('Орша','be').region.includes('Віцеб'));
+assert.equal(Number(cities.get('Гомель','ru').population.replace(/\\D/g,'')),499853);
 
 const mapFn=html.match(/function mapFor\(o\)\{[\s\S]*?\n\}/);
 assert(mapFn,'Physical/political classifier not found');
@@ -93,5 +109,13 @@ assert.equal(mapFor({rawName:'Гималаи',rawType:'Горная систем
 assert.equal(mapFor({rawName:'Европа',rawType:'Часть света'}),'physical');
 assert.equal(mapFor({rawName:'Минск',rawType:'Столица'}),'political');
 assert.equal(mapFor({rawName:'Босваш (Приатлантический)',rawType:'Мегалополис · США'}),'political');
+const boundData=JSON.parse(fs.readFileSync(path.join(root,'belarus-oblasts.json'),'utf8'));
+assert.equal(oblasts.setData(boundData),7,'Six oblasts and Minsk city must be in bundled geometry');
+assert.equal(oblasts.legend('ru').length,6,'Oblast key must show six distinct regions');
+assert.equal(new Set(oblasts.legend('ru').map(x=>x.color)).size,6,'Each oblast needs its own color');
+for(const region of boundData.regions)assert(region.rings.every(r=>r.length>=10),'Invalid boundary shape '+region.name);
+assert.equal(oblasts.countryLabels.length,5,'Belarus must have five neighbors');
+assert(html.includes('loadBelarusOblasts()'),'Administrative shapes loader must be called');
+assert(html.includes('BELARUS_REGIONS.drawNeighbors'),'Neighbor country names must be painted');
 console.log('Map partition validated:',physicalCount,'physical and',politicalCount,'political instances');
 console.log('Globe tests passed:',count,'objects,',names.size,'unique names,',groups,'groups; RU/BE/EN coverage complete');
