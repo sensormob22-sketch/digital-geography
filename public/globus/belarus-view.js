@@ -11,7 +11,7 @@ function coords(data){
  const from=data?.regions?.flatMap(region=>region.rings?.flatMap(r=>r)||[])||[];
  return from.length>16?from:fallback;
 }
-function fit(width,height,data,fraction=.75){
+function fit(width,height,data,fraction=.75,desktop=false){
  const pts=coords(data),w=Math.max(1,width||680),h=Math.max(1,height||640);
  let west=180,east=-180,south=90,north=-90;
  for(const [lon,lat] of pts){west=Math.min(west,lon);east=Math.max(east,lon);south=Math.min(south,lat);north=Math.max(north,lat)}
@@ -26,8 +26,15 @@ function fit(width,height,data,fraction=.75){
  }
  const spanX=Math.max(.001,r-l),spanY=Math.max(.001,b-t);
  const unit=Math.min(w,h)*.445;
- const zoom=fraction*Math.min(w/(unit*spanX),h/(unit*spanY));
- return {lon:lo,lat:la,zoom,spanX,spanY,coverageX:unit*zoom*spanX/w,coverageY:unit*zoom*spanY/h,source:pts===fallback?'fallback':'oblasts'};
+ // Desktop atlas: fit Belarus to ~75% of the VERTICAL stage, retaining
+ // at least a 7% margin on each side. The old single 75%-on-first-axis
+ // calculation made Belarus look undersized in tall desktop map windows.
+ // Phones retain the original full-country 75%-on-first-axis framing.
+ const zoom=desktop
+  ?Math.min(.86*w/(unit*spanX),fraction*h/(unit*spanY))
+  :fraction*Math.min(w/(unit*spanX),h/(unit*spanY));
+ return {lon:lo,lat:la,zoom,spanX,spanY,coverageX:unit*zoom*spanX/w,
+  coverageY:unit*zoom*spanY/h,mode:desktop?'desktop':'mobile',source:pts===fallback?'fallback':'oblasts'};
 }
 function cityTarget(city,camera){
  const t=.16;
