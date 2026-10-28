@@ -10,6 +10,11 @@ assert(app.includes('function classScene(g)'),'Six grade illustrations must exis
 for(const g of [6,7,8,9,10,11])assert(app.includes(g+':['),'Missing animated frames for grade '+g);
 assert(styles.includes('scene-reel')&&styles.includes('infinite'),'Grade illustrations must continually animate');
 assert(styles.includes('prefers-reduced-motion'),'Grade animations need reduced-motion fallback');
+assert(styles.includes('animation-delay:calc(var(--scene-i)*-3s)'),'Animated grade-class frames must be visible immediately on desktop');
+assert(styles.includes('0%,2%,19%{opacity:1'),'Animated class frame needs a fully visible segment without long dark blanks');
+assert(globe.includes('#focusLayer{z-index:2;mix-blend-mode:normal}'),'Watercourse highlight canvas must overlay desktop political vectors');
+assert(globe.includes('dataset.waterPulse'),'River and lake selection must update the animated pulse continuously');
+assert(sw.includes("'globus/urban-facts.js'")&&sw.includes("'globus/belarus-view.js'"),'Offline app must cache new geo study data');
 assert(styles.includes('.geography-class-grid'),'Responsive six-grade grid missing');
 assert(styles.includes('max-width:none'),'Work area should use screen width');
 assert(globe.includes('Mobile and tablet must undo the desktop two-column override'),'Missing mobile globe layout regression fix');
