@@ -35,8 +35,10 @@ Environment secrets:
 - `HOSTFLY_SSH_PRIVATE_KEY` — содержимое локального файла `geodigital_actions` (не `.pub`).
 - `HOSTFLY_SSH_KNOWN_HOSTS` — проверенная строка `[178.172.217.166]:1288 ssh-ed25519 ...` (может отличаться по типу алгоритма).
 
-Repository Actions variables:
-- `HOSTFLY_DEPLOY_ENABLED` = `false` (оставить, пока SSL/SSH не готовы)
+Repository Actions variables (уровень репозитория, **не Environment**):
+- `HOSTFLY_DEPLOY_ENABLED` = `false` (оставить, пока SSL/SSH не готовы). GitHub вычисляет `jobs.publish.if` до получения environment variables, поэтому переключатель должен находиться в Repository variables. Переменная с тем же названием, добавленная в Environment, не заменяет этот переключатель.
+
+Environment variables (доступны внутри шагов publish):
 - `HOSTFLY_SSH_HOST` = `178.172.217.166`
 - `HOSTFLY_SSH_PORT` = `1288`
 - `HOSTFLY_SSH_USER` = `geodigit`
