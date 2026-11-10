@@ -29,7 +29,7 @@ ssh -p 1288 -i "$env:USERPROFILE\.ssh\geodigital_actions" geodigit@178.172.217.1
 На сервере проверить `command -v rsync` и `test -d /home/geodigit/public_html`. Не вводить команды удаления.
 
 ## 3. GitHub
-Environment `hostfly-production` уже создано, секреты добавлены. **Deployment branches and tags:** сменить старое ограничение `deploy/netlify` на ровно `deploy/hostfly` перед первым тестом SSH из GitHub; не ослаблять проверку ветки.
+Environment `hostfly-production` уже создано, оба SSH-секрета добавлены. **Deployment branches and tags:** разрешена ровно одна ветка `deploy/hostfly`; подлинность сервера подтверждена HostFly. Успешно выполнены сборка, визуальные регрессии и read-only SSH job на публикационной ветке (Actions run `42887119723`).
 
 Environment secrets:
 - `HOSTFLY_SSH_PRIVATE_KEY` — содержимое локального файла `geodigital_actions` (не `.pub`).
@@ -45,7 +45,7 @@ Environment variables (доступны внутри шагов publish):
 - `HOSTFLY_REMOTE_DIR` = `/home/geodigit/public_html` (после проверки)
 - `HOSTFLY_SITE_URL` = `https://geodigital.by`
 
-Workflow `.github/workflows/deploy-hostfly.yml` выполняет проверки на PR в `deploy/hostfly`, а на push в `deploy/hostfly` публикует лишь при `HOSTFLY_DEPLOY_ENABLED=true`. Ручной `workflow_dispatch` требует наличия workflow также в default branch GitHub; **не сливать устаревшую `main` в `deploy/hostfly`**.
+Workflow `.github/workflows/deploy-hostfly.yml` выполняет проверки на PR в `deploy/hostfly`. Публикация при `push` в `deploy/hostfly` разрешена только если `HOSTFLY_DEPLOY_ENABLED=true`; эта Repository Variable по умолчанию остаётся `false`. **Для разового выпуска** можно запустить Actions → workflow → Run workflow → выбрать ветку `deploy/hostfly` и поставить `publish=true`; только явный ручной запуск публикует при `HOSTFLY_DEPLOY_ENABLED=false`. Во всех случаях сначала идут полные тесты, затем backup/rsync/HTTPS-проверка. GitHub Default branch теперь `deploy/hostfly`; устаревшую `main` не сливать.
 
 ## 4. Проверка SSH до публикации
 При `HOSTFLY_DEPLOY_ENABLED=false` специальное задание `ssh-check` запускается **только на push в доверенную `deploy/hostfly` после успешных тестов**. Оно использует environment secrets и проверенный known_hosts, читает путь и наличие rsync, ничего на HostFly не записывает. На pull_request это задание не получает секреты и не запускается. Черновой PR не сливать до готовности тестов и настройки ограничений environment. Пользователь подтвердил отключение интеграции Netlify.
@@ -55,4 +55,4 @@ Workflow `.github/workflows/deploy-hostfly.yml` выполняет провер�
 При ошибке workflow не утверждать, что сайт опубликован, пока HTTP/визуальная проверка не прошла. Для отката использовать проверенный архив прошлого релиза и отдельный согласованный процесс.
 
 ## 6. Отключение Netlify
-Владелец проекта подтвердил отключение GitHub-связи и автопубликации Netlify. Конфигурация `netlify.toml` удалена из релизного PR, а хостинг-специфические вставки удалены из встроенного глобуса. Старую ветку `deploy/netlify` пока не удалять до завершения первого подтверждённого релиза с HostFly; затем можно архивировать как историческую. GitHub default branch пока `main` (устаревшая): после приёмки первого релиза вручную поменять default branch на `deploy/hostfly` в Settings → Branches/Default branch, чтобы `workflow_dispatch` работал штатно.
+Владелец проекта подтвердил отключение GitHub-связи и автопубликации Netlify. Конфигурация `netlify.toml` удалена из релизного PR, а хостинг-специфические вставки удалены из встроенного глобуса. Старую ветку `deploy/netlify` пока не удалять до завершения первого подтверждённого релиза с HostFly; затем можно архивировать как историческую. GitHub default branch пока `main` (устаревшая): default branch изменена пользователем на `deploy/hostfly`; `workflow_dispatch` доступен на актуальном коде.
