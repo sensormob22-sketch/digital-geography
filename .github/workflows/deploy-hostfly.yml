@@ -67,6 +67,48 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+  ssh-check:
+    name: Проверка SSH из GitHub без изменения файлов
+    needs: validate
+    if: >-
+      ${{ github.event_name == 'push' &&
+          github.ref == 'refs/heads/deploy/netlify' &&
+          vars.HOSTFLY_DEPLOY_ENABLED != 'true' }}
+    runs-on: ubuntu-24.04
+    environment: hostfly-production
+    steps:
+      - name: Подготовить SSH-ключи без вывода секретов
+        shell: bash
+        env:
+          SSH_KEY: ${{ secrets.HOSTFLY_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.HOSTFLY_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          test -n "$SSH_KEY" || { echo "Private SSH key is missing"; exit 1; }
+          test -n "$SSH_KNOWN_HOSTS" || { echo "Verified SSH host key is missing"; exit 1; }
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$SSH_KEY" > "$HOME/.ssh/id_hostfly"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/id_hostfly" "$HOME/.ssh/known_hosts"
+      - name: Проверить соединение и каталог без записи
+        shell: bash
+        env:
+          HOST: ${{ vars.HOSTFLY_SSH_HOST }}
+          PORT: ${{ vars.HOSTFLY_SSH_PORT }}
+          USERNAME: ${{ vars.HOSTFLY_SSH_USER }}
+          REMOTE_DIR: ${{ vars.HOSTFLY_REMOTE_DIR }}
+        run: |
+          set -euo pipefail
+          test "$HOST" = "178.172.217.166"
+          test "$PORT" = "1288"
+          test "$USERNAME" = "geodigit"
+          test "$REMOTE_DIR" = "/home/geodigit/public_html"
+          ssh -F /dev/null -p "$PORT" -i "$HOME/.ssh/id_hostfly" \
+            -o BatchMode=yes -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes -o ConnectTimeout=15 \
+            "$USERNAME@$HOST" \
+            "test -d '$REMOTE_DIR' && test -w '$REMOTE_DIR' && command -v rsync >/dev/null && echo SSH_HOSTFLY_READONLY_OK"
+
   publish:
     name: HostFly — защищённая публикация
     needs: validate
