@@ -123,9 +123,8 @@ jobs:
     needs: validate
     if: >-
       ${{ github.ref == 'refs/heads/deploy/hostfly' &&
-      vars.HOSTFLY_DEPLOY_ENABLED == 'true' &&
-      (github.event_name == 'push' ||
-      (github.event_name == 'workflow_dispatch' && inputs.publish == true)) }}
+      ((github.event_name == 'push' && vars.HOSTFLY_DEPLOY_ENABLED == 'true') ||
+       (github.event_name == 'workflow_dispatch' && inputs.publish == true)) }}
     environment: hostfly-production
     runs-on: ubuntu-24.04
     steps:
