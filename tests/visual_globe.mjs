@@ -114,7 +114,7 @@ try{
  await page.waitForFunction(()=>{
   const doc=document.getElementById('geographyGlobe')?.contentDocument;
   const stage=doc?.getElementById('stage');
-  return doc?.documentElement.dataset.belarusOblasts==='ready' &&
+  return doc?.documentElement?.dataset?.belarusOblasts==='ready' &&
     stage?.dataset.belarusFitMode==='desktop' &&
     Number(stage.dataset.belarusCoverageHeight)>0;
  },null,{timeout:35000});
