@@ -52,6 +52,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          test ! -e netlify.toml || { echo "Unexpected Netlify config remains"; exit 1; }
           for f in index.html sw.js manifest.webmanifest \
             assets/app.js globus/index.html globus/objects.js \
             globus/belarus-view.js globus/world-50m.json \
