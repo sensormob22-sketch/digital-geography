@@ -1,0 +1,209 @@
+name: Проверка и публикация «Цифровой географии» на HostFly
+
+on:
+  pull_request:
+    branches: [deploy/hostfly]
+  push:
+    branches: [deploy/hostfly]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Опубликовать проверенную сборку на HostFly'
+        type: boolean
+        default: false
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: geodigital-hostfly-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Сборка и регрессионная проверка
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Зависимости и подготовка геоданных
+        run: npm install --no-audit --no-fund
+      - name: Все существующие тесты
+        run: |
+          npm run test:sw
+          npm run test:globe
+          npm run test:home
+          npm run test:layout
+          npm run test:areas
+          npm run test:water
+      - name: Сборка Astro
+        run: npm run build
+      - name: Визуальный тест настоящего глобуса
+        env:
+          EMIT_PREVIEW_BASE64: 'false'
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+          node tests/visual_globe.mjs
+      - name: Сохранить изображения визуального теста
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: geodigital-visual-screenshots
+          path: visual-output/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Проверка необходимых файлов
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e netlify.toml || { echo "Unexpected Netlify config remains"; exit 1; }
+          for f in index.html sw.js manifest.webmanifest \
+            assets/app.js globus/index.html globus/objects.js \
+            globus/belarus-view.js globus/world-50m.json \
+            globus/relief-nasa-8192.jpg works/9/3/index.html; do
+            test -s "dist/$f" || { echo "Missing dist/$f"; exit 1; }
+          done
+      - name: Архив проверенной сборки
+        uses: actions/upload-artifact@v4
+        with:
+          name: geodigital-dist
+          path: dist/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+
+  ssh-check:
+    name: Проверка SSH из GitHub без изменения файлов
+    needs: validate
+    if: >-
+      ${{ github.event_name == 'push' &&
+          github.ref == 'refs/heads/deploy/hostfly' &&
+          vars.HOSTFLY_DEPLOY_ENABLED != 'true' }}
+    runs-on: ubuntu-24.04
+    environment: hostfly-production
+    steps:
+      - name: Подготовить SSH-ключи без вывода секретов
+        shell: bash
+        env:
+          SSH_KEY: ${{ secrets.HOSTFLY_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.HOSTFLY_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          test -n "$SSH_KEY" || { echo "Private SSH key is missing"; exit 1; }
+          test -n "$SSH_KNOWN_HOSTS" || { echo "Verified SSH host key is missing"; exit 1; }
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$SSH_KEY" > "$HOME/.ssh/id_hostfly"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/id_hostfly" "$HOME/.ssh/known_hosts"
+      - name: Проверить соединение и каталог без записи
+        shell: bash
+        env:
+          HOST: ${{ vars.HOSTFLY_SSH_HOST }}
+          PORT: ${{ vars.HOSTFLY_SSH_PORT }}
+          USERNAME: ${{ vars.HOSTFLY_SSH_USER }}
+          REMOTE_DIR: ${{ vars.HOSTFLY_REMOTE_DIR }}
+        run: |
+          set -euo pipefail
+          test "$HOST" = "178.172.217.166"
+          test "$PORT" = "1288"
+          test "$USERNAME" = "geodigit"
+          test "$REMOTE_DIR" = "/home/geodigit/public_html"
+          ssh -F /dev/null -p "$PORT" -i "$HOME/.ssh/id_hostfly" \
+            -o BatchMode=yes -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes -o ConnectTimeout=15 \
+            "$USERNAME@$HOST" \
+            "test -d '$REMOTE_DIR' && test -w '$REMOTE_DIR' && command -v rsync >/dev/null && echo SSH_HOSTFLY_READONLY_OK"
+
+  publish:
+    name: HostFly — защищённая публикация
+    needs: validate
+    if: >-
+      ${{ github.ref == 'refs/heads/deploy/hostfly' &&
+      vars.HOSTFLY_DEPLOY_ENABLED == 'true' &&
+      (github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && inputs.publish == true)) }}
+    environment: hostfly-production
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Получить проверенную сборку
+        uses: actions/download-artifact@v4
+        with:
+          name: geodigital-dist
+          path: dist
+      - name: Настроить SSH с проверкой подлинности сервера
+        env:
+          SSH_KEY: ${{ secrets.HOSTFLY_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.HOSTFLY_SSH_KNOWN_HOSTS }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SSH_KEY" && test -n "$SSH_KNOWN_HOSTS"
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$SSH_KEY" > "$HOME/.ssh/id_hostfly"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/id_hostfly" "$HOME/.ssh/known_hosts"
+      - name: Проверить целевой сервер и права (без изменений)
+        env:
+          HOST: ${{ vars.HOSTFLY_SSH_HOST }}
+          PORT: ${{ vars.HOSTFLY_SSH_PORT }}
+          USERNAME: ${{ vars.HOSTFLY_SSH_USER }}
+          REMOTE_DIR: ${{ vars.HOSTFLY_REMOTE_DIR }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$HOST" = "178.172.217.166"
+          test "$PORT" = "1288"
+          test "$USERNAME" = "geodigit"
+          test "$REMOTE_DIR" = "/home/geodigit/public_html"
+          ssh -p "$PORT" -i "$HOME/.ssh/id_hostfly" \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o ConnectTimeout=15 "$USERNAME@$HOST" \
+            "test -d '$REMOTE_DIR' && test -w '$REMOTE_DIR' && command -v rsync && echo HOSTFLY_TARGET_OK"
+      - name: Создать резервную копию текущей точки входа и конфигурации
+        env:
+          HOST: ${{ vars.HOSTFLY_SSH_HOST }}
+          PORT: ${{ vars.HOSTFLY_SSH_PORT }}
+          USERNAME: ${{ vars.HOSTFLY_SSH_USER }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -p "$PORT" -i "$HOME/.ssh/id_hostfly" \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            "$USERNAME@$HOST" \
+            'set -e; mkdir -p "$HOME/hostfly-deploy-backups"; for f in index.html sw.js .htaccess; do if test -f "$HOME/public_html/$f"; then cp -p "$HOME/public_html/$f" "$HOME/hostfly-deploy-backups/$f.$(date +%Y%m%dT%H%M%S)"; fi; done'
+      - name: Загрузить ресурсы, затем HTML и в последнюю очередь Service Worker
+        env:
+          HOST: ${{ vars.HOSTFLY_SSH_HOST }}
+          PORT: ${{ vars.HOSTFLY_SSH_PORT }}
+          USERNAME: ${{ vars.HOSTFLY_SSH_USER }}
+          REMOTE_DIR: ${{ vars.HOSTFLY_REMOTE_DIR }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          SSH_CMD="ssh -p $PORT -i $HOME/.ssh/id_hostfly -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
+          DEST="$USERNAME@$HOST:$REMOTE_DIR/"
+          # No --delete: preserve files not owned by this deployment.
+          rsync -az --delay-updates --exclude=/.htaccess --exclude=/index.html --exclude=/sw.js \
+            -e "$SSH_CMD" dist/ "$DEST"
+          rsync -az --delay-updates -e "$SSH_CMD" dist/index.html "$DEST"
+          rsync -az --delay-updates -e "$SSH_CMD" dist/sw.js "$DEST"
+      - name: Проверка реально опубликованных файлов по HTTPS
+        env:
+          SITE_URL: ${{ vars.HOSTFLY_SITE_URL }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$SITE_URL" = "https://geodigital.by"
+          for f in sw.js globus/belarus-view.js works/9/3/index.html; do
+            curl -fsSL --retry 3 --retry-delay 2 \
+              -H 'Cache-Control: no-cache' \
+              "$SITE_URL/$f?sha=$GITHUB_SHA" -o /tmp/geodigital-live-file
+            cmp "dist/$f" /tmp/geodigital-live-file || {
+              echo "Live version does not match dist/$f"; exit 1;
+            }
+          done
+          echo "HostFly release verified over trusted HTTPS"

@@ -1,0 +1,13 @@
+# GitHub Actions deploys a static Astro/PWA build to this Apache-compatible host.
+# SSL redirect is intentionally omitted until a trusted AutoSSL certificate is working.
+<IfModule mod_headers.c>
+  <Files "sw.js">
+    Header always set Cache-Control "no-cache, no-store, must-revalidate"
+  </Files>
+  <Files "manifest.webmanifest">
+    Header always set Cache-Control "public, max-age=3600"
+  </Files>
+</IfModule>
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+</IfModule>
