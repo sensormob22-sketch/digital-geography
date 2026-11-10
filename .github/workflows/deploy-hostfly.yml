@@ -52,7 +52,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for f in index.html sw.js manifest.webmanifest .htaccess \
+          for f in index.html sw.js manifest.webmanifest \
             assets/app.js globus/index.html globus/objects.js \
             globus/belarus-view.js globus/world-50m.json \
             globus/relief-nasa-8192.jpg works/9/3/index.html; do
@@ -136,7 +136,7 @@ jobs:
           SSH_CMD="ssh -p $PORT -i $HOME/.ssh/id_hostfly -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
           DEST="$USERNAME@$HOST:$REMOTE_DIR/"
           # No --delete: preserve files not owned by this deployment.
-          rsync -az --delay-updates --exclude=/index.html --exclude=/sw.js \
+          rsync -az --delay-updates --exclude=/.htaccess --exclude=/index.html --exclude=/sw.js \
             -e "$SSH_CMD" dist/ "$DEST"
           rsync -az --delay-updates -e "$SSH_CMD" dist/index.html "$DEST"
           rsync -az --delay-updates -e "$SSH_CMD" dist/sw.js "$DEST"
