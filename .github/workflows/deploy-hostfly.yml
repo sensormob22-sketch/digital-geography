@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: geodigital-hostfly-${{ github.ref }}}
+  group: geodigital-hostfly-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -71,10 +71,10 @@ jobs:
     name: HostFly — защищённая публикация
     needs: validate
     if: >-
-      ${ github.ref == 'refs/heads/deploy/netlify' &&
+      ${{ github.ref == 'refs/heads/deploy/netlify' &&
       vars.HOSTFLY_DEPLOY_ENABLED == 'true' &&
       (github.event_name == 'push' ||
-      (github.event_name == 'workflow_dispatch' && inputs.publish == true)) }
+      (github.event_name == 'workflow_dispatch' && inputs.publish == true)) }}
     environment: hostfly-production
     runs-on: ubuntu-24.04
     steps:
