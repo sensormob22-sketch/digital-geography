@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: geodigital-hostfly-${ github.ref }}
+  group: geodigital-hostfly-${{ github.ref }}}
   cancel-in-progress: false
 
 jobs:
@@ -85,8 +85,8 @@ jobs:
           path: dist
       - name: Настроить SSH с проверкой подлинности сервера
         env:
-          SSH_KEY: ${ secrets.HOSTFLY_SSH_PRIVATE_KEY }
-          SSH_KNOWN_HOSTS: ${ secrets.HOSTFLY_SSH_KNOWN_HOSTS }
+          SSH_KEY: ${{ secrets.HOSTFLY_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.HOSTFLY_SSH_KNOWN_HOSTS }}
         shell: bash
         run: |
           set -euo pipefail
@@ -97,10 +97,10 @@ jobs:
           chmod 600 "$HOME/.ssh/id_hostfly" "$HOME/.ssh/known_hosts"
       - name: Проверить целевой сервер и права (без изменений)
         env:
-          HOST: ${ vars.HOSTFLY_SSH_HOST }
-          PORT: ${ vars.HOSTFLY_SSH_PORT }
-          USERNAME: ${ vars.HOSTFLY_SSH_USER }
-          REMOTE_DIR: ${ vars.HOSTFLY_REMOTE_DIR }
+          HOST: ${{ vars.HOSTFLY_SSH_HOST }}
+          PORT: ${{ vars.HOSTFLY_SSH_PORT }}
+          USERNAME: ${{ vars.HOSTFLY_SSH_USER }}
+          REMOTE_DIR: ${{ vars.HOSTFLY_REMOTE_DIR }}
         shell: bash
         run: |
           set -euo pipefail
@@ -114,9 +114,9 @@ jobs:
             "test -d '$REMOTE_DIR' && test -w '$REMOTE_DIR' && command -v rsync && echo HOSTFLY_TARGET_OK"
       - name: Создать резервную копию текущей точки входа и конфигурации
         env:
-          HOST: ${ vars.HOSTFLY_SSH_HOST }
-          PORT: ${ vars.HOSTFLY_SSH_PORT }
-          USERNAME: ${ vars.HOSTFLY_SSH_USER }
+          HOST: ${{ vars.HOSTFLY_SSH_HOST }}
+          PORT: ${{ vars.HOSTFLY_SSH_PORT }}
+          USERNAME: ${{ vars.HOSTFLY_SSH_USER }}
         shell: bash
         run: |
           set -euo pipefail
@@ -126,10 +126,10 @@ jobs:
             'set -e; mkdir -p "$HOME/hostfly-deploy-backups"; for f in index.html sw.js .htaccess; do if test -f "$HOME/public_html/$f"; then cp -p "$HOME/public_html/$f" "$HOME/hostfly-deploy-backups/$f.$(date +%Y%m%dT%H%M%S)"; fi; done'
       - name: Загрузить ресурсы, затем HTML и в последнюю очередь Service Worker
         env:
-          HOST: ${ vars.HOSTFLY_SSH_HOST }
-          PORT: ${ vars.HOSTFLY_SSH_PORT }
-          USERNAME: ${ vars.HOSTFLY_SSH_USER }
-          REMOTE_DIR: ${ vars.HOSTFLY_REMOTE_DIR }
+          HOST: ${{ vars.HOSTFLY_SSH_HOST }}
+          PORT: ${{ vars.HOSTFLY_SSH_PORT }}
+          USERNAME: ${{ vars.HOSTFLY_SSH_USER }}
+          REMOTE_DIR: ${{ vars.HOSTFLY_REMOTE_DIR }}
         shell: bash
         run: |
           set -euo pipefail
@@ -142,7 +142,7 @@ jobs:
           rsync -az --delay-updates -e "$SSH_CMD" dist/sw.js "$DEST"
       - name: Проверка реально опубликованных файлов по HTTPS
         env:
-          SITE_URL: ${ vars.HOSTFLY_SITE_URL }
+          SITE_URL: ${{ vars.HOSTFLY_SITE_URL }}
         shell: bash
         run: |
           set -euo pipefail
